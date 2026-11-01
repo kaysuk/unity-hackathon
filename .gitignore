@@ -107,3 +107,13 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Team build/test output and local files
+/TestResults/
+/artifacts/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
