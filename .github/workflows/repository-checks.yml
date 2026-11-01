@@ -1,0 +1,33 @@
+name: Repository checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source and LFS objects
+        uses: actions/checkout@v7.0.0
+        with:
+          lfs: true
+          persist-credentials: false
+
+      - name: Check repository rules
+        run: python3 scripts/check_repository.py
+
+      - name: Verify LFS objects and pointers
+        run: git lfs fsck
