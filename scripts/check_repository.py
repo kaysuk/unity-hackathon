@@ -1,5 +1,6 @@
 """Repository checks only; Unity and gameplay tests are separate CI jobs."""
 
+import json
 import re
 import subprocess
 import sys
@@ -19,6 +20,31 @@ required = {
 }
 for name in sorted(required - tracked):
     errors.append(f"Required file is not tracked: {name}")
+
+if any(name.startswith("Assets/") for name in tracked):
+    for name in ("Packages/manifest.json", "Packages/packages-lock.json",
+                 "ProjectSettings/ProjectVersion.txt"):
+        if name not in tracked:
+            errors.append(f"Unity project file is not tracked: {name}")
+    asset_paths = set()
+    for name in tracked:
+        if not name.startswith("Assets/"):
+            continue
+        path = Path(name)
+        if path.suffix != ".meta":
+            asset_paths.add(name)
+        for parent in path.parents:
+            if str(parent) in ("Assets", "."):
+                break
+            asset_paths.add(parent.as_posix())
+    for name in sorted(asset_paths):
+        if name + ".meta" not in tracked:
+            errors.append(f"Missing tracked Unity metadata: {name}.meta")
+    for name in ("Packages/manifest.json", "Packages/packages-lock.json"):
+        try:
+            json.loads((root / name).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            errors.append(f"Cannot parse {name}: {error}")
 
 for directory in (
     "Library", "Temp", "Obj", "Build", "Builds", "Logs", "UserSettings",

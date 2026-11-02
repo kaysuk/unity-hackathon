@@ -1,0 +1,5 @@
+{
+  "name": "Hackathon.EditModeTests",
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": ["Editor"]
+}
