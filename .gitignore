@@ -117,3 +117,7 @@ InitTestScene*.unity*
 !.env.example
 *.keystore
 *.jks
+
+# Machine-specific IDE settings generated during project import
+/.vscode/
+/.idea/
