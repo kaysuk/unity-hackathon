@@ -1,74 +1,80 @@
 # unity-hackathon
 
-Unity hackathon game. The initial URP scene is an environment smoke test;
-the game concept and final target platforms are not selected yet.
+Игра на Unity для хакатона. Начальная сцена URP используется для базовой
+проверки окружения; концепция игры и окончательные целевые платформы ещё не выбраны.
 
-## Development environment
+## Окружение разработки
 
-- Unity Editor **6000.6.7f1** on every development/build machine.
-- URP **17.6.0** and Unity Test Framework **1.8.0**.
-- Git and Git LFS; Python 3.9+ for repository/test scripts.
-- Open the repository root in Unity Hub (it contains `Assets`, `Packages`,
-  and `ProjectSettings`). Open `Assets/Scenes/SampleScene.unity` to inspect the scene.
-- `Force Text` serialization and `Visible Meta Files` are enabled.
-- Commit `Assets` with `.meta` files, `Packages` including its lock file,
-  and `ProjectSettings`. Do not commit `Library` or test reports.
+- Unity Editor **6000.6.7f1** на каждой машине для разработки и сборки.
+- URP **17.6.0** и Unity Test Framework **1.8.0**.
+- Git и Git LFS; Python 3.9+ для скриптов проверки репозитория и запуска тестов.
+- В Unity Hub открывайте корень репозитория: в нём находятся `Assets`, `Packages`
+  и `ProjectSettings`. Для просмотра стартовой сцены откройте
+  `Assets/Scenes/SampleScene.unity`.
+- Включены сериализация `Force Text` и режим `Visible Meta Files`.
+- Добавляйте в Git `Assets` вместе с `.meta`, `Packages` вместе с файлом фиксации
+  зависимостей и `ProjectSettings`. Не добавляйте `Library` и отчёты тестов.
 
-Fedora is used for this initial local verification but is not an officially
-supported Unity Editor distribution. The Macs must use the same full Editor
-version. No Windows/Android player build or cross-platform runtime test has
-been completed by this initial setup.
+Первичная локальная проверка выполнена на Fedora, которая не входит в список
+официально поддерживаемых дистрибутивов Unity Editor. На Mac должна использоваться
+та же полная версия редактора. На этом этапе сборки приложений для Windows/Android
+и проверка их работы на разных платформах не выполнялись.
 
-## Repository checks
+## Проверки репозитория
 
-Stage the intended files, then run from the repository root:
+Добавьте предназначенные для коммита файлы в индекс Git через `git add`,
+затем выполните из корня репозитория:
 
 ```sh
 python3 scripts/check_repository.py
 git lfs fsck
 ```
 
-GitHub Actions runs these checks on pull requests and pushes to `main`.
+GitHub Actions выполняет эти проверки для pull request в `main` и при push в `main`.
 
-## Unity tests
+## Unity-тесты
 
-Close this project's Unity Editor before invoking batch-mode tests:
+Перед запуском тестов в пакетном режиме закройте редактор Unity с этим проектом:
 
 ```sh
 python3 scripts/run_unity_tests.py
 ```
 
-The script finds the pinned Editor in standard Unity Hub locations on Linux,
-macOS, and Windows. For a custom location:
+Скрипт ищет редактор закреплённой версии в стандартных каталогах Unity Hub
+на Linux, macOS и Windows. Если редактор установлен в другом месте:
 
 ```sh
 python3 scripts/run_unity_tests.py --editor /absolute/path/to/Unity
 ```
 
-Use `--platform EditMode` or `--platform PlayMode` to run one suite.
-By default the graphics device is disabled; `--graphics` enables it on a
-machine with a working display/graphics setup. Headless success does not
-validate rendering, touch input, or performance on target devices.
+Для запуска одной группы используйте `--platform EditMode` или `--platform PlayMode`.
+По умолчанию графическое устройство отключено. Параметр `--graphics` включает его
+на машине с работающим графическим окружением. Успешный запуск без графики
+не подтверждает правильность рендеринга, сенсорного ввода или производительность
+на целевых устройствах.
 
-- **EditMode:** pinned Editor version, enabled build scenes, Git-compatible
-  serialization, and the URP pipeline resolved for the active quality level.
-- **PlayMode:** the first build scene loads, has an active camera, and has
-  no missing scripts or unexpected errors.
-- Results: `TestResults/EditMode.xml`, `TestResults/PlayMode.xml`, and logs.
-- A nonzero Editor exit, missing XML, failed tests, or no passed tests makes
-  the command fail. Old XML is removed before each run.
+- **EditMode:** версия редактора, включённые сцены сборки, настройки сериализации
+  для работы с Git и назначение URP для активного уровня качества.
+- **PlayMode:** загрузка первой сцены сборки, наличие активной камеры,
+  отсутствие потерянных скриптов и неожиданных ошибок.
+- Результаты: `TestResults/EditMode.xml`, `TestResults/PlayMode.xml` и логи.
+- Ненулевой код завершения редактора, отсутствие XML, провал тестов или отсутствие
+  успешно выполненных тестов приводят к ошибке команды. Старый XML удаляется
+  перед каждым запуском соответствующей группы.
 
-### Verification and launcher limitation
+### Результаты проверки и ограничение скрипта запуска
 
-On Fedora with Unity 6000.6.7f1, direct headless Editor runs passed all four
-EditMode tests and the one PlayMode test. No target-player or visual checks
-were performed. In the restricted automation environment, launching Unity as
-Python's child process exited with SIGKILL before tests; the Python convenience
-command has therefore **not** been verified end to end in that environment.
-Its result-validation logic was checked against passing, failing, empty,
-malformed, missing/stale reports and a nonzero Editor exit.
+На Fedora с Unity 6000.6.7f1 при прямом запуске редактора без графики успешно
+прошли четыре EditMode-теста и один PlayMode-тест. Проверки собранных приложений
+на целевых платформах и визуальные проверки не выполнялись. В ограниченной среде
+автоматизации запуск Unity дочерним процессом Python завершался сигналом `SIGKILL`
+до выполнения тестов. Поэтому полный цикл запуска через Python в этой среде
+**не подтверждён**. Логика проверки результатов скрипта проверена на успешных,
+проваленных, пустых, повреждённых, отсутствующих и устаревших отчётах,
+а также при ненулевом коде завершения редактора.
 
-For a direct run from the repository root on Fedora (close the project's Editor first):
+Для прямого запуска из корня репозитория на Fedora сначала закройте редактор
+с этим проектом, затем выполните:
 
 ```sh
 "$HOME/Unity/Hub/Editor/6000.6.7f1/Editor/Unity" \
@@ -83,24 +89,28 @@ For a direct run from the repository root on Fedora (close the project's Editor 
   -logFile "$PWD/TestResults/PlayMode.log"
 ```
 
-Adapt the executable and project paths on other machines. Do not add `-quit`:
-the Test Framework exits after writing its results. Remove old XML reports
-before a manual run and check both the process exit code and the new report.
-Alternatively, open **Window > General > Test Runner** in the Editor and run
-both the EditMode and PlayMode tabs.
+На других машинах измените пути к редактору и проекту. Не добавляйте `-quit`:
+Test Framework завершает процесс после записи результатов. Перед ручным запуском
+удалите старые XML-отчёты, а после запуска проверьте и код завершения процесса,
+и новый отчёт. Альтернативный способ: откройте в редакторе
+**Window > General > Test Runner** и запустите тесты на обеих вкладках —
+EditMode и PlayMode.
 
-Cached assembly reload also stalled in this environment. With Unity closed,
-moving `Library/ScriptAssemblies` to an ignored backup under `artifacts/` forced
-recompilation and allowed direct runs to complete. The original `Library`
-and later script-cache backups remain in `artifacts/`; these are local,
-regenerable caches, not project source. The underlying cause is not established.
+В этой среде также наблюдалось зависание при загрузке закэшированных сборок.
+Перенос `Library/ScriptAssemblies` в игнорируемую резервную папку внутри `artifacts/`
+при закрытом Unity вызывал повторную компиляцию и позволял завершить прямые запуски.
+Исходный `Library` и последующие резервные копии кэша сборок сохранены локально
+в `artifacts/`. Это восстанавливаемые кэши, а не исходники проекта.
+Причина проблемы не установлена.
 
-These are real project smoke tests, not gameplay or multiplayer coverage.
-Unity tests currently run locally. The GitHub workflow only runs repository
-checks until a licensed Unity runner is configured in the next setup step.
+Это базовые проверки работоспособности проекта, а не тесты геймплея или мультиплеера.
+Unity-тесты пока запускаются локально. Workflow GitHub выполняет только проверки
+репозитория; для автоматического запуска Unity-тестов предстоит настроить runner
+с редактором Unity и действующей лицензией.
 
-## Planned build targets
+## Планируемые целевые сборки
 
-Windows x64 (initially Mono), Android ARM64 (IL2CPP), and Linux x86-64
-Dedicated Server. Build modules, profiles, automation, and device validation
-are separate setup steps; listing these targets does not mean they are ready.
+Windows x64 (первоначально Mono), Android ARM64 (IL2CPP) и Linux x86-64
+Dedicated Server. Установка модулей сборки, настройка профилей, автоматизация
+и проверки на устройствах — отдельные этапы. Наличие платформ в этом списке
+не означает, что сборки для них уже готовы.
