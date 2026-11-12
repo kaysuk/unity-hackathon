@@ -19,3 +19,11 @@
 *.wav filter=lfs diff=lfs merge=lfs -text
 
 # Do not put every .asset file in LFS: many are Unity text assets.
+
+# Binary sources and textures from third-party art packs.
+Assets/ThirdParty/**/*.bin filter=lfs diff=lfs merge=lfs -text
+Assets/ThirdParty/**/*.glb filter=lfs diff=lfs merge=lfs -text
+Assets/ThirdParty/**/*.hdr filter=lfs diff=lfs merge=lfs -text
+Assets/ThirdParty/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+Assets/ThirdParty/**/*.png filter=lfs diff=lfs merge=lfs -text
+Assets/ThirdParty/**/*.stl filter=lfs diff=lfs merge=lfs -text
