@@ -43,3 +43,4 @@ WASD — движение, мышь — взгляд, Shift — бег, E — в
 - Этап 1: `Temple 1/6: stone materials and candlelit atmosphere`.
 - Этап 2: `Temple 2/6: furnish six chambers and place engraved floor signs`.
 - Этап 3: `Temple 3/6: dress sacrificial chamber with altar chains and gore`.
+- Этап 4: `Temple 4/6: furnish occult store and demon cube artifact`.
