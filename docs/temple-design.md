@@ -41,3 +41,4 @@ WASD — движение, мышь — взгляд, Shift — бег, E — в
 ## Коммиты
 
 - Этап 1: `Temple 1/6: stone materials and candlelit atmosphere`.
+- Этап 2: `Temple 2/6: furnish six chambers and place engraved floor signs`.
