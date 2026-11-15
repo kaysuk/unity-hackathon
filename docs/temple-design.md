@@ -45,3 +45,4 @@ WASD — движение, мышь — взгляд, Shift — бег, E — в
 - Этап 3: `Temple 3/6: dress sacrificial chamber with altar chains and gore`.
 - Этап 4: `Temple 4/6: furnish occult store and demon cube artifact`.
 - Этап 5: `Temple 5/6: build hidden library and secure chest`.
+- Этап 6: `Temple 6/6: implement doors puzzles documents and playable walkthrough`.
