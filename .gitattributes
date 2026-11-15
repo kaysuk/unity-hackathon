@@ -27,3 +27,6 @@ Assets/ThirdParty/**/*.hdr filter=lfs diff=lfs merge=lfs -text
 Assets/ThirdParty/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 Assets/ThirdParty/**/*.png filter=lfs diff=lfs merge=lfs -text
 Assets/ThirdParty/**/*.stl filter=lfs diff=lfs merge=lfs -text
+
+# Arx legacy bitmap textures.
+Assets/ThirdParty/Arx/**/*.bmp filter=lfs diff=lfs merge=lfs -text

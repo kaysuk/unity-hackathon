@@ -1,0 +1,1154 @@
+[
+  {
+    "texture": "Blood/Particle_Originals/big_bloodpouf.bmp",
+    "source": "graph/particles/big_bloodpouf.bmp",
+    "derived": false,
+    "sha256": "d773aaeb062e81ec93139d86943c934c439cb133ec89448f104fadeeaf207810"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood01.bmp",
+    "source": "graph/particles/blood01.bmp",
+    "derived": false,
+    "sha256": "3013a1829c1d575a5674933add5c68fa8537e5022e22017511fd3a7e5fda71f3"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_0001.bmp",
+    "source": "graph/particles/blood_0001.bmp",
+    "derived": false,
+    "sha256": "33bd3eb18e98dc16b1f44b55f1f4f018234c5847724571fb65198050f6f6da1d"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_0002.bmp",
+    "source": "graph/particles/blood_0002.bmp",
+    "derived": false,
+    "sha256": "c5ec7796b98c2a9a6162938b25033e3af2faf651d8dda8bdb533d362e352a604"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_0003.bmp",
+    "source": "graph/particles/blood_0003.bmp",
+    "derived": false,
+    "sha256": "5fbe6e4db886735a72bfb439bc954ec89eb2f6730243e6344a0a98dc920f72da"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_0004.bmp",
+    "source": "graph/particles/blood_0004.bmp",
+    "derived": false,
+    "sha256": "7f3d5b72063ed1b87989110ead56d475061d6d22e745b80599a3160884362733"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_0005.bmp",
+    "source": "graph/particles/blood_0005.bmp",
+    "derived": false,
+    "sha256": "ba0211ae896ff067d40730cdfa829482d9f29079a8a655cfb30bb84ab334755a"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_drops.bmp",
+    "source": "graph/particles/blood_drops.bmp",
+    "derived": false,
+    "sha256": "ba0211ae896ff067d40730cdfa829482d9f29079a8a655cfb30bb84ab334755a"
+  },
+  {
+    "texture": "Blood/Particle_Originals/blood_splatter.bmp",
+    "source": "graph/particles/blood_splatter.bmp",
+    "derived": false,
+    "sha256": "a807b0cb414a8aa2f168bc3919649f2eddcf92731314305e6986be03361128bc"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood.bmp",
+    "source": "graph/particles/new_blood.bmp",
+    "derived": false,
+    "sha256": "7b15f54afbd4393a13f23c228b5724f48226cb99463f1cd98b6b2a33705d529d"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood2.bmp",
+    "source": "graph/particles/new_blood2.bmp",
+    "derived": false,
+    "sha256": "9ae1516018731e778a3ca212e5661180f8aea9da0cd06ee7679386b14b24d7a7"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood_splat1.bmp",
+    "source": "graph/particles/new_blood_splat1.bmp",
+    "derived": false,
+    "sha256": "22a17cea352ebc32f235c5e6e6642982a0cbb1c706a9f846c3e26b1de3957f6c"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood_splat2.bmp",
+    "source": "graph/particles/new_blood_splat2.bmp",
+    "derived": false,
+    "sha256": "3a5065aac66cf1b6c17d4b7662b00e6428a35cafb6ec0591bfe35adf56a4304c"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood_splat3.bmp",
+    "source": "graph/particles/new_blood_splat3.bmp",
+    "derived": false,
+    "sha256": "8242a7751af6b9be06fd11f8985f86371d421166f44212f4cf777a528bdfa215"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood_splat4.bmp",
+    "source": "graph/particles/new_blood_splat4.bmp",
+    "derived": false,
+    "sha256": "18c95abd1f63ddfacbed441b8848743a8fe3318859f1abcf7775d6ec0c30cf96"
+  },
+  {
+    "texture": "Blood/Particle_Originals/new_blood_splat5.bmp",
+    "source": "graph/particles/new_blood_splat5.bmp",
+    "derived": false,
+    "sha256": "a13775004f2daa0d9747360571c1c335d87b061f772b6cefe6bd6098f659459b"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[soil]_human_blood01.bmp",
+    "source": "graph/obj3d/textures/[soil]_human_blood01.bmp",
+    "derived": false,
+    "sha256": "78779ed0eaa1ff5a897a8abc883d90e37f863bc9a9c93396e67b91d90e0b4b37"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[soil]_human_blood02.bmp",
+    "source": "graph/obj3d/textures/[soil]_human_blood02.bmp",
+    "derived": false,
+    "sha256": "24405f9d190d937958203162cffdb92953b7cfd7f806c019f2a8e63cff30ec67"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[soil]_human_blood03.bmp",
+    "source": "graph/obj3d/textures/[soil]_human_blood03.bmp",
+    "derived": false,
+    "sha256": "893b3bca6783521b23ff254ef832d7c3e247a4841853add8fd19fc15c19e00ec"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[soil]_human_blood04.bmp",
+    "source": "graph/obj3d/textures/[soil]_human_blood04.bmp",
+    "derived": false,
+    "sha256": "765b172b15601a24986cff38f1cee9e74124ed6f63fa44efe84ad19be789af41"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[soil]_human_bloody_ground1.bmp",
+    "source": "graph/obj3d/textures/[soil]_human_bloody_ground1.bmp",
+    "derived": false,
+    "sha256": "4f44e6969448610944858819f37876ab2788436833a20522c915295a03b99206"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_blood_akbaa.bmp",
+    "source": "graph/obj3d/textures/[stone]_blood_akbaa.bmp",
+    "derived": false,
+    "sha256": "87bb09a18aee313adf94a7861feee9980f872b24de6ae02a3e8e4c0a508d4b94"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood01.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood01.bmp",
+    "derived": false,
+    "sha256": "c15b2ba4caeff2a158f10fffebb23549d9faf69e9c4103938d81b0c724c38c86"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood02.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood02.bmp",
+    "derived": false,
+    "sha256": "900112af99fee5db45357fa85440917d68058a8890256596dead1892a34fc628"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood03.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood03.bmp",
+    "derived": false,
+    "sha256": "a6855087f3bbb29d1e1af3847f8c628bdec246add84a3834464db2ba6c8bb6f4"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood04.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood04.bmp",
+    "derived": false,
+    "sha256": "4713b921c25364ce44af831db30e792d1555303ab30293ed21936115bfb224f4"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood05.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood05.bmp",
+    "derived": false,
+    "sha256": "54c6d0ba0096ba566b82f2d09a8fac9c8b2e1496a7ab99a3b4a395038adb2b3e"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood06.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood06.bmp",
+    "derived": false,
+    "sha256": "07a18d6b9e79b6924f9ef0be43024c48f65d5ed68dabf80cb49b683ce55e227a"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/[stone]_human_blood1.bmp",
+    "source": "graph/obj3d/textures/[stone]_human_blood1.bmp",
+    "derived": false,
+    "sha256": "0c66c5d1dc9112274d4a27b8f5b969e96c770736ac2e61e5716d599a9ea09170"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_b1_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_b1_nocol.jpg",
+    "derived": false,
+    "sha256": "f467e14551f075b36c23327b4cf86dcec1dc62a9476c653ef55ae5647a99a0f5"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_b2_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_b2_nocol.jpg",
+    "derived": false,
+    "sha256": "c3f5c28178871894b40b4835cd42feee599340ecc397a86edcc9eb88fc41a5f5"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_s1_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_s1_nocol.jpg",
+    "derived": false,
+    "sha256": "822c46741dd88bc4723c1c6f472be1fb7e4f6f4080b68eaa70e1e34eb9db90cb"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_s2_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_s2_nocol.jpg",
+    "derived": false,
+    "sha256": "81d53d48a6d563ca3513e0c75d85e7b32d795626f7213127c559834f4a2fb922"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_s3_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_s3_nocol.jpg",
+    "derived": false,
+    "sha256": "be9b79926da26003a07616fbc3db2cf860fdd376e7d9740d89df8381055e787e"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l1_temple_[blood]_s4_nocol.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[blood]_s4_nocol.jpg",
+    "derived": false,
+    "sha256": "f44971d9246f2de431f4c6b4a95332eb4c4de91a6137be41fe6f087e576837db"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l2_troll_[metal]_bloody01.jpg",
+    "source": "graph/obj3d/textures/l2_troll_[metal]_bloody01.jpg",
+    "derived": false,
+    "sha256": "928b8a90ce65059e9de7d8ed507f4b209445874d4f94afec7bfbf56d8150e27a"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood01.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood01.bmp",
+    "derived": false,
+    "sha256": "385785dabc7f83710644dbc651e58674599b593838cde5296accfa9f759edcc8"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood02.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood02.bmp",
+    "derived": false,
+    "sha256": "cb37cb32ace732df94a53d2dfc7e4ff2682db47ec03e0d8f39c2265606eb5cb6"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood03.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood03.bmp",
+    "derived": false,
+    "sha256": "62c617ae90ed08d136df9b48b9f023649227523468c620df8916f0541661a96f"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood04.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood04.bmp",
+    "derived": false,
+    "sha256": "6076a0002746bb0822ae139e2f1a8c3b52df3cc4de567f5542d8a2d4c6f286ab"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood05.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood05.bmp",
+    "derived": false,
+    "sha256": "e0836b54b394e2d838ba87c2f58ee20c068f95a5829689fd79f3d8255c2788f3"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood06.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood06.bmp",
+    "derived": false,
+    "sha256": "156bf119d9c0ceb56d3de679f6d2a04721cb80c25080b94ccd991bc6786f977a"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l3_human_[stone]_blood07.bmp",
+    "source": "graph/obj3d/textures/l3_human_[stone]_blood07.bmp",
+    "derived": false,
+    "sha256": "f1baa240ac76e35544a53ab783e3b6972c6700123bc4c2091fa0e67010e6bbd7"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood01.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood01.bmp",
+    "derived": false,
+    "sha256": "385785dabc7f83710644dbc651e58674599b593838cde5296accfa9f759edcc8"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood02.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood02.bmp",
+    "derived": false,
+    "sha256": "cb37cb32ace732df94a53d2dfc7e4ff2682db47ec03e0d8f39c2265606eb5cb6"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood03.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood03.bmp",
+    "derived": false,
+    "sha256": "62c617ae90ed08d136df9b48b9f023649227523468c620df8916f0541661a96f"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood04.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood04.bmp",
+    "derived": false,
+    "sha256": "6076a0002746bb0822ae139e2f1a8c3b52df3cc4de567f5542d8a2d4c6f286ab"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood05.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood05.bmp",
+    "derived": false,
+    "sha256": "e0836b54b394e2d838ba87c2f58ee20c068f95a5829689fd79f3d8255c2788f3"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood06.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood06.bmp",
+    "derived": false,
+    "sha256": "156bf119d9c0ceb56d3de679f6d2a04721cb80c25080b94ccd991bc6786f977a"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_human_[stone]_blood07.bmp",
+    "source": "graph/obj3d/textures/l4_human_[stone]_blood07.bmp",
+    "derived": false,
+    "sha256": "f1baa240ac76e35544a53ab783e3b6972c6700123bc4c2091fa0e67010e6bbd7"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood01.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood01.bmp",
+    "derived": false,
+    "sha256": "734d2e1c574a9779e4175d0fabf3c27a122fb3dbdc7e5767b34d710c4f6239a0"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood02.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood02.bmp",
+    "derived": false,
+    "sha256": "1f36bcd88b953e715d0eaaaf24604e856ebec7e7afe3677affe3ed234f3e2152"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood03.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood03.bmp",
+    "derived": false,
+    "sha256": "ce9a56bae096717ff65c171a4b6f1befd4cc795c4339dceecc5e095d760e9412"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood04.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood04.bmp",
+    "derived": false,
+    "sha256": "747560a7155672941ec563ece4aef58e11a36e48b213608f2500b18998a57368"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood05.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood05.bmp",
+    "derived": false,
+    "sha256": "c3a9be96057bd34728a2a01e1bec642cd1ec2837bb5b207764491d1db2fd4497"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood06.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood06.bmp",
+    "derived": false,
+    "sha256": "5595ff8e829ee53a4801b782f927f05d36c4dafaf25d34f370d14a2f35a2852e"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l4_ylside_[stone]_blood07.bmp",
+    "source": "graph/obj3d/textures/l4_ylside_[stone]_blood07.bmp",
+    "derived": false,
+    "sha256": "3f04b2afb77b942e660acdbea21a3e40fb4eeaa4814823654a8cad2458a17636"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood01.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood01.bmp",
+    "derived": false,
+    "sha256": "854ae74b2a5fba023cbbb1fcd0613e755cd85daf6fd5e3f94ba1d029d504e87b"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood02.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood02.bmp",
+    "derived": false,
+    "sha256": "76fb4e9e5fb3ba3f13ee97323927b09b9e4bb60213a145c3edcfc619a931d026"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood03.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood03.bmp",
+    "derived": false,
+    "sha256": "72ee0af0167a18e1be0b6f402e4d67108ab77cfc2af4babae0455f13026da063"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood04.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood04.bmp",
+    "derived": false,
+    "sha256": "b65156ae3c03499708322af269bd2619730a75985c1736529fe1452d2e79eda3"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood05.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood05.bmp",
+    "derived": false,
+    "sha256": "895f8e0dc279c9dae0140b1b0c72a128e1f62966986c284e0cb0db499fed4603"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood06.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood06.bmp",
+    "derived": false,
+    "sha256": "1b277922b1c2acdcadc5ef5bc18874a54a340da5d8c50134c02fc018f2dc6d4b"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood07.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood07.bmp",
+    "derived": false,
+    "sha256": "60c45bad9aab8d19aaa6c9c08d7bcad9c13d1bd9cb4f13f30822f52d6be36cb5"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood08.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood08.bmp",
+    "derived": false,
+    "sha256": "9f36cd833523b3559dbc76b958d9cd20791c9e8ceb8dd1392f87e2aa15251d96"
+  },
+  {
+    "texture": "Blood/Surface_Tiles/l7_dwarf_[stone]_blood09.bmp",
+    "source": "graph/obj3d/textures/l7_dwarf_[stone]_blood09.bmp",
+    "derived": false,
+    "sha256": "0999f31c2b8858ac20dc27e29404fac040c78fc17ad58badd061df610832bf44"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood2_rgba.png",
+    "source": "graph/particles/new_blood2.bmp",
+    "derived": true,
+    "sha256": "8b9f50e3a54734c20359ea6ae8ab96261b303470dce7cd719ad31961cd32131b"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_rgba.png",
+    "source": "graph/particles/new_blood.bmp",
+    "derived": true,
+    "sha256": "b14dd1fbbfd60477faa9dbc37eb70b379148100633dd6cfbcdd1c52663d9cdc1"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_splat1_rgba.png",
+    "source": "graph/particles/new_blood_splat1.bmp",
+    "derived": true,
+    "sha256": "446007fbb9012a0c45a6486f4feeb1b30f44ed43fca9b98d1e77fd6fa376ea07"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_splat2_rgba.png",
+    "source": "graph/particles/new_blood_splat2.bmp",
+    "derived": true,
+    "sha256": "14643b24076ec3dccaa29c7264630d1735c80829f6a7569a88f5ad514c183976"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_splat3_rgba.png",
+    "source": "graph/particles/new_blood_splat3.bmp",
+    "derived": true,
+    "sha256": "6e9648693a7dadfa6998ef4ddfb0cb226a6983641f11bea48583fb6f09250be2"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_splat4_rgba.png",
+    "source": "graph/particles/new_blood_splat4.bmp",
+    "derived": true,
+    "sha256": "7c9f7e36c8ae90b0d369dfa5f1772c20893bafe56d92bc3f326dfd315a8d2b2d"
+  },
+  {
+    "texture": "Blood/Transparent_Overlays/new_blood_splat5_rgba.png",
+    "source": "graph/particles/new_blood_splat5.bmp",
+    "derived": true,
+    "sha256": "d79fc05786cf426f8e22d502ae34a4717b3679f3f45e0a651c2305affec35881"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh01.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh01.jpg",
+    "derived": false,
+    "sha256": "d57454eb7183ca3d6c6f71537a26aaf63100f57de3ab0ab19bd8bc6df0769481"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh02.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh02.jpg",
+    "derived": false,
+    "sha256": "b5a057d22a7a9f03d740b0251aea54f12b3028c52f39d85d3b5edc9ed2a78d97"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh03.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh03.jpg",
+    "derived": false,
+    "sha256": "09d82ced6f0b10fe609754a0c8d6b6a163ec31eabaa9fcfb4aabb83f9f7d7e5b"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh04.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh04.jpg",
+    "derived": false,
+    "sha256": "9988fb00d97e9c06e57b703b8ac7f8cc01d03c20a8316010f7bfa76609930a92"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh05.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh05.jpg",
+    "derived": false,
+    "sha256": "ccca076dc748f0bb5001e529f81972e6bafcac65b2ec7a96972386d69d800d19"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_flesh06.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_flesh06.jpg",
+    "derived": false,
+    "sha256": "dd44f2eeeadb2706a1da54db0a0213826bf48165790f6eafe091937f8a199367"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_muscle01.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_muscle01.jpg",
+    "derived": false,
+    "sha256": "49b4662a42e333b3e62ae72f686f6d6d307cfe4275532cffacbc34aec1421eb1"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_muscle02.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_muscle02.jpg",
+    "derived": false,
+    "sha256": "f61410364397eb005cef9cbb14c809c225d51c61064ca9486beef47329e4e936"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_muscle02_[nocol].jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_muscle02_[nocol].jpg",
+    "derived": false,
+    "sha256": "f61410364397eb005cef9cbb14c809c225d51c61064ca9486beef47329e4e936"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_pieces01.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_pieces01.jpg",
+    "derived": false,
+    "sha256": "09a08f9f752e9a973cb9c871c5730b68d73b39c3398eb509122d78d54c0f7799"
+  },
+  {
+    "texture": "Flesh_And_Meat/l1_temple_[flesh]_pieces02.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[flesh]_pieces02.jpg",
+    "derived": false,
+    "sha256": "7d1435a069eab00db77dca45ce8e810f2cdb2b0bccbde5cb1c0cf0951bbd83e0"
+  },
+  {
+    "texture": "Flesh_And_Meat/l2_troll_[flesh]_meat01.jpg",
+    "source": "graph/obj3d/textures/l2_troll_[flesh]_meat01.jpg",
+    "derived": false,
+    "sha256": "b1835dcfeb2fe79f909f6ed83557b863f5637c6a15b2170237b22df91a9f018e"
+  },
+  {
+    "texture": "Flesh_And_Meat/npc_gore.jpg",
+    "source": "graph/obj3d/textures/npc_gore.jpg",
+    "derived": false,
+    "sha256": "163d37681a66ea047a001ca622317ee2c5cb064f6eb8153624633cc03193b59a"
+  },
+  {
+    "texture": "Furniture/Books/[leather]_book1.jpg",
+    "source": "graph/obj3d/textures/[leather]_book1.jpg",
+    "derived": false,
+    "sha256": "6ea1319de7775bd0620f8a0e33d8e6d4cf7cb24bbe45e8ed40edb56a715ffe22"
+  },
+  {
+    "texture": "Furniture/Books/item_book1.jpg",
+    "source": "graph/obj3d/textures/item_book1.jpg",
+    "derived": false,
+    "sha256": "f8fa04dd8635ee8854a41e901da1b9a29fda8cb7369272dd1a14f11397b23e77"
+  },
+  {
+    "texture": "Furniture/Books/item_book2.jpg",
+    "source": "graph/obj3d/textures/item_book2.jpg",
+    "derived": false,
+    "sha256": "4fbaab0fee0bf736e8783faa17032b2f8fadbad9efd941d83ab389ddd3481f26"
+  },
+  {
+    "texture": "Furniture/Books/item_book3.jpg",
+    "source": "graph/obj3d/textures/item_book3.jpg",
+    "derived": false,
+    "sha256": "fb090c95d7aa1278ec126559fa418fc47506fc1ab0a1d7b8a919bbee7b9e98c7"
+  },
+  {
+    "texture": "Furniture/Books/item_book4.jpg",
+    "source": "graph/obj3d/textures/item_book4.jpg",
+    "derived": false,
+    "sha256": "0f8afda6aa015854527c2a794901730821b71747a8af077f42a4e5dfeed426fb"
+  },
+  {
+    "texture": "Furniture/Books/item_book5.jpg",
+    "source": "graph/obj3d/textures/item_book5.jpg",
+    "derived": false,
+    "sha256": "40eb6559377b4be7c98bf49cf5eeeb396d3aaa77f82126db3a77676f739b7baf"
+  },
+  {
+    "texture": "Furniture/Books/item_book6.jpg",
+    "source": "graph/obj3d/textures/item_book6.jpg",
+    "derived": false,
+    "sha256": "7eae93e0fcf447baa51eea36f00a98cc8f5c033eb740300ec15cf98fa1414281"
+  },
+  {
+    "texture": "Furniture/Books/item_book7.jpg",
+    "source": "graph/obj3d/textures/item_book7.jpg",
+    "derived": false,
+    "sha256": "ccdaa16700a0d498d66be8f90028d631edb551055e3ddf799b9b3884d9e56922"
+  },
+  {
+    "texture": "Furniture/Bookshelves/[wood]_human_ornament.jpg",
+    "source": "graph/obj3d/textures/[wood]_human_ornament.jpg",
+    "derived": false,
+    "sha256": "04eef8def1086e37f79a8597e49d924721e686774a7433b2870f053a4cedec1d"
+  },
+  {
+    "texture": "Furniture/Bookshelves/[wood]_human_plank.jpg",
+    "source": "graph/obj3d/textures/[wood]_human_plank.jpg",
+    "derived": false,
+    "sha256": "26e8b9274cba0f29bd2d9102cd1e59ad91b5ed9555394b5f9b0bbe7e382bc153"
+  },
+  {
+    "texture": "Furniture/Bookshelves/l5_snake_[stone]_biblio01.jpg",
+    "source": "graph/obj3d/textures/l5_snake_[stone]_biblio01.jpg",
+    "derived": false,
+    "sha256": "d90d83bce0de36b1159bc33d5b053a8e23c7d68cb24f16ce5110e42d468443c4"
+  },
+  {
+    "texture": "Furniture/Chests/[wood]_chest_blacksmith.jpg",
+    "source": "graph/obj3d/textures/[wood]_chest_blacksmith.jpg",
+    "derived": false,
+    "sha256": "a3107e149b07c6a5031b37e2b451966e068f95e7a016597793f13a29eae4366f"
+  },
+  {
+    "texture": "Furniture/Chests/[wood]_chest_blacksmith1.jpg",
+    "source": "graph/obj3d/textures/[wood]_chest_blacksmith1.jpg",
+    "derived": false,
+    "sha256": "08c527f605d324f66e953e6f526ad0a65edebdd251aa77f66f09efc3f16267d8"
+  },
+  {
+    "texture": "Furniture/Chests/fixinter_chest_metal1.jpg",
+    "source": "graph/obj3d/textures/fixinter_chest_metal1.jpg",
+    "derived": false,
+    "sha256": "83d6f3b31cb19a507d4cafd1535a626b3db8ab7eabd4a38099ace0ffc69709f1"
+  },
+  {
+    "texture": "Furniture/Chests/fixinter_chest_metal2.jpg",
+    "source": "graph/obj3d/textures/fixinter_chest_metal2.jpg",
+    "derived": false,
+    "sha256": "0b9ddd9073a9ae44cf342942ac4aff12ca5278194348c9cc8bb52c3d25f506ec"
+  },
+  {
+    "texture": "Furniture/Chests/l4_ylside_[fabric]_safe01.jpg",
+    "source": "graph/obj3d/textures/l4_ylside_[fabric]_safe01.jpg",
+    "derived": false,
+    "sha256": "6582603a2a636ef532d3ca0cbeac3f1ac98779d07fd316f068359586e993cb1b"
+  },
+  {
+    "texture": "Furniture/Tables/[wood]_human_dirt_planks.jpg",
+    "source": "graph/obj3d/textures/[wood]_human_dirt_planks.jpg",
+    "derived": false,
+    "sha256": "3bb4015f337c74a831768e6b4b4e337591a7f4c43e7112ef0722d49d9ac9f182"
+  },
+  {
+    "texture": "Furniture/Tables/[wood]_human_plank.jpg",
+    "source": "graph/obj3d/textures/[wood]_human_plank.jpg",
+    "derived": false,
+    "sha256": "26e8b9274cba0f29bd2d9102cd1e59ad91b5ed9555394b5f9b0bbe7e382bc153"
+  },
+  {
+    "texture": "Furniture/Tables/[wood]_table.jpg",
+    "source": "graph/obj3d/textures/[wood]_table.jpg",
+    "derived": false,
+    "sha256": "8c7482c670de33e247171dc1a2e58af75430a9b9c943353e7fdcd88523c77805"
+  },
+  {
+    "texture": "Furniture/Tables/table 1.jpg",
+    "source": "graph/obj3d/textures/table 1.jpg",
+    "derived": false,
+    "sha256": "cfabc6976139c8a24db0359e1c62c147b89cc9540ac2ee1e2f03ed64332cb70e"
+  },
+  {
+    "texture": "Furniture/Tables/table.jpg",
+    "source": "graph/obj3d/textures/table.jpg",
+    "derived": false,
+    "sha256": "9616af7599f8ab9e4a6008f25d69fbd4ccb8b21cd52bc9471294f0729c03b301"
+  },
+  {
+    "texture": "Lighting/Fixtures/[metal]_human_candle_church01.jpg",
+    "source": "graph/obj3d/textures/[metal]_human_candle_church01.jpg",
+    "derived": false,
+    "sha256": "7888669a7235d3dbf588f1ae3664b574a19152da6dda5410ee8739b3d50bf2ad"
+  },
+  {
+    "texture": "Lighting/Fixtures/[metal]_human_candle_church02.jpg",
+    "source": "graph/obj3d/textures/[metal]_human_candle_church02.jpg",
+    "derived": false,
+    "sha256": "36bce8975b99d8ea16ef32bb25690ce03e6a03b6182e055b1ff06ae7a410fb1a"
+  },
+  {
+    "texture": "Lighting/Fixtures/[stone]_fire_torch01.bmp",
+    "source": "graph/obj3d/textures/[stone]_fire_torch01.bmp",
+    "derived": false,
+    "sha256": "1479cc759b3f837981b04c365cc6005a807ef4bcbf5331f49853e9cdb5a9a93d"
+  },
+  {
+    "texture": "Lighting/Fixtures/item_candle.bmp",
+    "source": "graph/obj3d/textures/item_candle.bmp",
+    "derived": false,
+    "sha256": "5a60d0c1e84557145ee3b60457f91ee90e6b7ca5f6438a4c2c4f4e239264a22e"
+  },
+  {
+    "texture": "Lighting/Fixtures/item_torch.jpg",
+    "source": "graph/obj3d/textures/item_torch.jpg",
+    "derived": false,
+    "sha256": "7fc20cc61422971f2249f7b26937a3c787e84b751ed3802c76d9e4c425d0c48e"
+  },
+  {
+    "texture": "Lighting/Fixtures/item_torch2.jpg",
+    "source": "graph/obj3d/textures/item_torch2.jpg",
+    "derived": false,
+    "sha256": "003c6985546196af776a5c61fb861bcb1d793fe8cd113a67c19421c8eeb482b7"
+  },
+  {
+    "texture": "Lighting/Fixtures/l4_ylside_[bone]_candl01.jpg",
+    "source": "graph/obj3d/textures/l4_ylside_[bone]_candl01.jpg",
+    "derived": false,
+    "sha256": "d7696d87c9a4fb8e5d3ab2593cb25fe7bdfb7be649ef112732e90eb1f5d4d438"
+  },
+  {
+    "texture": "Lighting/Flame_Masks/fire.bmp",
+    "source": "graph/particles/fire.bmp",
+    "derived": false,
+    "sha256": "1e78fb2f9e70c704c184db28cf7a82150d2e3b53e586b497767675856f9b1201"
+  },
+  {
+    "texture": "Lighting/Flame_Masks/fire2.bmp",
+    "source": "graph/particles/fire2.bmp",
+    "derived": false,
+    "sha256": "9986a23ca805a613718a24d7d6f127bc40004245eaeb42117ab42cec1a6ab3db"
+  },
+  {
+    "texture": "Lighting/Flame_Masks/fire_little.bmp",
+    "source": "graph/particles/fire_little.bmp",
+    "derived": false,
+    "sha256": "81b2504fa4806161e5fc25b9ae92c931cb0a6cb6de8f058a3e66a5a429f7b94f"
+  },
+  {
+    "texture": "Metal/Grates/[metal]_dwarf_grid.bmp",
+    "source": "graph/obj3d/textures/[metal]_dwarf_grid.bmp",
+    "derived": false,
+    "sha256": "8dfb0026e2fafa2064ad18256334f5c16e9a3fa64b0b2ef3288585bea3536b8d"
+  },
+  {
+    "texture": "Metal/Grates/[stone]_dwarf_grid.bmp",
+    "source": "graph/obj3d/textures/[stone]_dwarf_grid.bmp",
+    "derived": false,
+    "sha256": "8dfb0026e2fafa2064ad18256334f5c16e9a3fa64b0b2ef3288585bea3536b8d"
+  },
+  {
+    "texture": "Metal/Grates/l1_prison_(rusty)_gridl02.jpg",
+    "source": "graph/obj3d/textures/l1_prison_(rusty)_gridl02.jpg",
+    "derived": false,
+    "sha256": "fbe0e76cf0b0bd8737b5545a24567a593381dac7f79ba753e4266792200ed924"
+  },
+  {
+    "texture": "Metal/Grates/l1_prison_(stone)_gridl02.bmp",
+    "source": "graph/obj3d/textures/l1_prison_(stone)_gridl02.bmp",
+    "derived": false,
+    "sha256": "ea3299736433c901d7d92d94f16ba98a11a8b7b6da84e17074793234521fa733"
+  },
+  {
+    "texture": "Metal/Grates/l1_prison_[rusty]_grid01.bmp",
+    "source": "graph/obj3d/textures/l1_prison_[rusty]_grid01.bmp",
+    "derived": false,
+    "sha256": "398a42dbc116cfa8c0a3ac68219f67b36e099d696dfaf58da86f30aa3ba65def"
+  },
+  {
+    "texture": "Metal/Levers/fixinter_barrel.jpg",
+    "source": "graph/obj3d/textures/fixinter_barrel.jpg",
+    "derived": false,
+    "sha256": "3b1308e1b1c672a5cef4351e93a2f651db18df992d75cb0627458bfbb8b5a402"
+  },
+  {
+    "texture": "Metal/Levers/fixinter_bell.bmp",
+    "source": "graph/obj3d/textures/fixinter_bell.bmp",
+    "derived": false,
+    "sha256": "af8198c3be660a29288610b7ca9e37bfba784d907a140b7ef0d39b30a9044b3b"
+  },
+  {
+    "texture": "Metal/Levers/l3_dissid_[iron]_wall01.jpg",
+    "source": "graph/obj3d/textures/l3_dissid_[iron]_wall01.jpg",
+    "derived": false,
+    "sha256": "c7502d0b6706073875514d83ea6b94efb8d5799bb39c73bbc5790f9182d7e430"
+  },
+  {
+    "texture": "Metal/Levers/l3_dissid_[wood]_construct05.jpg",
+    "source": "graph/obj3d/textures/l3_dissid_[wood]_construct05.jpg",
+    "derived": false,
+    "sha256": "436587945da06117a71c77ea369bb166a2d074c8f6309de671e4991a8f2b10a7"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone01.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone01.jpg",
+    "derived": false,
+    "sha256": "3723b3c66660d4a7212e2edacd4df5975fac8547d77e3e0124f97df615f0dc6a"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone02.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone02.jpg",
+    "derived": false,
+    "sha256": "2ff572c54d95c8b80bcf3d086d4dc355f7c0e1c3d19a05838a00f18baafed220"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone03.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone03.jpg",
+    "derived": false,
+    "sha256": "b488bfab96604f7aa87bb28da6ef4dd8324f0ea18b7f04586ccef41fcecbcefc"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone04.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone04.jpg",
+    "derived": false,
+    "sha256": "aa66275411bf244a72703896a6d06e0a80b17299163003997c42f93f9a11868b"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone05.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone05.jpg",
+    "derived": false,
+    "sha256": "02fcaaf463a802ee3f6e8f5509333de55552ee42c41ccf9161be5d0276cf3b94"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone06.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone06.jpg",
+    "derived": false,
+    "sha256": "c428852a159c8840116d6eb56aa5b3b717592c28b135b8888032d0bbf13a5691"
+  },
+  {
+    "texture": "Puzzle_Stones/item_puzzle_stone_back.jpg",
+    "source": "graph/obj3d/textures/item_puzzle_stone_back.jpg",
+    "derived": false,
+    "sha256": "b121489a5185670e645d151b6984c04fa02de58a80d337a3bb30269f76f18bb8"
+  },
+  {
+    "texture": "Runes/item_rune_aam.jpg",
+    "source": "graph/obj3d/textures/item_rune_aam.jpg",
+    "derived": false,
+    "sha256": "485c69e0ab7843d9be1e5974588d010daacbd352419ccdbc4092452031893285"
+  },
+  {
+    "texture": "Runes/item_rune_back.jpg",
+    "source": "graph/obj3d/textures/item_rune_back.jpg",
+    "derived": false,
+    "sha256": "34c16d8d68b1f10cd437c9d368dd81e764c95d3ed2f1ce7a3db274a454e9d1f1"
+  },
+  {
+    "texture": "Runes/item_rune_cetrius.jpg",
+    "source": "graph/obj3d/textures/item_rune_cetrius.jpg",
+    "derived": false,
+    "sha256": "0fb0925ee610a91630bdde4ed34d621cdddcf14002fabc075f9b3afe727b2793"
+  },
+  {
+    "texture": "Runes/item_rune_comunicatum.jpg",
+    "source": "graph/obj3d/textures/item_rune_comunicatum.jpg",
+    "derived": false,
+    "sha256": "4eb5e244d871348b1cf4ea49f7da3caed9642df86d3056d8dae2796b0a30632c"
+  },
+  {
+    "texture": "Runes/item_rune_cosum.jpg",
+    "source": "graph/obj3d/textures/item_rune_cosum.jpg",
+    "derived": false,
+    "sha256": "708631ad37be00be3e20c80b0aeb0a3bb43c2c5444db508f541bf31475a0af73"
+  },
+  {
+    "texture": "Runes/item_rune_folgora.jpg",
+    "source": "graph/obj3d/textures/item_rune_folgora.jpg",
+    "derived": false,
+    "sha256": "68f3af97a88565cc03bd31b87a1ac9f949323297f835f4d07e2d20040f2a1b7a"
+  },
+  {
+    "texture": "Runes/item_rune_fridd.jpg",
+    "source": "graph/obj3d/textures/item_rune_fridd.jpg",
+    "derived": false,
+    "sha256": "eb23ee4a6cec517c420299db6065a0a36b1bda051f73d535a0cd7c9da53a6bdd"
+  },
+  {
+    "texture": "Runes/item_rune_kaom.jpg",
+    "source": "graph/obj3d/textures/item_rune_kaom.jpg",
+    "derived": false,
+    "sha256": "7c15e72f0470fcfb254d0cac48ff4513f84a0a0db86aec3cb56bf5637e25e99f"
+  },
+  {
+    "texture": "Runes/item_rune_mega.jpg",
+    "source": "graph/obj3d/textures/item_rune_mega.jpg",
+    "derived": false,
+    "sha256": "936ad0f73b513636130b73b40ecd5c0b18d835d1c01b262df716b9f6b68b1a1b"
+  },
+  {
+    "texture": "Runes/item_rune_morte.jpg",
+    "source": "graph/obj3d/textures/item_rune_morte.jpg",
+    "derived": false,
+    "sha256": "e5b72c5dce715623abe17fb0472b6e63a1c7bc569f68352365784515200cdb09"
+  },
+  {
+    "texture": "Runes/item_rune_movis.jpg",
+    "source": "graph/obj3d/textures/item_rune_movis.jpg",
+    "derived": false,
+    "sha256": "63b2f37a3e56db33feaaedcb49518e18b30796f7ec1897aa5c94b974578cb68a"
+  },
+  {
+    "texture": "Runes/item_rune_nhi.jpg",
+    "source": "graph/obj3d/textures/item_rune_nhi.jpg",
+    "derived": false,
+    "sha256": "f33b4671a15bc3b1bf9fd9a363ecb5503f13fa9b4cc592b13402af9fe2289a3e"
+  },
+  {
+    "texture": "Runes/item_rune_rhaa.jpg",
+    "source": "graph/obj3d/textures/item_rune_rhaa.jpg",
+    "derived": false,
+    "sha256": "18d3a59d227b92c56143d45918e7b48bee8000242a417a95ce9b5c3280fb56a0"
+  },
+  {
+    "texture": "Runes/item_rune_spacium.jpg",
+    "source": "graph/obj3d/textures/item_rune_spacium.jpg",
+    "derived": false,
+    "sha256": "52289947a93560dbec2321fbac4fc9a80af3a43cddcad714417c1344e1ddfee6"
+  },
+  {
+    "texture": "Runes/item_rune_stregum.jpg",
+    "source": "graph/obj3d/textures/item_rune_stregum.jpg",
+    "derived": false,
+    "sha256": "c2e76e3be400bc67e4c566f556d3be91afbeadf8c7140d35aef8931f6e6770b1"
+  },
+  {
+    "texture": "Runes/item_rune_taar.jpg",
+    "source": "graph/obj3d/textures/item_rune_taar.jpg",
+    "derived": false,
+    "sha256": "4d6cc4fa2ce284bb8e76f81bce10dbd59c9f8c7a5eae8db85b07eca03e7e57af"
+  },
+  {
+    "texture": "Runes/item_rune_tempus.jpg",
+    "source": "graph/obj3d/textures/item_rune_tempus.jpg",
+    "derived": false,
+    "sha256": "6d57ba3fa9c50b905c59ba4438a637b832ac1d1d857f6b0e31b516745455d533"
+  },
+  {
+    "texture": "Runes/item_rune_tera.jpg",
+    "source": "graph/obj3d/textures/item_rune_tera.jpg",
+    "derived": false,
+    "sha256": "65351c0bd9ce601ea1203767f849bbc4e8b5e347a8d168bea04844e27812d316"
+  },
+  {
+    "texture": "Runes/item_rune_vista.jpg",
+    "source": "graph/obj3d/textures/item_rune_vista.jpg",
+    "derived": false,
+    "sha256": "1a5044c028a9e3dba9c77d2e13c7845fb477037b8642c13b31a0d1f192d73ea7"
+  },
+  {
+    "texture": "Runes/item_rune_vitae.jpg",
+    "source": "graph/obj3d/textures/item_rune_vitae.jpg",
+    "derived": false,
+    "sha256": "9f77e5f42793f8b675ef0e4d03669d06f7bac5d5da8d05d7bd6ba6c29d8b97c9"
+  },
+  {
+    "texture": "Runes/item_rune_yok.jpg",
+    "source": "graph/obj3d/textures/item_rune_yok.jpg",
+    "derived": false,
+    "sha256": "40ca4247bcd9fd5184675414ce6535fe0ad1c04ea4b467f63c4f79783da036d7"
+  },
+  {
+    "texture": "Stone/Floors/[stone]_human_akbaa_paving1_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa_paving1_f.jpg",
+    "derived": false,
+    "sha256": "28fc31485176ce19d613abdc5ca9f08ccd45c0216575612abb8c50993ce6df19"
+  },
+  {
+    "texture": "Stone/Floors/[stone]_human_akbaa_paving_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa_paving_f.jpg",
+    "derived": false,
+    "sha256": "7b127f52f607a5937f4cc4dfca8db0df5bd2a472faddc50a732ad31dc2df0f5c"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground01.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground01.jpg",
+    "derived": false,
+    "sha256": "1986fcbc1d447be6a0a4b73c9a8e690d1baa00f7db3bb3633caa7b78fd1bcd10"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground02.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground02.jpg",
+    "derived": false,
+    "sha256": "4f01550ba367f03d12d11679b8a11bd6c287353c36f54c5484c8bcaeeaca046c"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground03.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground03.jpg",
+    "derived": false,
+    "sha256": "03f3d6014915c3a99c1a3ba638040e58127507895e892a658ebdd0663ec0b429"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground04.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground04.jpg",
+    "derived": false,
+    "sha256": "ffa526468dd91bd7e020f1b725f0125f223c20db4e3807104e0e13bb3b90d937"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground07.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground07.jpg",
+    "derived": false,
+    "sha256": "705efb397cd2c824780eeeba55783a483807dffce9b466d45aab24d5f10f843e"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground17.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground17.jpg",
+    "derived": false,
+    "sha256": "cb2d4b99760edac3347a8b866dc0fe8ea6c99572cce38a8f029e4177f545c0df"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground18.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground18.jpg",
+    "derived": false,
+    "sha256": "29a936965ffdd7b513f95119aeac76376d8b1482c7d60d9edd9c834ce7bd990d"
+  },
+  {
+    "texture": "Stone/Floors/l1_temple_[stone]_ground19.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_ground19.jpg",
+    "derived": false,
+    "sha256": "d5b38881793cb68e01e80f3823bd802e9a240a4d7aa0ed02d735556c96744c7a"
+  },
+  {
+    "texture": "Stone/Walls/[stone]_human_akbaa2_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa2_f.jpg",
+    "derived": false,
+    "sha256": "8a3925dbee8030a2e35adb57ca1cb180c2593d678c1a5085dc7fb39e4680b3e2"
+  },
+  {
+    "texture": "Stone/Walls/[stone]_human_akbaa3_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa3_f.jpg",
+    "derived": false,
+    "sha256": "6972a166abcd77978418da948fd6de8dcdc5e9c1b12093e3d45c0518cad2526b"
+  },
+  {
+    "texture": "Stone/Walls/[stone]_human_akbaa4_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa4_f.jpg",
+    "derived": false,
+    "sha256": "ba4f372473be3dbd0df90743ab9bbfb527eb499fa451acc743df073fa669d1b5"
+  },
+  {
+    "texture": "Stone/Walls/[stone]_human_akbaa5_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa5_f.jpg",
+    "derived": false,
+    "sha256": "760309172eaadbd081ee9ca334a27ae79bef351bcdad97f7d59e75b1af1786c5"
+  },
+  {
+    "texture": "Stone/Walls/l1_temple_[stone]_wall01.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall01.jpg",
+    "derived": false,
+    "sha256": "43c8a141ae4a7f60208e028fba98875bd2a54cf474afa4854a5c3f008430aed9"
+  },
+  {
+    "texture": "Stone/Walls/l1_temple_[stone]_wall02.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall02.jpg",
+    "derived": false,
+    "sha256": "2718786300a33df304ec862e5b6727850ae14518308a8c4e697a01cac9e80158"
+  },
+  {
+    "texture": "Stone/Walls/l1_temple_[stone]_wall03.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall03.jpg",
+    "derived": false,
+    "sha256": "0f88dc4357e92449d33a1a34630780873af3ea837be6b0497c1a1331829920f9"
+  },
+  {
+    "texture": "Stone/Walls/l1_temple_[stone]_wall08.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall08.jpg",
+    "derived": false,
+    "sha256": "ec97aa81c6f4b4a96bb63ce14e7ae4c434f0fef562740a47f758dae1a9889065"
+  },
+  {
+    "texture": "Symbols_And_Murals/[stone]_human_akbaa1_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa1_f.jpg",
+    "derived": false,
+    "sha256": "a25cc1ad405d4b35773e2e456282dee4667e92c70deeac8a579354f0c997daad"
+  },
+  {
+    "texture": "Symbols_And_Murals/[stone]_human_akbaa_pentacle_f.jpg",
+    "source": "graph/obj3d/textures/[stone]_human_akbaa_pentacle_f.jpg",
+    "derived": false,
+    "sha256": "8e4a254bbfa22c6d063af590093dce70532b199c8ed984d41a654f89d3726423"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_pentacle_blood.bmp",
+    "source": "graph/obj3d/textures/fixinter_pentacle_blood.bmp",
+    "derived": false,
+    "sha256": "f26be544319d208a154ed6a78b7c9e53626995e2cd0f0c5b4e29c4ef816d603a"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar01.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar01.jpg",
+    "derived": false,
+    "sha256": "701f321d1503cc8b3d1cb89ab9b1c24e5a467ecbd9b58ec3569fd351f1a7c3bf"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar02.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar02.jpg",
+    "derived": false,
+    "sha256": "f30fea1a2ab8e374820eb18dddcbd00f22682b306877d7ee742ec7b44c116cb5"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar03.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar03.jpg",
+    "derived": false,
+    "sha256": "d913ac6472674acb0a349826928c8991286c80ba0f0563a62b3b24a47422499c"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar04.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar04.jpg",
+    "derived": false,
+    "sha256": "d75d630f661fe968894a9ead7173cb7f390591c38974415d53042d372378ee65"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar05.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar05.jpg",
+    "derived": false,
+    "sha256": "e4ce41cfcad1fa935f3cb3a6c3f40a2a6874f1539abffad67ef4608c258838d7"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzlepillar06.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzlepillar06.jpg",
+    "derived": false,
+    "sha256": "b7a1a87eeb34f88492378c503be9a94cdca6238a6ea8fbafa4ff096b30180b09"
+  },
+  {
+    "texture": "Symbols_And_Murals/fixinter_puzzles.jpg",
+    "source": "graph/obj3d/textures/fixinter_puzzles.jpg",
+    "derived": false,
+    "sha256": "db6d21389f7e21436d681bbd1e8136f78ea5b7292f50221b37fab1c37d492615"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall09.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall09.jpg",
+    "derived": false,
+    "sha256": "4376e216d6a12ae35311c2d79dd1f76701a84f886e1e268894d5eaeac9a66279"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall10.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall10.jpg",
+    "derived": false,
+    "sha256": "e4b8006b3fe31d0258aa918113efaeaa41f393089cc5773b1c00bb5f1e0e9c55"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall11.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall11.jpg",
+    "derived": false,
+    "sha256": "1400bd1ac345032811338b5aa2061e67073adf9b575152370f726bffbe86c628"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall13.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall13.jpg",
+    "derived": false,
+    "sha256": "fb7aca24fbf5e18b91bfbb97e3a15bf65aeb1a6fec379f9af221c9f46770fe9e"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall14.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall14.jpg",
+    "derived": false,
+    "sha256": "8fc2794d000e28135eaebeea5b4a955a9839da6e717d7c5078e1465e02d33348"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall15.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall15.jpg",
+    "derived": false,
+    "sha256": "9dcba057b9fea41b2f405000cb8db82ebf36276f1821714e2648f47d19e89aa5"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall16.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall16.jpg",
+    "derived": false,
+    "sha256": "649b9f20146b95de5d59ee5a0bac887a579e1a5b76a0a5367167a0be9c71b0b5"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall23.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall23.jpg",
+    "derived": false,
+    "sha256": "29f340163dd5fdfeed490a8c98bf81564713d66b70da880452624ecb8bff8fcf"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall24.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall24.jpg",
+    "derived": false,
+    "sha256": "d793601a47a9cdb7b3eb3b6c7326dd6ae465e5b196b121e5949c47d175f82997"
+  },
+  {
+    "texture": "Symbols_And_Murals/l1_temple_[stone]_wall25.jpg",
+    "source": "graph/obj3d/textures/l1_temple_[stone]_wall25.jpg",
+    "derived": false,
+    "sha256": "b29b2f61451fed6636fa476a4e76d7c48cb2844aaba54f9cff5209d7e40a18c1"
+  }
+]
