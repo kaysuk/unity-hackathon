@@ -1,0 +1,31 @@
+Church surface textures — CC0
+
+Sandstone
+https://polyhaven.com/a/white_sandstone_bricks_03
+License: CC0
+
+Plaster
+https://polyhaven.com/a/beige_wall_001
+License: CC0
+
+Granite
+https://polyhaven.com/a/granite_tile_04
+License: CC0
+
+Oak
+https://polyhaven.com/a/fine_grained_wood
+License: CC0
+
+Cellar Stone
+https://polyhaven.com/a/old_stone_wall_02
+License: CC0
+
+Cellar Slabs
+https://polyhaven.com/a/monastery_stone_floor
+License: CC0
+
+Wool
+https://ambientcg.com/view?id=Carpet013
+License: CC0
+
+Linen Albedo: derived from Carpet013 (desaturated).

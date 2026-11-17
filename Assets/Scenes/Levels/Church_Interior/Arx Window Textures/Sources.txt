@@ -1,0 +1,3 @@
+Source: Arx Fatalis game assets, local arx_files/graph/obj3d/textures.
+Stained Glass.jpg — [glass]_human_stained_glass_window.jpg
+Diamond Glass.jpg — [glass]_windows1.jpg
