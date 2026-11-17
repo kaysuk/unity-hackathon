@@ -1,0 +1,13 @@
+Carpet 001
+Source: https://ambientcg.com/view?id=Carpet001
+License: Creative Commons CC0 1.0 Universal
+License details: https://docs.ambientcg.com/license/
+Resolution: 2048 x 2048 JPEG
+Normal convention: OpenGL (normalY positive); import Normal.jpg as Normal Map in Unity.
+Recommended visual repeat: 1 m; exact physical source scale not published on asset page.
+Use: Neutral grey office broadloom carpet. Tint slightly warm/dark blue-grey as needed. Do not use red Carpet013 across the whole office.
+
+Original map filenames (renamed only, no resampling or color changes):
+BaseColor.jpg <- Carpet001_2K-JPG_Color.jpg
+Normal.jpg <- Carpet001_2K-JPG_NormalGL.jpg
+Roughness.jpg <- Carpet001_2K-JPG_Roughness.jpg

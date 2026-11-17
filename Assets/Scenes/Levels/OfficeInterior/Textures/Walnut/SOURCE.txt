@@ -1,0 +1,13 @@
+Walnut Veneer
+Source: https://polyhaven.com/a/walnut_veneer
+License: Creative Commons CC0 1.0 Universal
+License details: https://polyhaven.com/license
+Resolution: 2048 x 2048 JPEG
+Normal convention: OpenGL (normalY positive); import Normal.jpg as Normal Map in Unity.
+1.8 m per texture tile (source physical scale).
+Use: Executive desk, cabinet faces, wall panels. Grain should follow long furniture axis.
+
+Original map filenames (renamed only, no resampling or color changes):
+BaseColor.jpg <- walnut_veneer_diff_2k.jpg
+Normal.jpg <- walnut_veneer_nor_gl_2k.jpg
+Roughness.jpg <- walnut_veneer_rough_2k.jpg
