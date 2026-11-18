@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-80)]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
 public sealed class IvanMovement : MonoBehaviour
@@ -10,6 +11,7 @@ public sealed class IvanMovement : MonoBehaviour
     private static readonly int MoveXId = Animator.StringToHash("MoveX");
     private static readonly int MoveZId = Animator.StringToHash("MoveZ");
     private static readonly int AimHeldId = Animator.StringToHash("AimHeld");
+    private static readonly int CrouchingId = Animator.StringToHash("IsCrouch");
     private static readonly int LocomotionId = Animator.StringToHash("Base Layer.Locomotion");
 
     [Header("Movement")]
@@ -25,6 +27,7 @@ public sealed class IvanMovement : MonoBehaviour
     [SerializeField, Min(1f)] private float aimRotationSpeed = 540f;
 
     public bool IsAiming { get; private set; }
+    public bool IsCrouching { get; private set; }
 
     private Vector3 horizontalVelocity;
     private CharacterController controller;
@@ -33,24 +36,49 @@ public sealed class IvanMovement : MonoBehaviour
     private Transform cameraTransform;
     private InputAction moveAction;
     private InputAction sprintAction;
+    private InputAction crouchAction;
     private readonly Dictionary<string, float> turnLengths = new Dictionary<string, float>();
     private float speed;
     private float verticalSpeed;
+    private bool dead;
+    [SerializeField, Min(0.1f)] private float crouchHeight = 1.1f;
+    private float standingHeight;
+    private Vector3 standingCenter;
+
+    public void StopForDeath()
+    {
+        dead = true;
+        ResetAim();
+        horizontalVelocity = Vector3.zero;
+        speed = 0f;
+        turning = false;
+        interruptedTurn = false;
+        recoverTurnOnEnable = false;
+        SetCursor(false);
+    }
     private float turnTime;
     private float turnLength;
     private float turnStart;
     private float turnAngle;
     private float idleTargetYaw;
     private bool turning;
+    private bool recoverTurnOnEnable;
+    private bool interruptedTurn;
     private bool hasAimHeldParameter;
+    private bool hasCrouchingParameter;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        standingHeight = controller.height;
+        standingCenter = controller.center;
         animator = GetComponent<Animator>();
+        if (GetComponent<CombatHealth>() == null) gameObject.AddComponent<CombatHealth>();
+        if (GetComponent<PistolCombat>() == null) gameObject.AddComponent<PistolCombat>();
         animator.applyRootMotion = false;
         moveAction = InputSystem.actions?.FindAction("Player/Move");
         sprintAction = InputSystem.actions?.FindAction("Player/Sprint");
+        crouchAction = InputSystem.actions?.FindAction("Player/Crouch");
         if (Camera.main != null)
         {
             cameraTransform = Camera.main.transform;
@@ -63,7 +91,11 @@ public sealed class IvanMovement : MonoBehaviour
         {
             if (parameter.nameHash == AimHeldId && parameter.type == AnimatorControllerParameterType.Bool)
                 hasAimHeldParameter = true;
+            if (parameter.nameHash == CrouchingId && parameter.type == AnimatorControllerParameterType.Bool)
+                hasCrouchingParameter = true;
         }
+        if (!hasCrouchingParameter)
+            Debug.LogWarning("IvanMovement: add a Bool parameter named IsCrouch to the Animator Controller to enable crouch input.", this);
 
         idleTargetYaw = transform.eulerAngles.y;
         if (moveAction == null || cameraTransform == null || animator.runtimeAnimatorController == null)
@@ -73,13 +105,21 @@ public sealed class IvanMovement : MonoBehaviour
         }
     }
 
-    private void OnEnable() => SetCursor(true);
+    private void OnEnable()
+    {
+        recoverTurnOnEnable = true;
+        SetCrouching(false);
+        idleTargetYaw = transform.eulerAngles.y;
+        SetCursor(true);
+    }
     private void OnDisable()
     {
         ResetAim();
+        SetCrouching(false);
         horizontalVelocity = Vector3.zero;
         speed = 0f;
         verticalSpeed = 0f;
+        interruptedTurn |= turning;
         turning = false;
         SetCursor(false);
     }
@@ -122,6 +162,26 @@ public sealed class IvanMovement : MonoBehaviour
 
     private void Update()
     {
+        if (dead)
+        {
+            ApplyGravity(Time.deltaTime);
+            return;
+        }
+        // Wait for Animator initialization when the whole player was reactivated.
+        if (recoverTurnOnEnable && animator.isInitialized)
+        {
+            bool pendingTurn = animator.IsInTransition(0) &&
+                IsTurnState(animator.GetNextAnimatorStateInfo(0));
+            if (interruptedTurn || IsTurnStateActive() || pendingTurn)
+            {
+                // Play cancels an incoming turn blend as well as an already active turn.
+                animator.Play(LocomotionId, 0, 0f);
+                animator.SetFloat(MoveXId, 0f);
+                animator.SetFloat(MoveZId, 0f);
+            }
+            interruptedTurn = false;
+            recoverTurnOnEnable = false;
+        }
         UpdateCursor();
         bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
         bool aimHeld = UpdateAimInput(captured);
@@ -129,6 +189,18 @@ public sealed class IvanMovement : MonoBehaviour
 
         float deltaTime = Time.deltaTime;
         if (deltaTime <= 0f) return;
+        // C toggles the pose. Aiming returns to the standing weapon stance.
+        if (aimHeld)
+        {
+            SetCrouching(false);
+            if (IsCrouching)
+            {
+                aimHeld = false;
+                ResetAim();
+            }
+        }
+        else if (captured && crouchAction?.WasPressedThisFrame() == true)
+            SetCrouching(!IsCrouching);
 
         Vector2 input = captured
             ? Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f)
@@ -136,9 +208,10 @@ public sealed class IvanMovement : MonoBehaviour
         float cameraYaw = orbitCamera != null ? orbitCamera.Yaw : cameraTransform.eulerAngles.y;
         Vector3 desiredDirection = Quaternion.Euler(0f, cameraYaw, 0f) * new Vector3(input.x, 0f, input.y);
         bool moving = input.sqrMagnitude > 0.01f;
-        float desiredYaw = aimHeld ? cameraYaw : GetDesiredYaw(desiredDirection, moving, captured, cameraYaw);
-        if (aimHeld) idleTargetYaw = cameraYaw;
-        bool weaponTransition = IsWeaponTransitionActive();
+        bool faceCamera = aimHeld || IsCrouching;
+        float desiredYaw = faceCamera ? cameraYaw : GetDesiredYaw(desiredDirection, moving, captured, cameraYaw);
+        if (faceCamera) idleTargetYaw = cameraYaw;
+        bool weaponTransition = IsWeaponTransitionActive() || CombatAnimation.HasActiveTag(animator, "CombatBlock");
         if (weaponTransition)
         {
             turning = false;
@@ -156,6 +229,37 @@ public sealed class IvanMovement : MonoBehaviour
     private static bool IsWeaponTransitionState(AnimatorStateInfo state)
     {
         return state.IsName("Base Layer.PistolUp") || state.IsName("Base Layer.PistolDown");
+    }
+
+    private void SetCrouching(bool crouching)
+    {
+        if (!crouching && IsCrouching && !CanStand()) return;
+        IsCrouching = hasCrouchingParameter && crouching;
+        if (controller != null)
+        {
+            float height = IsCrouching ? Mathf.Clamp(crouchHeight, controller.radius * 2f, standingHeight) : standingHeight;
+            controller.height = height;
+            controller.center = standingCenter - Vector3.up * ((standingHeight - height) * 0.5f);
+        }
+        if (animator != null && hasCrouchingParameter)
+            animator.SetBool(CrouchingId, IsCrouching);
+    }
+
+    private bool CanStand()
+    {
+        Vector3 scale = transform.lossyScale;
+        float radius = controller.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+        float clearanceRadius = Mathf.Max(0.01f, radius - controller.skinWidth * Mathf.Abs(scale.y));
+        Vector3 center = transform.TransformPoint(standingCenter);
+        float half = Mathf.Max(0f, standingHeight * Mathf.Abs(scale.y) * 0.5f - radius);
+        foreach (var hit in Physics.OverlapCapsule(center - transform.up * half,
+            center + transform.up * half, clearanceRadius, Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Ignore))
+        {
+            if (!hit.transform.IsChildOf(transform) && !Physics.GetIgnoreLayerCollision(gameObject.layer, hit.gameObject.layer) &&
+                !Physics.GetIgnoreCollision(controller, hit)) return false;
+        }
+        return true;
     }
 
     private bool IsWeaponTransitionActive()
@@ -199,14 +303,19 @@ public sealed class IvanMovement : MonoBehaviour
 
     private bool IsTurnStateActive()
     {
-        var state = animator.GetCurrentAnimatorStateInfo(0);
-        return state.IsName("Turn Left") || state.IsName("Turn Right") || state.IsName("Turn Back");
+        return IsTurnState(animator.GetCurrentAnimatorStateInfo(0));
+    }
+
+    private static bool IsTurnState(AnimatorStateInfo state)
+    {
+        return state.IsName("Base Layer.Turn Left") || state.IsName("Base Layer.Turn Right") ||
+            state.IsName("Base Layer.Turn Back");
     }
 
     private void UpdateRotation(float desiredYaw, bool moving, bool captured, bool aimHeld, float deltaTime)
     {
         // Only finish turns we still own. Never force a weapon state back to Locomotion.
-        if (turning && aimHeld)
+        if (turning && (aimHeld || IsCrouching))
         {
             // Let an in-flight blend settle so a pending turn cannot strand the Animator.
             if (animator.IsInTransition(0)) return;
@@ -219,7 +328,7 @@ public sealed class IvanMovement : MonoBehaviour
             turning = false;
         }
 
-        bool canStartTurn = !aimHeld && !animator.IsInTransition(0) &&
+        bool canStartTurn = !aimHeld && !IsCrouching && !animator.IsInTransition(0) &&
             animator.GetCurrentAnimatorStateInfo(0).fullPathHash == LocomotionId;
         float angle = Mathf.DeltaAngle(transform.eulerAngles.y, desiredYaw);
         if (canStartTurn && captured && !turning && speed < 0.05f &&
@@ -238,7 +347,7 @@ public sealed class IvanMovement : MonoBehaviour
                     animator.CrossFadeInFixedTime(LocomotionId, TurnBlendDuration, 0);
             }
         }
-        else if (moving || (aimHeld && captured))
+        else if (moving || ((aimHeld || IsCrouching) && captured))
         {
             transform.rotation = Quaternion.RotateTowards(transform.rotation,
                 Quaternion.Euler(0f, desiredYaw, 0f),
@@ -248,9 +357,9 @@ public sealed class IvanMovement : MonoBehaviour
 
     private void UpdateMovement(Vector2 input, Vector3 desiredDirection, bool moving, bool aimHeld, float deltaTime)
     {
-        if (aimHeld)
+        if (aimHeld || IsCrouching)
         {
-            // Aim movement follows the camera independently of the body's facing direction.
+            // Aim and crouch movement follow the camera independently of the body's facing direction.
             // Vector acceleration also smooths reversal and keeps braking in the travel direction.
             Vector3 targetVelocity = moving ? desiredDirection * forwardSpeed : Vector3.zero;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, acceleration * deltaTime);
@@ -268,6 +377,12 @@ public sealed class IvanMovement : MonoBehaviour
             speed = horizontalVelocity.magnitude;
         }
 
+        ApplyGravity(deltaTime);
+    }
+
+    private void ApplyGravity(float deltaTime)
+    {
+        if (deltaTime <= 0f || !controller.enabled) return;
         if (controller.isGrounded && verticalSpeed < 0f) verticalSpeed = 0f;
         verticalSpeed += Physics.gravity.y * deltaTime;
         controller.Move((horizontalVelocity + Vector3.up * verticalSpeed) * deltaTime);
@@ -278,8 +393,9 @@ public sealed class IvanMovement : MonoBehaviour
         Vector3 planarVelocity = Vector3.ProjectOnPlane(controller.velocity, Vector3.up);
         Vector3 localVelocity = transform.InverseTransformDirection(planarVelocity);
         float animationScale = 2f / forwardSpeed;
-        float moveX = aimHeld ? localVelocity.x * animationScale : 0f;
-        float moveZ = aimHeld ? localVelocity.z * animationScale : planarVelocity.magnitude * animationScale;
+        bool directionalMovement = aimHeld || IsCrouching;
+        float moveX = directionalMovement ? localVelocity.x * animationScale : 0f;
+        float moveZ = directionalMovement ? localVelocity.z * animationScale : planarVelocity.magnitude * animationScale;
         animator.SetFloat(MoveXId, moveX, animationDampTime, deltaTime);
         animator.SetFloat(MoveZId, moveZ, animationDampTime, deltaTime);
     }

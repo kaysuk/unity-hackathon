@@ -24,10 +24,19 @@ public sealed class ShoulderCamera : MonoBehaviour
     private float normalFieldOfView;
     private float aimWeight;
     private float aimBlendVelocity;
+    private Ray frameAimRay;
+    private int framingFrame = -1;
     private float yaw;
     private float pitch;
     public float Yaw => yaw;
     public float YawDelta { get; private set; }
+
+    public void AddRecoil(float degrees)
+    {
+        if (!isActiveAndEnabled) return;
+        pitch = Mathf.Clamp(pitch - Mathf.Max(0f, degrees), pitchLimits.x, pitchLimits.y);
+        // Keep this frame's evaluated camera and muzzle consistent; apply recoil next frame.
+    }
 
     private void Start()
     {
@@ -53,22 +62,36 @@ public sealed class ShoulderCamera : MonoBehaviour
     private void LateUpdate()
     {
         if (target == null) return;
+        Ray aimRay = GetAimRay();
+        transform.SetPositionAndRotation(aimRay.origin, Quaternion.Euler(pitch, yaw, 0f));
+    }
+
+    // Also used before animation evaluation, so rig targets use this frame's camera angles.
+    public Ray GetAimRay()
+    {
+        if (!isActiveAndEnabled || viewCamera == null || target == null)
+            return new Ray(transform.position, transform.forward);
+        if (framingFrame == Time.frameCount) return frameAimRay;
         UpdateAimFraming();
+        framingFrame = Time.frameCount;
+
         Vector3 currentOffset = Vector3.Lerp(offset, aimOffset, aimWeight);
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 pivot = target.position + Vector3.up * currentOffset.y;
         Vector3 displacement = rotation * new Vector3(currentOffset.x, 0f, currentOffset.z);
         float distance = displacement.magnitude;
-        if (distance < 0.001f) return;
-        Vector3 direction = displacement / distance;
-        // Exclude the player's colliders while keeping scene geometry on its existing layers.
-        foreach (var hit in Physics.SphereCastAll(pivot, collisionRadius, direction, distance,
-            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        Vector3 direction = distance > 0.001f ? displacement / distance : Vector3.zero;
+        if (distance > 0.001f)
         {
-            if (!hit.transform.IsChildOf(playerRoot))
-                distance = Mathf.Min(distance, Mathf.Max(0f, hit.distance - 0.05f));
+            foreach (var hit in Physics.SphereCastAll(pivot, collisionRadius, direction, distance,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                if (!hit.transform.IsChildOf(playerRoot))
+                    distance = Mathf.Min(distance, Mathf.Max(0f, hit.distance - 0.05f));
+            }
         }
-        transform.SetPositionAndRotation(pivot + direction * distance, rotation);
+        frameAimRay = new Ray(pivot + direction * distance, rotation * Vector3.forward);
+        return frameAimRay;
     }
 
     private void UpdateAimFraming()
@@ -88,6 +111,7 @@ public sealed class ShoulderCamera : MonoBehaviour
         if (viewCamera != null) viewCamera.fieldOfView = normalFieldOfView;
         aimWeight = 0f;
         aimBlendVelocity = 0f;
+        framingFrame = -1;
     }
 
 }
