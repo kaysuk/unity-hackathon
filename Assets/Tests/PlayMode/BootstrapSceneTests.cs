@@ -64,7 +64,7 @@ namespace Hackathon.Tests
             var movement = components.Single(c => c.GetType().Name == "IvanMovement");
             var combat = components.Single(c => c.GetType().Name == "PistolCombat");
             var cameraControl = components.Single(c => c.GetType().Name == "ShoulderCamera");
-            var health = components.Single(c => c.GetType().Name == "CombatHealth");
+            var health = movement.GetComponent("CombatHealth");
             var controller = movement.GetComponent<CharacterController>();
             var animator = movement.GetComponent<Animator>();
             Assert.That(animator.parameters.Any(p => p.name == "IsReload" &&
@@ -131,6 +131,53 @@ namespace Hackathon.Tests
                 damage.Invoke(health, new object[] { 25f, Vector3.zero, Vector3.forward, null });
             Assert.That(health.GetType().GetProperty("HP").GetValue(health), Is.EqualTo(0f));
             Assert.That(deaths, Is.EqualTo(1));
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        private static readonly string[] RifleNpcNames = { "Ch35 Rifle NPC", "SWAT Rifle NPC" };
+
+        [UnityTest]
+        public IEnumerator RifleNpcShootsReactsAndStaysDead([ValueSource(nameof(RifleNpcNames))] string npcName)
+        {
+            var path = SceneUtility.GetScenePathByBuildIndex(0);
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+
+            var roots = loadedScene.GetRootGameObjects();
+            var npc = roots.Single(root => root.name == npcName);
+            foreach (var other in roots.Where(root => root != npc && root.GetComponent("RifleNpc") != null))
+                other.SetActive(false);
+            var player = roots.Single(root => root.GetComponent("IvanMovement") != null);
+            var animator = npc.GetComponent<Animator>();
+            Assert.That(animator.isHuman && animator.avatar.isValid, Is.True);
+            Assert.That(npc.GetComponentInChildren<SkinnedMeshRenderer>(), Is.Not.Null);
+            var health = npc.GetComponent("CombatHealth");
+            var playerHealth = player.GetComponent("CombatHealth");
+            var hp = health.GetType().GetProperty("HP");
+            var hit = health.GetType().GetMethod("TakeDamage");
+            var flash = npc.GetComponentsInChildren<Light>(true).Single();
+            var start = npc.transform.position;
+            float initialHP = (float)hp.GetValue(playerHealth);
+            float deadline = Time.time + 5f;
+            while (!flash.gameObject.activeSelf && Time.time < deadline) yield return null;
+            Assert.That(flash.gameObject.activeSelf, Is.True, "Expected a visible muzzle flash");
+            Assert.That((float)hp.GetValue(playerHealth), Is.LessThan(initialHP));
+            var travelled = Vector3.ProjectOnPlane(npc.transform.position - start, Vector3.up);
+            Assert.That(travelled.magnitude, Is.GreaterThan(0.2f));
+
+            hit.Invoke(health, new object[] { 25f, npc.transform.position, Vector3.back, player });
+            yield return new WaitForSeconds(0.25f);
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsTag("Hit"), Is.True);
+            Assert.That(flash.gameObject.activeSelf, Is.False);
+
+            hit.Invoke(health, new object[] { 100f, npc.transform.position, Vector3.back, player });
+            float hpAtDeath = (float)hp.GetValue(playerHealth);
+            yield return new WaitForSeconds(3.6f);
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Death"), Is.True);
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, Is.GreaterThan(1f));
+            Assert.That(npc.GetComponent<CharacterController>().enabled, Is.False);
+            Assert.That(hp.GetValue(playerHealth), Is.EqualTo(hpAtDeath));
             LogAssert.NoUnexpectedReceived();
         }
 
