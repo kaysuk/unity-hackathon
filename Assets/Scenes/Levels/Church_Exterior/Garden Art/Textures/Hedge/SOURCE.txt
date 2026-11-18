@@ -1,0 +1,13 @@
+Hedge seamless texture pack — живая изгородь
+
+Исходная бесшовная карта цвета 2048 × 2048 PNG. Для плотной зелёной поверхности изгороди. В этом исходном наборе отдельной карты нормалей и шероховатости нет.
+
+Автор para / paramecij
+https://opengameart.org/node/22253
+https://opengameart.org/content/hedge-seamless-texture-pack
+https://opengameart.org/sites/default/files/oga-textures/22251/vegetation_hedge_02.png
+
+Лицензия CC0 1.0
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Загружено 18 ноября 2026 года. Изображение проверено декодированием.

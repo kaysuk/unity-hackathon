@@ -1,0 +1,12 @@
+LeafSet003 — листья
+
+Листья для крон деревьев, приглушённый зелёный вариант.
+Исходные карты 2K JPG, включая цвет, NormalGL/NormalDX, шероховатость, высоту и отдельную маску Opacity. Для контура листьев использовать маску Opacity. PNG с именем набора — предпросмотр.
+
+https://ambientcg.com/view?id=LeafSet003
+https://ambientcg.com/get?file=LeafSet003_2K-JPG.zip
+
+Лицензия CC0 1.0
+https://docs.ambientcg.com/license/
+
+Загружено 18 ноября 2026 года. ZIP проверен по CRC, изображения проверены декодированием.

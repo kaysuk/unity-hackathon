@@ -1,0 +1,4 @@
+Herringbone Brick 03 by Charlotte Baglioni, Poly Haven (CC0).
+https://polyhaven.com/a/herringbone_brick_03
+2K color (graded for the garden), OpenGL normal and roughness (inverted into smoothness alpha).
+Garden clay graded against the ochre palette of the local Arx [stone]_human_city_ground1.jpg reference.

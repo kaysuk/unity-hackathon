@@ -1,0 +1,7 @@
+Локальный набор Arx Fatalis из Downloads/arx_files/graph/obj3d/textures.
+
+Church Walk Paving.jpg — [stone]_paving.jpg
+Fountain Stone.jpg — [stone]_human_wall21.jpg
+Still Water.jpg — l2_troll_[water]_ground01.jpg
+
+Используются в принятом в проекте стиле Arx. Права на исходные материалы принадлежат их правообладателям.
