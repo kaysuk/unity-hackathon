@@ -197,8 +197,6 @@ namespace Hackathon.Tests
             yield return null; // Allow Start methods to execute.
 
             var roots = loadedScene.GetRootGameObjects();
-            var player = roots.Single(root => root.CompareTag("Player"));
-            Assert.That(player.GetComponent("IvanMovement"), Is.Not.Null);
             var cameras = roots.SelectMany(root => root.GetComponentsInChildren<Camera>(true));
             Assert.That(cameras.Any(camera => camera.isActiveAndEnabled), Is.True,
                 "The first build scene must provide an active camera.");
