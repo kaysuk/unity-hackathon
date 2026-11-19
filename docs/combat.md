@@ -29,7 +29,7 @@ Any State -> die: trigger Die, no exit time, no self transition, Fixed Duration
 0.1 s, offset 0. No outgoing transitions; clip Loop Time off. HP zero stops input
 but preserves gravity. Code disables aim rig and sets all upper-layer weights to zero.
 Keep vertical fall in the pose (Bake Into Pose Y) with root motion disabled.
-See Assets/Characters/README.md for the complete developer API and lifecycle.
+See [Ivan's integration guide](../Assets/Character/README.md) for the complete developer API and lifecycle.
 
 ## NPCs and effects
 Add CombatHealth to NPC root and non-trigger colliders on its body. IDamageable is
