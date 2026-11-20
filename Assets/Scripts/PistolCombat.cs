@@ -235,12 +235,15 @@ public sealed class PistolCombat : MonoBehaviour
         Destroy(effect, 0.25f);
     }
 
+    public bool ShowsCrosshair => Ready && Time.timeScale > 0f &&
+        Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
+
     private void OnGUI()
     {
         if (health != null)
             GUI.Label(new Rect(20, Screen.height - 45, 220, 30), $"HP: {health.HP:0} / {health.MaximumHP:0}");
         if (Ready) DrawAmmoHUD();
-        if (!Ready || Time.timeScale <= 0f || !Application.isFocused || Cursor.lockState != CursorLockMode.Locked) return;
+        if (!ShowsCrosshair) return;
         Color old = GUI.color;
         GUI.color = Time.unscaledTime < hitMarkerUntil ? Color.red : Color.white;
         float x = Screen.width * 0.5f, y = Screen.height * 0.5f;
