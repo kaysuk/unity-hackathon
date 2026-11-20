@@ -14,6 +14,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private readonly RaycastHit[] raycastHits = new RaycastHit[16];
     private readonly Collider[] nearbyColliders = new Collider[32];
     private CharacterController controller;
+    private PistolCombat pistolCombat;
     private InputAction interact;
     private Canvas promptCanvas;
     private UnityEngine.UI.Text promptLabel;
@@ -27,6 +28,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        pistolCombat = GetComponent<PistolCombat>();
         Inventory = GetComponent<PlayerInventory>();
         interact = InputSystem.actions?.FindAction("Player/Interact");
 
@@ -59,12 +61,29 @@ public sealed class PlayerInteractor : MonoBehaviour
 
     private void LateUpdate()
     {
-        Interactable target = interact.enabled && viewCamera != null ? FindTargetInReach() : null;
+        Interactable target = CanTarget ? FindTargetInReach() : null;
 
         if (target != null && target.CanInteract(this) && interact.WasPressedThisDynamicUpdate())
             target.Interact(this);
 
         UpdatePrompt(target);
+    }
+
+    private bool CanTarget => interact != null && interact.enabled && viewCamera != null &&
+        Time.timeScale > 0f && Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
+
+    private void OnGUI()
+    {
+        if (Event.current.type != EventType.Repaint || !CanTarget ||
+            (pistolCombat != null && pistolCombat.isActiveAndEnabled && pistolCombat.ShowsCrosshair))
+            return;
+
+        float x = Screen.width * 0.5f;
+        float y = Screen.height * 0.5f;
+        GUI.DrawTexture(new Rect(x - 3f, y - 3f, 6f, 6f), Texture2D.whiteTexture,
+            ScaleMode.StretchToFill, true, 0f, Color.black, 0f, 3f);
+        GUI.DrawTexture(new Rect(x - 2f, y - 2f, 4f, 4f), Texture2D.whiteTexture,
+            ScaleMode.StretchToFill, true, 0f, Color.white, 0f, 2f);
     }
 
     private Interactable FindTargetInReach()
@@ -96,7 +115,7 @@ public sealed class PlayerInteractor : MonoBehaviour
         {
             Collider collider = colliders[i];
             Interactable candidate = collider.GetComponentInParent<Interactable>();
-            if (candidate == null || !candidate.isActiveAndEnabled)
+            if (candidate == null || candidate is ItemPickup || !candidate.isActiveAndEnabled)
                 continue;
 
             Vector3 toCenter = collider.bounds.center - cameraRay.origin;
