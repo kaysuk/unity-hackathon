@@ -1,0 +1,6 @@
+M4A1 Assault Rifle from 3DModelsCC0, published by nisu on OpenGameArt
+https://opengameart.org/content/m4a1-assault-rifle
+Public domain (CC0)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+The URP metallic map stores the original metallic values in RGB and inverted roughness in alpha.

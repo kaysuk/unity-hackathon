@@ -1,0 +1,5 @@
+Model: Glock 18 (high poly, no textures)
+Source: https://opengameart.org/content/high-poly-glock-18-no-textures
+Download: https://opengameart.org/sites/default/files/Glock_HighPoly.obj
+License listed by source: CC0
+Adjusted axes, scale and grip origin for Unity.
