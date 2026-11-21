@@ -56,10 +56,8 @@ public sealed class M0GateMechanism : Interactable
         if (stage == Stage.WaitingForHandles)
         {
             int count = CountHandles(player.Inventory);
-            if (count == 0)
-                return "Две рукояти. Одной не открыть. (0/2)";
-            if (count == 1)
-                return "Две рукояти. Одной не открыть. (1/2)";
+            if (count < 2)
+                return $"Две рукояти. Одной не открыть. Ключей {count}/2";
         }
 
         if (string.IsNullOrEmpty(buttonPrompt))
@@ -67,9 +65,9 @@ public sealed class M0GateMechanism : Interactable
 
         return stage switch
         {
-            Stage.WaitingForHandles => $"{buttonPrompt} · Вставить обе рукояти",
-            Stage.HandlesInserted => $"{buttonPrompt} · Повернуть левую рукоять",
-            Stage.LeftHandleTurned => $"{buttonPrompt} · Повернуть правую рукоять",
+            Stage.WaitingForHandles => $"{buttonPrompt} · Вставить оба ключа",
+            Stage.HandlesInserted => $"{buttonPrompt} · Повернуть левый ключ",
+            Stage.LeftHandleTurned => $"{buttonPrompt} · Повернуть правый ключ",
             _ => null
         };
     }
