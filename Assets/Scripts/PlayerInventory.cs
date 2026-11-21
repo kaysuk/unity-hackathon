@@ -22,6 +22,15 @@ public sealed class PlayerInventory : MonoBehaviour
         return !string.IsNullOrWhiteSpace(itemId) && items.TryAdd(itemId, true);
     }
 
+    public bool TryUse(string itemId)
+    {
+        if (!HasItem(itemId))
+            return false;
+
+        items[itemId] = false;
+        return true;
+    }
+
     public bool TryUsePair(string firstItemId, string secondItemId)
     {
         if (firstItemId == secondItemId || !HasItem(firstItemId) || !HasItem(secondItemId))

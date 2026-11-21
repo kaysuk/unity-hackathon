@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class TempleShortDoor : Interactable
 {
     [SerializeField] private Transform hinge;
+    [SerializeField] private bool permanentlyLocked;
     private Quaternion openRotation;
 
     public bool IsOpen { get; private set; }
@@ -15,7 +16,7 @@ public sealed class TempleShortDoor : Interactable
 
     public override bool CanInteract(PlayerInteractor player)
     {
-        return base.CanInteract(player) && !IsOpen && player != null &&
+        return base.CanInteract(player) && !permanentlyLocked && !IsOpen && player != null &&
             hinge.parent.InverseTransformPoint(player.transform.position).z > 0.08f;
     }
 
@@ -23,6 +24,8 @@ public sealed class TempleShortDoor : Interactable
     {
         if (!isActiveAndEnabled || IsOpen)
             return null;
+        if (permanentlyLocked)
+            return "Дверь заперта";
         if (!CanInteract(player))
             return "Заперто изнутри";
         return string.IsNullOrEmpty(buttonPrompt) ? null : $"{buttonPrompt} · Открыть дверь";
