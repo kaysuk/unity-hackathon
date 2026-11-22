@@ -1,4 +1,5 @@
 {
   "name": "Hackathon.PlayModeTests",
+  "references": ["Unity.InputSystem"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

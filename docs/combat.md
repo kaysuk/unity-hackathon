@@ -1,4 +1,6 @@
-# Combat setup
+# Archived combat setup
+
+These notes document the retired temple_v2 player. The current Temple_Final_Room player and controls are described in the [character guide](../Assets/Character/README.md).
 
 Player receives PistolCombat and CombatHealth automatically. CombatHealth adds
 ProceduralHitReaction: a brief chest tilt backward/left after nonlethal damage.
