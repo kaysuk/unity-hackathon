@@ -28,6 +28,12 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
             hitReaction = gameObject.AddComponent<ProceduralHitReaction>();
     }
 
+    internal void RestoreHP(float hp)
+    {
+        HP = Mathf.Clamp(hp, float.Epsilon, Mathf.Max(1f, maximumHP));
+        Changed?.Invoke(HP);
+    }
+
     public void TakeDamage(float amount, Vector3 point, Vector3 direction, GameObject source)
     {
         if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;

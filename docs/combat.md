@@ -39,7 +39,8 @@ resolved from hit collider parents. NPCs may implement IDamageable instead; avoi
 multiple receivers on one actor. Use onHit/onDeath events to connect AI logic.
 Player movement stops automatically; NPC AI must stop through onDeath.
 Tracer renders for one frame; impact is a temporary red ring. Assign Effect Material
-for builds to avoid stripping the fallback Sprites/Default shader. HUD uses OnGUI.
+for builds to avoid stripping the fallback Sprites/Default shader. The crosshair uses
+OnGUI. The Canvas HUD reads health and ammunition through GameHudBinding.
 
 ## Verify in Play Mode
 Fire 8 shots; reload twice to expend all 24 rounds. Shot 25 must not fire. Reload while walking: legs continue, arms reload,

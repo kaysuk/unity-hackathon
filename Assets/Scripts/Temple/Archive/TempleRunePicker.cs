@@ -11,9 +11,7 @@ public sealed class TempleRunePicker : PausedGameOverlay
 {
     private const int GlyphCount = TempleRunePuzzle.GlyphCount;
     private const float TileStep = 82f;
-    private static readonly Color32 Brass = new(199, 164, 103, 255);
-    private static readonly Color32 DarkBrass = new(97, 79, 59, 255);
-    private static readonly Color32 Ivory = new(238, 227, 208, 255);
+    private static readonly Color32 TileFace = new(50, 42, 33, 255);
 
     private readonly List<int> held = new(GlyphCount);
     private readonly Image[] tiles = new Image[GlyphCount];
@@ -159,11 +157,10 @@ public sealed class TempleRunePicker : PausedGameOverlay
 
     private void HighlightSelection()
     {
+        Color brass = GameUiStyle.Brass;
+        Color idle = Color.Lerp(TileFace, brass, .31f);
         for (int i = 0; i < held.Count; i++)
-        {
-            bool selected = i == selection;
-            tiles[i].color = selected ? Brass : DarkBrass;
-        }
+            tiles[i].color = i == selection ? brass : idle;
     }
 
     private void UpdateControls(bool gamepad)
@@ -177,38 +174,37 @@ public sealed class TempleRunePicker : PausedGameOverlay
         Image frame = Element<Image>(root, "Tray", Vector2.zero);
         panel = frame.rectTransform;
         panel.anchorMin = panel.anchorMax = new Vector2(.5f, .24f);
-        frame.color = DarkBrass;
+        frame.color = Color.Lerp(TileFace, GameUiStyle.Brass, .55f);
         Image lining = Element<Image>(panel, "Lining", Vector2.zero);
         RectTransform interior = lining.rectTransform;
         interior.anchorMin = Vector2.zero;
         interior.anchorMax = Vector2.one;
         interior.offsetMin = Vector2.one;
         interior.offsetMax = -Vector2.one;
-        lining.color = new Color32(30, 25, 23, 249);
+        lining.color = GameUiStyle.Panel;
 
-        Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        Text title = Label(interior, font, 60f, 23);
+        Text title = Label(interior, 60f, 27);
         title.text = "Выберите камень";
-        title.color = Ivory;
-        controls = Label(interior, font, -62f, 16);
-        controls.color = new Color32(211, 196, 171, 255);
+        title.color = GameUiStyle.Ink;
+        controls = Label(interior, -62f, 19);
+        controls.color = GameUiStyle.MutedInk;
 
         for (int i = 0; i < GlyphCount; i++)
         {
             Image tile = Element<Image>(interior, $"Stone {i + 1}", new Vector2(72f, 72f));
             tiles[i] = tile;
             Image face = Element<Image>(tile.transform, "Face", new Vector2(68f, 68f));
-            face.color = new Color32(54, 46, 43, 255);
+            face.color = TileFace;
             edges[i] = Element<TempleRuneIcon>(face.transform, "Beveled edge", new Vector2(60f, 60f));
             faces[i] = Element<TempleRuneIcon>(face.transform, "Glyph", new Vector2(60f, 60f));
         }
     }
 
-    private static Text Label(Transform parent, Font font, float y, int size)
+    private static Text Label(Transform parent, float y, int size)
     {
-        Text label = Element<Text>(parent, y > 0f ? "Title" : "Controls", new Vector2(484f, 34f));
+        Text label = Element<Text>(parent, y > 0f ? "Title" : "Controls", new Vector2(484f, 40f));
         label.rectTransform.anchoredPosition = new Vector2(0f, y);
-        label.font = font;
+        label.font = GameUiStyle.Font;
         label.fontSize = size;
         label.alignment = TextAnchor.MiddleCenter;
         return label;

@@ -22,6 +22,8 @@ public sealed class SceneTransitionDoor : Interactable
 
         if (confirmRitualEntrance)
         {
+            if (gameObject.scene == SceneManager.GetActiveScene())
+                GameObjectives.ReachRitualEntrance();
             TempleArchiveJournal.GetOrCreate(player.gameObject)
                 .ConfirmRitualEntrance(() => Enter(player.Controller, player.CameraObject));
             return;
@@ -58,28 +60,48 @@ public sealed class SceneTransitionDoor : Interactable
         yield return SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Additive);
 
         Scene newScene = SceneManager.GetSceneByName(nextScene);
-        RemoveDestinationPlayerRig(newScene);
-        SceneManager.MoveGameObjectToScene(ivan.gameObject, newScene);
-        SceneManager.MoveGameObjectToScene(playerCamera, newScene);
+        MovePlayer(newScene, ivan, playerCamera, arrivalPosition);
         SceneManager.SetActiveScene(newScene);
-
-        ivan.enabled = false;
-        ivan.transform.position = arrivalPosition;
-        ivan.enabled = true;
-
         SceneManager.UnloadSceneAsync(oldScene);
     }
 
-    private void RemoveDestinationPlayerRig(Scene destination)
+    internal static void MovePlayer(Scene scene, CharacterController player, GameObject playerCamera, Vector3 arrival)
     {
-        foreach (GameObject root in destination.GetRootGameObjects())
+        DiscardStandaloneRig(scene, player.gameObject, playerCamera);
+        SceneManager.MoveGameObjectToScene(player.gameObject, scene);
+        if (playerCamera.scene != scene)
+            SceneManager.MoveGameObjectToScene(playerCamera, scene);
+
+        bool wasEnabled = player.enabled;
+        player.enabled = false;
+        player.transform.position = arrival;
+        player.enabled = wasEnabled;
+    }
+
+    private static void DiscardStandaloneRig(Scene scene, GameObject player, GameObject playerCamera)
+    {
+        // The ritual room also supports being opened directly with its own player and camera.
+        foreach (GameObject root in scene.GetRootGameObjects())
         {
+            if (root == player || root == playerCamera)
+                continue;
+
             bool standalonePlayer = root.CompareTag("Player") && root.TryGetComponent(out CharacterController _);
             bool standaloneCamera = root.CompareTag("MainCamera") && root.TryGetComponent(out Camera _);
             if (standalonePlayer || standaloneCamera)
             {
                 root.SetActive(false);
                 Destroy(root);
+                continue;
+            }
+
+            foreach (Camera camera in root.GetComponentsInChildren<Camera>())
+            {
+                if (!camera.CompareTag("MainCamera"))
+                    continue;
+                camera.enabled = false;
+                if (camera.TryGetComponent(out AudioListener listener))
+                    listener.enabled = false;
             }
         }
     }

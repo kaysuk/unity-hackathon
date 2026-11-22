@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public sealed class M0GateMechanism : Interactable, IGraphPassage
@@ -123,6 +124,8 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
         {
             stage = Stage.Open;
             PassabilityChanged?.Invoke();
+            if (gameObject.scene == SceneManager.GetActiveScene())
+                GameObjectives.ReachArchive();
         }
     }
 }

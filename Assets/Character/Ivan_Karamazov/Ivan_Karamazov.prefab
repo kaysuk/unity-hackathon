@@ -28,8 +28,40 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8953638237495313106}
   m_Father: {fileID: 6728647754188149516}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8953638237495313105
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8953638237495313106}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8953638237495313106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953638237495313105}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.000335, y: 0.00128, z: 0.002025}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6762287943050613948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2321615077738360713
 GameObject:
@@ -629,6 +661,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1655889647723482602}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8953638237495313107}
   m_SourcePrefab: {fileID: 100100000, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
 --- !u!4 &6521084776186100221 stripped
 Transform:
@@ -770,3 +805,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 698f7df05b974cc1b1a53b3204c125a4, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::IvanDamageResponse
+--- !u!114 &8953638237495313107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987807938509596677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd97dc0c9bc94b89b245703a4d1f01fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PistolCombat
+  muzzle: {fileID: 8953638237495313106}
+  aimCamera: {fileID: 0}
+  damage: 25
+  range: 100
+  shotInterval: 0.18
+  recoilDegrees: 1.5
+  armKickDegrees: 5
+  armReturnTime: 0.12
+  magazineCapacity: 12
+  startingTotalAmmo: 36
+  reloadDuration: 2
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  effectMaterial: {fileID: 0}

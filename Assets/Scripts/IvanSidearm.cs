@@ -38,6 +38,8 @@ public sealed class IvanSidearm : MonoBehaviour
     public bool IsAiming { get; private set; }
     public bool IsSidearmActive => drawing || phase > 0f;
     public float StanceYaw => AimStanceYaw * aimWeight;
+    internal bool IsReadyToFire => isActiveAndEnabled && IsAiming && raise >= .95f;
+    internal float ShotRecoil { private get; set; }
 
     private void Awake()
     {
@@ -96,7 +98,7 @@ public sealed class IvanSidearm : MonoBehaviour
             else
             {
                 float pitch = Mathf.Clamp(Mathf.DeltaAngle(0f, view.transform.eulerAngles.x), -45f, 55f);
-                direction = Quaternion.Euler(pitch, transform.eulerAngles.y - StanceYaw, 0f);
+                direction = Quaternion.Euler(pitch - ShotRecoil, transform.eulerAngles.y - StanceYaw, 0f);
             }
         }
         rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction);
@@ -107,6 +109,7 @@ public sealed class IvanSidearm : MonoBehaviour
         IsAiming = false;
         aimRequested = false;
         aimWeight = 0f;
+        ShotRecoil = 0f;
         raise = 0f;
         drawing = false;
         phase = 0f;

@@ -1,13 +1,14 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [DefaultExecutionOrder(100)]
 [DisallowMultipleComponent]
 public sealed class TempleArchiveJournal : PausedGameOverlay
 {
-    private const int DocumentTotal = 6;
+    internal const int DocumentTotal = 6;
     private const int CompleteMask = (1 << DocumentTotal) - 1;
 
     private int collectedMask;
@@ -26,6 +27,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     public int DocumentCount { get; private set; }
     public bool FullFamilyTruth { get; private set; }
+    internal int CollectedMask => collectedMask;
     public string VisibleDocumentText => IsOpen ? body.text : string.Empty;
     public bool IsConfirmingEntrance => pendingEntrance != null;
 
@@ -36,6 +38,23 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     public bool HasDocument(int number) =>
         number >= 1 && number <= DocumentTotal && (collectedMask & (1 << (number - 1))) != 0;
+
+    internal void RestoreProgress(int mask, bool fullTruth)
+    {
+        collectedMask = mask & CompleteMask;
+        DocumentCount = 0;
+        currentDocument = 0;
+        for (int number = 1; number <= DocumentTotal; number++)
+        {
+            if (!HasDocument(number))
+                continue;
+
+            DocumentCount++;
+            currentDocument = number;
+        }
+
+        FullFamilyTruth = fullTruth && collectedMask == CompleteMask;
+    }
 
     public void ReadDocument(int number)
     {
@@ -51,6 +70,8 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         }
 
         ShowPage(number, firstRead);
+        if (gameObject.scene == SceneManager.GetActiveScene())
+            GameObjectives.SetArchiveProgress(DocumentCount);
     }
 
     public void ConfirmRitualEntrance(Action enter)
@@ -226,23 +247,24 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     protected override void BuildView(Transform root)
     {
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = GameUiStyle.Font;
         Color ink = new Color32(46, 36, 27, 255);
-        Color inkFaded = new Color32(84, 62, 43, 255);
+        Color inkFaded = new Color32(89, 71, 53, 255);
+        Color rule = Color.Lerp(GameUiStyle.Brass, ink, .42f);
+        Color shade = GameUiStyle.Panel;
+        shade.a = .87f;
         RectTransform dimmer = Rect(root, "Backdrop", Vector2.zero, Vector2.one);
-        Fill(dimmer, new Color(0f, 0f, 0f, .83f));
+        Fill(dimmer, shade);
         RectTransform paper = Rect(dimmer, "Paper", new Vector2(.18f, .09f), new Vector2(.82f, .91f));
-        Fill(paper, new Color32(222, 207, 174, 255));
-        Fill(Rect(paper, "Top rule", new Vector2(.05f, .872f), new Vector2(.95f, .875f)), inkFaded);
-        Fill(Rect(paper, "Bottom rule", new Vector2(.05f, .108f), new Vector2(.95f, .111f)), inkFaded);
+        Fill(paper, new Color32(228, 215, 186, 255));
+        Fill(Rect(paper, "Top rule", new Vector2(.05f, .872f), new Vector2(.112f, .875f)), rule);
+        Fill(Rect(paper, "Bottom rule", new Vector2(.05f, .108f), new Vector2(.95f, .111f)), rule);
 
-        heading = Label(paper, "Archive progress", .05f, .88f, .95f, .968f, 18, inkFaded, TextAnchor.MiddleLeft);
-        heading.fontStyle = FontStyle.Bold;
-        title = Label(paper, "Document title", .05f, .735f, .95f, .855f, 34, ink, TextAnchor.MiddleLeft);
-        title.fontStyle = FontStyle.Bold;
+        heading = Label(paper, "Archive progress", .05f, .88f, .95f, .968f, 23, inkFaded, TextAnchor.MiddleLeft);
+        title = Label(paper, "Document title", .05f, .735f, .95f, .855f, 42, ink, TextAnchor.MiddleLeft);
         title.resizeTextForBestFit = true;
-        title.resizeTextMinSize = 22;
-        title.resizeTextMaxSize = 34;
+        title.resizeTextMinSize = 27;
+        title.resizeTextMaxSize = 42;
 
         RectTransform viewport = Rect(paper, "Page viewport", new Vector2(.05f,.245f), new Vector2(.95f,.724f));
         viewport.gameObject.AddComponent<RectMask2D>();
@@ -254,20 +276,23 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         RectTransform page = Rect(viewport, "Page", new Vector2(0f, 1f), Vector2.one);
         page.pivot = new Vector2(.5f, 1f);
         scroll.content = page;
-        body = Label(page, "Document body", 0f, 0f, 1f, 1f, 24, ink, TextAnchor.UpperLeft);
-        body.lineSpacing = 1.18f;
+        body = Label(page, "Document body", 0f, 0f, 1f, 1f, 29, ink, TextAnchor.UpperLeft);
+        body.lineSpacing = 1.1f;
         body.verticalOverflow = VerticalWrapMode.Overflow;
 
         for (int i = 0; i < seals.Length; i++)
         {
             float x = .05f + i * .15f;
-            seals[i] = Label(paper, $"Document seal {i + 1}", x, .125f, x + .14f, .224f, 22, ink, TextAnchor.MiddleCenter);
-            Fill(seals[i].transform, new Color32(191, 172, 135, 255));
+            seals[i] = Label(paper, $"Document seal {i + 1}", x, .125f, x + .14f, .224f, 25, ink, TextAnchor.MiddleCenter);
+            Fill(seals[i].transform, new Color32(203, 181, 143, 255));
         }
 
-        reaction = Label(paper, "Ivan reaction", .05f, .124f, .95f, .224f, 21, inkFaded, TextAnchor.MiddleLeft);
+        reaction = Label(paper, "Ivan reaction", .05f, .124f, .95f, .224f, 25, inkFaded, TextAnchor.MiddleLeft);
         reaction.fontStyle = FontStyle.Italic;
-        controls = Label(paper, "Page controls", .05f, .021f, .95f, .094f, 18, inkFaded, TextAnchor.MiddleLeft);
+        controls = Label(paper, "Page controls", .05f, .021f, .95f, .094f, 22, inkFaded, TextAnchor.MiddleLeft);
+        controls.resizeTextForBestFit = true;
+        controls.resizeTextMinSize = 16;
+        controls.resizeTextMaxSize = 22;
     }
 
     private Text Label(Transform parent, string name, float left, float bottom, float right, float top,

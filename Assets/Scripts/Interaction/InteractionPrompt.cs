@@ -63,14 +63,14 @@ internal sealed class InteractionPrompt : IDisposable
             CreatePrompt(player.gameObject.scene);
         if (promptLabel.text != text)
             promptLabel.text = text;
-        if (!promptLabel.enabled)
-            promptLabel.enabled = true;
+        if (!promptLabel.gameObject.activeSelf)
+            promptLabel.gameObject.SetActive(true);
     }
 
     internal void Hide()
     {
-        if (promptLabel != null && promptLabel.enabled)
-            promptLabel.enabled = false;
+        if (promptLabel != null && promptLabel.gameObject.activeSelf)
+            promptLabel.gameObject.SetActive(false);
     }
 
     private void RefreshPromptText(InputAction interact)
@@ -115,11 +115,13 @@ internal sealed class InteractionPrompt : IDisposable
         labelObject.transform.SetParent(root.transform, false);
 
         promptLabel = labelObject.GetComponent<Text>();
-        promptLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        promptLabel.fontSize = 28;
-        promptLabel.fontStyle = FontStyle.Bold;
+        promptLabel.font = GameUiStyle.Font;
+        promptLabel.fontSize = 33;
         promptLabel.alignment = TextAnchor.MiddleCenter;
-        promptLabel.color = Color.white;
+        promptLabel.color = GameUiStyle.Ink;
+        promptLabel.resizeTextForBestFit = true;
+        promptLabel.resizeTextMinSize = 23;
+        promptLabel.resizeTextMaxSize = 33;
         promptLabel.raycastTarget = false;
         promptLabel.supportRichText = false;
 
@@ -127,10 +129,22 @@ internal sealed class InteractionPrompt : IDisposable
         rect.anchorMin = new Vector2(0.1f, 0.38f);
         rect.anchorMax = new Vector2(0.9f, 0.38f);
         rect.anchoredPosition = Vector2.zero;
-        rect.sizeDelta = new Vector2(0f, 48f);
+        rect.sizeDelta = new Vector2(0f, 54f);
 
         var outline = labelObject.GetComponent<Outline>();
-        outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+        Color shadow = GameUiStyle.Panel;
+        shadow.a = .97f;
+        outline.effectColor = shadow;
         outline.effectDistance = new Vector2(1.5f, -1.5f);
+
+        var ruleObject = new GameObject("Prompt rule", typeof(RectTransform), typeof(Image));
+        var rule = ruleObject.GetComponent<Image>();
+        RectTransform ruleRect = rule.rectTransform;
+        ruleRect.SetParent(rect, false);
+        ruleRect.anchorMin = ruleRect.anchorMax = new Vector2(.5f, 0f);
+        ruleRect.anchoredPosition = new Vector2(0f, -2f);
+        ruleRect.sizeDelta = new Vector2(44f, 2f);
+        rule.color = GameUiStyle.Brass;
+        rule.raycastTarget = false;
     }
 }
