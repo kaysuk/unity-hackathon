@@ -6,6 +6,8 @@ public sealed class ItemPickup : Interactable
     [SerializeField] private string itemId;
     [SerializeField] private string pickupHint = "Подобрать предмет";
 
+    public override bool RequiresDirectAim => true;
+
     public override bool CanInteract(PlayerInteractor player)
     {
         return base.CanInteract(player) && player.Inventory != null &&

@@ -7,6 +7,8 @@ public sealed class SceneTransitionDoor : Interactable
     [SerializeField] private string nextScene = "Temple_Final_Room";
     [SerializeField] private Vector3 arrivalPosition = new Vector3(0f, 0.1f, 0f);
 
+    [SerializeField] private bool confirmRitualEntrance;
+
     private bool isLoading;
 
     public bool CanEnter => isActiveAndEnabled && !isLoading;
@@ -15,6 +17,16 @@ public sealed class SceneTransitionDoor : Interactable
 
     public override void Interact(PlayerInteractor player)
     {
+        if (!CanEnter || player == null)
+            return;
+
+        if (confirmRitualEntrance)
+        {
+            TempleArchiveJournal.GetOrCreate(player.gameObject)
+                .ConfirmRitualEntrance(() => Enter(player.Controller, player.CameraObject));
+            return;
+        }
+
         Enter(player.Controller, player.CameraObject);
     }
 

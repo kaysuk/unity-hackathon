@@ -18,7 +18,7 @@ public sealed class TempleSlidingTile : Interactable
     private void OnEnable()
     {
         board = GetComponentInParent<TempleSlidingPuzzle>();
-        // Every tile uses one cell of the shared number atlas, including in Scene view.
+        // Every tile uses one cell of the shared picture atlas, including in Scene view.
         float cell = 1f / Width;
         int index = number - 1;
         var properties = new MaterialPropertyBlock();
@@ -34,8 +34,9 @@ public sealed class TempleSlidingTile : Interactable
     {
         if (board == null || board.IsSolved)
             return null;
-        return CanInteract(player) ? $"{buttonPrompt} · Сдвинуть плитку {number}" :
-            "Расставьте плитки от 1 до 15 по рядам";
+        return CanInteract(player) && !string.IsNullOrEmpty(buttonPrompt)
+            ? $"{buttonPrompt} · Сдвинуть плитку"
+            : "Соберите знак по образцу";
     }
 
     public override void Interact(PlayerInteractor player)

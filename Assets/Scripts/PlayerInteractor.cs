@@ -115,7 +115,7 @@ public sealed class PlayerInteractor : MonoBehaviour
         {
             Collider collider = colliders[i];
             Interactable candidate = collider.GetComponentInParent<Interactable>();
-            if (candidate == null || candidate is ItemPickup || !candidate.isActiveAndEnabled)
+            if (candidate == null || !candidate.isActiveAndEnabled || candidate.RequiresDirectAim)
                 continue;
 
             Vector3 toCenter = collider.bounds.center - cameraRay.origin;
