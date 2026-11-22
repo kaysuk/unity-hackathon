@@ -8,13 +8,12 @@ public sealed class PlayerInteractor : MonoBehaviour
 {
     private const float AimToleranceDegrees = 18f;
 
-    [SerializeField] private ShoulderCamera viewCamera;
+    [SerializeField] private Camera viewCamera;
     [SerializeField, Min(0.1f)] private float reach = 2f;
 
     private readonly RaycastHit[] raycastHits = new RaycastHit[16];
     private readonly Collider[] nearbyColliders = new Collider[32];
     private CharacterController controller;
-    private PistolCombat pistolCombat;
     private InputAction interact;
     private Canvas promptCanvas;
     private UnityEngine.UI.Text promptLabel;
@@ -28,7 +27,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        pistolCombat = GetComponent<PistolCombat>();
+        if (viewCamera == null) viewCamera = Camera.main;
         Inventory = GetComponent<PlayerInventory>();
         interact = InputSystem.actions?.FindAction("Player/Interact");
 
@@ -74,8 +73,7 @@ public sealed class PlayerInteractor : MonoBehaviour
 
     private void OnGUI()
     {
-        if (Event.current.type != EventType.Repaint || !CanTarget ||
-            (pistolCombat != null && pistolCombat.isActiveAndEnabled && pistolCombat.ShowsCrosshair))
+        if (Event.current.type != EventType.Repaint || !CanTarget)
             return;
 
         float x = Screen.width * 0.5f;
@@ -89,7 +87,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private Interactable FindTargetInReach()
     {
         Vector3 ivanPosition = transform.TransformPoint(controller.center);
-        Ray cameraRay = viewCamera.GetAimRay();
+        Ray cameraRay = viewCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         float cameraDistance = Vector3.Distance(cameraRay.origin, ivanPosition) + reach;
 
         Interactable target = FindVisibleTarget(cameraRay, cameraDistance, ivanPosition);

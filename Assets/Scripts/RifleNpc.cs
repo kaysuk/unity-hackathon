@@ -21,9 +21,16 @@ public sealed class RifleNpc : MonoBehaviour
     private static readonly int Firing = Animator.StringToHash("Firing");
     private static readonly int Hit = Animator.StringToHash("Hit");
 
+    private static readonly int VictimState = Animator.StringToHash("Base Layer.Rear Takedown Victim");
+    private static readonly int Locomotion = Animator.StringToHash("Base Layer.Locomotion");
+    private IvanStealth takedownOwner;
+    public bool AvailableForTakedown => isActiveAndEnabled && !health.IsDead && takedownOwner == null;
+
     private Animator animator;
     private CharacterController body;
     private CombatHealth health;
+    private Transform targetActor;
+    private IvanStealth targetStealth;
     private CombatHealth target;
     private CharacterController targetBody;
     private Quaternion rifleRest;
@@ -46,10 +53,12 @@ public sealed class RifleNpc : MonoBehaviour
 
     private void Start()
     {
-        var player = FindAnyObjectByType<IvanMovement>();
+        var player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
+            targetActor = player.transform;
             target = player.GetComponent<CombatHealth>();
+            targetStealth = player.GetComponent<IvanStealth>();
             targetBody = player.GetComponent<CharacterController>();
         }
         nextShot = Time.time + burstPause;
@@ -59,11 +68,40 @@ public sealed class RifleNpc : MonoBehaviour
 
     private void OnDisable()
     {
+        takedownOwner = null;
         health.onHit.RemoveListener(OnHit);
         EndBurst();
         muzzleFlash.SetActive(false);
         recoil = 0f;
         rifle.localRotation = rifleRest;
+    }
+
+    public bool BeginTakedown(IvanStealth owner, float blendSeconds)
+    {
+        if (!AvailableForTakedown || !animator.HasState(0, VictimState)) return false;
+        takedownOwner = owner;
+        EndBurst();
+        muzzleFlash.SetActive(false);
+        recoil = 0f;
+        animator.ResetTrigger(Hit);
+        hitPending = false;
+        animator.SetFloat(MoveX, 0f);
+        animator.SetFloat(MoveZ, 0f);
+        animator.CrossFadeInFixedTime(VictimState, blendSeconds, 0, 0f);
+        return true;
+    }
+
+    public bool IsPairedWith(IvanStealth owner) => takedownOwner == owner && !health.IsDead;
+
+    public void EndTakedown(IvanStealth owner, bool completed)
+    {
+        if (takedownOwner != owner) return;
+        takedownOwner = null;
+        if (health.IsDead) return;
+        if (completed)
+            health.TakeDamage(health.HP, transform.position, owner.transform.forward, owner.gameObject);
+        else if (isActiveAndEnabled)
+            animator.CrossFadeInFixedTime(Locomotion, 0.15f, 0);
     }
 
     private void OnHit()
@@ -79,6 +117,7 @@ public sealed class RifleNpc : MonoBehaviour
             body.enabled = false;
             return;
         }
+        if (takedownOwner != null) return;
         hitFrame = Time.frameCount;
         hitPending = true;
         animator.SetTrigger(Hit);
@@ -93,19 +132,19 @@ public sealed class RifleNpc : MonoBehaviour
 
     private Vector3 AimPoint => targetBody != null
         ? targetBody.transform.TransformPoint(targetBody.center + Vector3.up * targetBody.height * 0.16f)
-        : target.transform.position + Vector3.up;
+        : targetActor.position + Vector3.up;
 
     private bool CanSeeTarget(Vector3 origin, out RaycastHit hit)
     {
         Vector3 ray = AimPoint - origin;
         return Physics.Raycast(origin, ray.normalized, out hit, ray.magnitude + 0.3f,
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)
-            && hit.collider.GetComponentInParent<CombatHealth>() == target;
+            && hit.transform.IsChildOf(targetActor);
     }
 
     private void Update()
     {
-        if (health.IsDead) return;
+        if (health.IsDead || takedownOwner != null) return;
         // A hit trigger may be set after this Animator has already evaluated for the frame.
         if (hitPending && Time.frameCount > hitFrame + 1 &&
             !animator.GetCurrentAnimatorStateInfo(0).IsTag("Hit") &&
@@ -113,16 +152,20 @@ public sealed class RifleNpc : MonoBehaviour
             hitPending = false;
 
         Vector2 move = Vector2.zero;
-        if (!hitPending && target != null && !target.IsDead)
+        if (!hitPending && targetActor != null && (target == null || !target.IsDead))
         {
-            Vector3 delta = Vector3.ProjectOnPlane(target.transform.position - transform.position, Vector3.up);
+            Vector3 delta = Vector3.ProjectOnPlane(targetActor.position - transform.position, Vector3.up);
             float distance = delta.magnitude;
-            if (distance <= detectionRange && distance > 0.001f)
+            Vector3 eye = transform.position + Vector3.up * (body.height * 0.75f);
+            bool noticed = targetStealth == null ||
+                ((Vector3.Dot(transform.forward, delta.normalized) > 0.15f ||
+                  (!targetStealth.IsCrouching && distance < 1.8f)) && CanSeeTarget(eye, out _));
+            if (noticed && distance <= detectionRange && distance > 0.001f)
             {
                 var facing = Quaternion.LookRotation(delta);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, 240f * Time.deltaTime);
                 bool aligned = Quaternion.Angle(transform.rotation, facing) < 10f;
-                if (aligned && CanSeeTarget(transform.position + Vector3.up * (body.height * 0.75f), out _))
+                if (aligned && target != null && CanSeeTarget(eye, out _))
                     move = Engage(distance);
                 else EndBurst();
             }
