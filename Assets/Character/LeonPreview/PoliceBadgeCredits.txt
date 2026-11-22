@@ -1,0 +1,8 @@
+Police Badge by oparaskos
+https://sketchfab.com/3d-models/police-badge-283ad36c25c7438299922707fc17690e
+
+Licensed under Creative Commons Attribution 4.0 International.
+https://creativecommons.org/licenses/by/4.0/
+
+Adapted for Unity by combining the mesh parts into one mesh,
+omitting the separate text geometry and reducing the imported normal map to 512 px.
