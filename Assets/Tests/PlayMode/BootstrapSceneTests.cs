@@ -536,6 +536,37 @@ namespace Hackathon.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
+        [UnityTest]
+        public IEnumerator TempleTransitionCarriesPlayerAndCameraIntoFinalRoom()
+        {
+            const string temple = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(temple, LoadSceneMode.Additive);
+            var source = SceneManager.GetSceneByPath(temple);
+            loadedScene = source;
+            var roots = source.GetRootGameObjects();
+            var player = roots.Single(root => root.CompareTag("Player"));
+            var camera = roots.Single(root => root.CompareTag("MainCamera"));
+            var door = roots.SelectMany(root => root.GetComponentsInChildren<MonoBehaviour>())
+                .Single(component => component != null && component.GetType().Name == "SceneTransitionDoor");
+            Assert.That(player.GetComponent("IvanLocomotion"), Is.Not.Null);
+            door.GetType().GetMethod("Enter").Invoke(door, new object[] { player.GetComponent<CharacterController>(), camera });
+
+            var deadline = Time.realtimeSinceStartup + 20f;
+            while (source.isLoaded && Time.realtimeSinceStartup < deadline)
+                yield return null;
+
+            var destination = SceneManager.GetSceneByPath(FinalRoom);
+            if (destination.isLoaded) loadedScene = destination;
+            Assert.That(source.isLoaded, Is.False);
+            Assert.That(destination.isLoaded, Is.True);
+            yield return null;
+
+            var destinationRoots = destination.GetRootGameObjects();
+            Assert.That(destinationRoots.Single(root => root.CompareTag("Player")), Is.EqualTo(player));
+            Assert.That(destinationRoots.Single(root => root.CompareTag("MainCamera")), Is.EqualTo(camera));
+            LogAssert.NoUnexpectedReceived();
+        }
+
         [UnityTearDown]
         public IEnumerator UnloadTestScene()
         {
