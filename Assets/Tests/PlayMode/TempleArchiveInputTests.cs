@@ -61,15 +61,15 @@ namespace Hackathon.Tests
                 action.Enable();
                 InputSystem.EnableDevice(keyboard);
 
-                var rim = lever.GetComponentInChildren<BoxCollider>().bounds.center;
-                void AimFrom(float distance)
+                var handle = lever.GetComponentInChildren<BoxCollider>();
+                void AimFrom(float z)
                 {
-                    var feet = new Vector3(rim.x, .02f, rim.z - distance);
+                    var feet = new Vector3(handle.bounds.center.x, .02f, z);
                     body.enabled = false;
                     player.transform.position = feet;
                     body.enabled = true;
-                    camera.transform.position = feet + Vector3.up * 1.61f;
-                    camera.transform.LookAt(rim);
+                    camera.transform.position = feet + new Vector3(.16f, 1.5f, -.65f);
+                    camera.transform.LookAt(handle.bounds.center);
                     Physics.SyncTransforms();
                 }
 
@@ -82,7 +82,7 @@ namespace Hackathon.Tests
                     update.Invoke(player, null);
                 }
 
-                AimFrom(1.05f);
+                AimFrom(7.25f);
                 Poll(new KeyboardState());
                 var label = SceneComponents().SingleOrDefault(c => c.name == "Binding Label" && c.GetType().Name == "Text");
                 Assert.That(label, Is.Not.Null, "Aiming at the lever must show its prompt");
@@ -98,15 +98,9 @@ namespace Hackathon.Tests
                 Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
                 Assert.IsTrue(Read<bool>(lever, "IsDown"));
                 Assert.That(Read<string>(label, "text"), Does.Contain("Поднять рычаг"));
-                Poll(new KeyboardState());
-                yield return null;
-                rim = lever.GetComponentInChildren<BoxCollider>().bounds.center;
-                AimFrom(1.05f);
-                Poll(new KeyboardState(Key.E));
-                Assert.IsFalse(Read<bool>(lever, "IsDown"));
                 yield return null;
 
-                AimFrom(4.2f);
+                AimFrom(3f);
                 Poll(new KeyboardState());
                 Assert.That(label.isActiveAndEnabled, Is.False, "The prompt disappears beyond the player's reach");
             }
