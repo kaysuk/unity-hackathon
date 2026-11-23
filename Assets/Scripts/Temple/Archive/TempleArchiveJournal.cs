@@ -234,8 +234,25 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             FullFamilyTruth = true;
     }
 
-    private bool OpenScreen() =>
-        TryOpenOverlay("Archive Journal", 100, new Vector2(1600f, 900f), usePointer: false);
+    private bool OpenScreen()
+    {
+        if (!TryOpenOverlay("Archive Journal", 100, new Vector2(1600f, 900f), usePointer: false))
+            return false;
+
+        // The first five archive pages are also seal clues. Only the workshop holds the register.
+        if (TryGetComponent(out PlayerInventory inventory))
+        {
+            for (int page = 1; page < DocumentTotal; page++)
+            {
+                if (!HasDocument(page) && TempleSealDocument.HasCollectedPage(inventory, page))
+                {
+                    collectedMask |= 1 << (page - 1);
+                    DocumentCount++;
+                }
+            }
+        }
+        return true;
+    }
 
     private void FitPage()
     {

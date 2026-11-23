@@ -31,7 +31,12 @@ public sealed class TempleSealPanel : Interactable
 
     public override string GetPrompt(PlayerInteractor player, string buttonPrompt)
     {
-        if (IsSolved) return "Тайная запись: «Алексей Карамазов. Мать — Софья Карамазова».";
+        if (IsSolved)
+        {
+            if (player.TryGetComponent(out TempleArchiveJournal journal) && journal.FullFamilyTruth)
+                return "Тайная запись: «Алексей Карамазов. Мать — Софья Карамазова».";
+            return "Тайная запись · " + TempleArchiveText.SealedRegister;
+        }
         int count = TempleSealDocument.CountCollected(player.Inventory);
         if (count < Code.Length) return $"Найдено документов {count}/{Code.Length}";
         return wrongMark ? "Неверная печать. Начните сначала" : $"Введено печатей {Progress}/{Code.Length}";

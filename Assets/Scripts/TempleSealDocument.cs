@@ -15,6 +15,9 @@ public sealed class TempleSealDocument : Interactable
 
     private string DocumentId => DocumentIds[number - 1];
 
+    internal static bool HasCollectedPage(PlayerInventory inventory, int page) =>
+        inventory.HasCollected(DocumentIds[page - 1]);
+
     public static int CountCollected(PlayerInventory inventory)
     {
         int count = 0;

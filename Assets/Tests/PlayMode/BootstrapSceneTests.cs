@@ -746,7 +746,7 @@ namespace Hackathon.Tests
         }
 
         [UnityTest]
-        public IEnumerator ArchiveLeversOpenRoom72AndSixSealsRevealItsSecret()
+        public IEnumerator ArchiveLeversOpenThePassageToTheRuneWorkshop()
         {
             const string path = "Assets/Scenes/Levels/temple_v2.unity";
             yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
@@ -756,7 +756,6 @@ namespace Hackathon.Tests
             var player = scripts.Single(s => s.GetType().Name == "PlayerInteractor");
             var orbit = scripts.Single(s => s.GetType().Name == "IvanOrbitCamera");
             var door = scripts.Single(s => s.GetType().Name == "TempleShortDoor" && s.name == "Room 7.1 - Archive entrance");
-            var panel = scripts.Single(s => s.GetType().Name == "TempleSealPanel");
             var wall = scripts.Single(s => s.GetType().Name == "TemplePassage" && s.name == "Concealed archive wall");
             var graph = scripts.Single(s => s.GetType().Name == "GraphManager");
             var east = scripts.Single(s => s.GetType().Name == "Node" && s.name == "HiddenEast");
@@ -764,8 +763,6 @@ namespace Hackathon.Tests
             bool HasRoute(Component from, Component to) =>
                 graph.GetType().GetMethod("FindPath").Invoke(graph, new object[] { from, to }) != null;
             bool WallOpen() => (bool)wall.GetType().GetProperty("IsOpen").GetValue(wall);
-            var buttons = scripts.Where(s => s.GetType().Name == "TempleSealButton").ToDictionary(s => s.name);
-            var docs = scripts.Where(s => s.GetType().Name == "TempleSealDocument").ToArray();
             var controller = player.GetComponent<CharacterController>();
             orbit.enabled = false;
             ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
@@ -801,7 +798,11 @@ namespace Hackathon.Tests
                 .OrderBy(s => s.transform.position.x).ToArray();
             Assert.AreEqual(6, levers.Length);
             Assert.AreEqual("Room 7.1", levers[0].transform.parent.parent.name);
-            Assert.AreEqual("Room 7.2", panel.transform.parent.name);
+            var workshop = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true))
+                .Single(t => t.name == "Room 7.2");
+            var workshopScripts = workshop.GetComponentsInChildren<MonoBehaviour>(true);
+            Assert.That(workshopScripts.Count(s => s.GetType().Name == "TempleRuneStation"), Is.EqualTo(6));
+            Assert.IsFalse(workshopScripts.Any(s => s.GetType().Name == "TempleSealPanel" || s.GetType().Name == "TempleSealButton"));
             void Pull(int number)
             {
                 var lever = levers[number - 1];
@@ -831,51 +832,6 @@ namespace Hackathon.Tests
             Place(east.transform.position + Vector3.up * .02f);
             for (int i = 0; i < 22; i++) controller.Move(Vector3.left * .12f);
             Assert.LessOrEqual(player.transform.position.x, west.transform.position.x, "Ivan must enter room 7.2");
-            Place(new Vector3(26.75f, .02f, 7.0f));
-            int Progress() => (int)panel.GetType().GetProperty("Progress").GetValue(panel);
-            var lamps = panel.GetComponentsInChildren<Renderer>()
-                .Where(r => r.name.StartsWith("Witness lamp ")).OrderBy(r => r.transform.position.x).ToArray();
-            Assert.That(lamps.Length, Is.EqualTo(6));
-            var properties = new MaterialPropertyBlock();
-            void CheckLamps(int expected)
-            {
-                for (int i = 0; i < lamps.Length; i++)
-                {
-                    lamps[i].GetPropertyBlock(properties);
-                    Assert.AreEqual(i < expected, properties.GetColor("_EmissionColor").maxColorComponent > 0f, lamps[i].name);
-                }
-            }
-            string Prompt(Component target) => (string)target.GetType().GetMethod("GetPrompt").Invoke(target, new object[] { player, "E" });
-            Assert.That(Prompt(buttons["Gate"]), Does.Contain("0/6"));
-            foreach (var doc in docs.Take(5)) Use(doc);
-            Use(buttons["Gate"]);
-            Assert.AreEqual(0, Progress());
-            Assert.IsTrue(WallOpen());
-            Assert.That(Prompt(buttons["Gate"]), Does.Contain("5/6"));
-            Use(docs.Last());
-            Use(buttons["Gate"]);
-            Assert.AreEqual(1, Progress());
-            Use(buttons["Glyph"]);
-            Assert.AreEqual(0, Progress());
-            CheckLamps(0);
-            Assert.That(Prompt(buttons["Glyph"]), Does.Contain("Неверная"));
-            Assert.IsTrue(WallOpen());
-            int accepted = 0;
-            foreach (string name in new[] { "Gate", "Sun", "Circle", "Glyph", "Dotted crescent", "Crescent" })
-            {
-                var key = buttons[name];
-                Aim(key.GetComponent<BoxCollider>().bounds.center);
-                Assert.AreSame(key, find.Invoke(player, null), name);
-                Use(key);
-                Assert.AreEqual(++accepted, Progress());
-                CheckLamps(accepted);
-                Assert.IsTrue(WallOpen());
-            }
-            Use(buttons["Gate"]);
-            Assert.AreEqual(6, Progress());
-            Assert.That(Prompt(panel), Does.Contain("Тайная запись"));
-            Use(buttons["Crescent"]);
-            Place(west.transform.position + Vector3.up * .02f);
             for (int i = 0; i < 22; i++) controller.Move(Vector3.right * .12f);
             Assert.Greater(player.transform.position.x, wall.transform.position.x, "The return passage must stay open");
         }
