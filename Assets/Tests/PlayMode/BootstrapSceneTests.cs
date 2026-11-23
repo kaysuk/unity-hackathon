@@ -877,6 +877,91 @@ namespace Hackathon.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
+        [UnityTest]
+        public IEnumerator AngelSealLocksToGroundAndStrikesOnce([ValueSource(nameof(StartDuringTurn))] bool escape)
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            var roots = loadedScene.GetRootGameObjects();
+            var player = roots.Single(root => root.CompareTag("Player"));
+            var boss = roots.Single(root => root.GetComponent("AngelSealAttack") != null);
+            foreach (var guard in roots.Where(root => root.GetComponent("RifleNpc") != null))
+                guard.SetActive(false);
+
+            yield return null;
+            var health = player.GetComponent("CombatHealth");
+            var hp = health.GetType().GetProperty("HP");
+            var initial = (float)hp.GetValue(health);
+            var ring = boss.transform.Find("Seal boundary").GetComponent<LineRenderer>();
+            float deadline = Time.time + 6f;
+            while (!ring.enabled && Time.time < deadline) yield return null;
+            Assert.That(ring.enabled, Is.True);
+            Vector3 marked = ring.transform.position;
+            Assert.That(Vector3.Distance(marked, player.transform.position), Is.LessThan(0.15f));
+            if (escape) player.GetComponent<CharacterController>().Move(Vector3.right * 2.5f);
+            yield return new WaitForSeconds(0.7f);
+            Assert.That((float)hp.GetValue(health), Is.EqualTo(initial));
+            Assert.That(ring.transform.position, Is.EqualTo(marked));
+
+            var attack = boss.GetComponent("AngelSealAttack");
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var finger = (Transform)attack.GetType().GetField("finger", flags).GetValue(attack);
+            var knuckle = (Transform)attack.GetType().GetField("knuckle", flags).GetValue(attack);
+            Assert.That(finger, Is.Not.Null);
+            Assert.That(Vector3.Angle(finger.position - knuckle.position, marked - knuckle.position), Is.LessThan(15f));
+
+            yield return new WaitForSeconds(1.7f);
+            Assert.That(ring.enabled, Is.False);
+            Assert.That((float)hp.GetValue(health), Is.EqualTo(initial - (escape ? 0f : 20f)));
+        }
+
+        private static readonly bool[] HaloStances = { false, true };
+
+        [UnityTest]
+        public IEnumerator HaloWavePassesOverCrouchingIvan([ValueSource(nameof(HaloStances))] bool crouch)
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            var roots = loadedScene.GetRootGameObjects();
+            var player = roots.Single(root => root.CompareTag("Player"));
+            var boss = roots.Single(root => root.GetComponent("AngelSealAttack") != null);
+            foreach (var guard in roots.Where(root => root.GetComponent("RifleNpc") != null))
+                guard.SetActive(false);
+            yield return null;
+            var health = player.GetComponent("CombatHealth");
+            var hp = health.GetType().GetProperty("HP");
+            var wave = boss.transform.Find("Halo wave").GetComponent<LineRenderer>();
+            float deadline = Time.time + 16f;
+            while (!wave.enabled && Time.time < deadline) yield return null;
+            Assert.IsTrue(wave.enabled);
+            Assert.IsFalse(boss.transform.Find("Seal boundary").GetComponent<LineRenderer>().enabled);
+            // Read the rendered LateUpdate pose before the next Update restores the rig.
+            yield return new WaitForFixedUpdate();
+            var bones = boss.GetComponentsInChildren<Transform>();
+            var halo = bones.Single(bone => bone.name == "outter_torus");
+            var mesh = halo.GetComponent<MeshFilter>().sharedMesh.bounds;
+            Vector3 center = halo.TransformPoint(mesh.center);
+            float height = wave.GetPosition(0).y;
+            Assert.That(center.y, Is.EqualTo(height).Within(0.12f));
+            for (int i = 0; i < 3; i++)
+            {
+                float a = 2f * Mathf.PI * i / 3f;
+                var grip = mesh.center + new Vector3(Mathf.Cos(a) * mesh.extents.x, 0f, Mathf.Sin(a) * mesh.extents.z);
+                Vector3 rim = halo.TransformPoint(grip);
+                Assert.That(rim.y, Is.EqualTo(height).Within(0.12f));
+                var palm = bones.Single(bone => bone.name == $"hand{i + 1}:middle_1");
+                Assert.That(Vector3.Distance(palm.position, rim), Is.LessThan(0.12f));
+            }
+            float before = (float)hp.GetValue(health);
+            using (var input = new MovementKeyboard())
+            {
+                if (crouch) input.Press(Key.C);
+                while (wave.enabled && Time.time < deadline + 4f) yield return null;
+                Assert.IsFalse(wave.enabled);
+                Assert.That((float)hp.GetValue(health), Is.EqualTo(before - (crouch ? 0f : 20f)));
+            }
+        }
+
         [UnityTearDown]
         public IEnumerator UnloadTestScene()
         {

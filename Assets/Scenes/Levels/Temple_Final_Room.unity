@@ -59497,8 +59497,44 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3256bf0e3b7d48303bc26d4f2d1cb1c6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1912000002}
   m_SourcePrefab: {fileID: 100100000, guid: 3256bf0e3b7d48303bc26d4f2d1cb1c6, type: 3}
+--- !u!1 &1912000001 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3256bf0e3b7d48303bc26d4f2d1cb1c6, type: 3}
+  m_PrefabInstance: {fileID: 1813671107}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1912000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1912000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 104972aa00bd4c47acf1d61fa4281f6b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::AngelSealAttack
+  player: {fileID: 2123573385}
+  haloSweep:
+    windup: 2
+    speed: 5
+    reach: 16
+    damage: 20
+    chestHeight: 1.43
+    gripMaterial: {fileID: 2100000, guid: 11421de10b784dfead46582f45d5495e, type: 2}
+  ritualSeal: {fileID: 21300000, guid: ada353fd65a4471b999f1012be96e0bc, type: 3}
+  rimMaterial: {fileID: 2100000, guid: 293d6e32d8bc49509f16d631fc4fcb0f, type: 2}
+  sealMaterial: {fileID: 2100000, guid: 1a6b51257fddbf6199198b2017035a48, type: 2}
+  radius: 1.5
+  warningSeconds: 2
+  recoverySeconds: 4
+  damage: 20
+  activationRange: 12
 --- !u!1 &1814739543
 GameObject:
   m_ObjectHideFlags: 0
