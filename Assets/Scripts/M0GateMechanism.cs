@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public sealed class M0GateMechanism : Interactable
+public sealed class M0GateMechanism : Interactable, IGraphPassage
 {
     [SerializeField] private string leftHandleId;
     [SerializeField] private string rightHandleId;
@@ -11,8 +11,11 @@ public sealed class M0GateMechanism : Interactable
     [SerializeField] private Vector3 raisedLocalPosition;
     [SerializeField, Min(0.01f)] private float liftSpeed = 2.6f;
 
+    [SerializeField] private TemplePassage exitDoor;
     private Stage stage;
 
+    public event System.Action PassabilityChanged;
+    public bool IsPassable => IsOpen;
     public bool IsOpen => stage == Stage.Open;
 
     private enum Stage
@@ -117,6 +120,10 @@ public sealed class M0GateMechanism : Interactable
 
         gate.localPosition = Vector3.MoveTowards(gate.localPosition, raisedLocalPosition, liftSpeed * Time.deltaTime);
         if (gate.localPosition == raisedLocalPosition)
+        {
             stage = Stage.Open;
+            if (exitDoor != null) exitDoor.SetOpen(true);
+            PassabilityChanged?.Invoke();
+        }
     }
 }

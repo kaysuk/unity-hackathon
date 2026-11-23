@@ -425,6 +425,347 @@ namespace Hackathon.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator StairsAreSilentAndReadyPistolUsesSwatHitZones()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var scripts = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            var graph = scripts.Single(s => s.GetType().Name == "GraphManager");
+            var player = scripts.Single(s => s.GetType().Name == "IvanSidearm").gameObject;
+            var muzzle = player.GetComponentsInChildren<Transform>().Single(t => t.name == "Sidearm Direction");
+            var flash = muzzle.Find("Muzzle flash").gameObject;
+            Assert.IsFalse(flash.activeSelf);
+            Assert.IsTrue(flash.GetComponent<Light>().enabled);
+            Assert.IsNotNull(flash.GetComponent<MeshFilter>().sharedMesh);
+            var guards = scripts.Where(s => s.GetType().Name == "RifleNpc").ToArray();
+            var playerBody = player.GetComponent<CharacterController>();
+            var npcBody = guards[0].GetComponent<CharacterController>();
+            var source = graph.GetType().GetMethod("FootstepSource");
+            var floors = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<BoxCollider>())
+                .Where(c => c.gameObject.layer == LayerMask.NameToLayer("SilentStairs")).ToArray();
+            Assert.That(floors.Length, Is.GreaterThan(20));
+            foreach (var floor in floors)
+            {
+                var feet = floor.bounds.center + Vector3.up * floor.bounds.extents.y;
+                Assert.IsNull(source.Invoke(graph, new object[] {feet, npcBody, playerBody}), floor.name);
+            }
+            Assert.IsNotNull(source.Invoke(graph, new object[] {new Vector3(6f, 0f, 0.9f), npcBody, playerBody}));
+
+            var camera = scripts.Single(s => s.GetType().Name == "IvanOrbitCamera");
+            camera.enabled = false;
+            ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
+            void Place(GameObject actor, Vector3 position)
+            {
+                var capsule = actor.GetComponent<CharacterController>();
+                capsule.enabled = false;
+                actor.transform.SetPositionAndRotation(position, Quaternion.identity);
+                capsule.enabled = true;
+            }
+            Vector3 origin = Vector3.right * 120f;
+            Place(player, origin);
+            for (int i = 0; i < guards.Length; i++)
+            {
+                guards[i].enabled = false;
+                Place(guards[i].gameObject, origin + Vector3.forward * 5f + Vector3.right * i * 2f);
+            }
+            camera.transform.position = origin + new Vector3(0.3f, 1.5f, -1f);
+            var target = guards[0].GetComponent("CombatHealth");
+            float HP(Component health) => (float)health.GetType().GetProperty("HP").GetValue(health);
+            var torso = guards[0].GetComponentsInChildren<CapsuleCollider>().Single(c => c.name == "Torso hit zone");
+            var head = guards[1].GetComponentsInChildren<SphereCollider>().Single(c => c.name == "Head hit zone");
+            using (var routing = new MovementKeyboard())
+            {
+                var mouse = InputSystem.AddDevice<Mouse>();
+                var cover = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                try
+                {
+                    cover.transform.position = origin + new Vector3(0f, 1f, 2f);
+                    cover.transform.localScale = new Vector3(2, 3, 0.2f);
+                    cover.SetActive(false);
+                    IEnumerator Click(Collider zone, bool aim, bool expectFlash = true)
+                    {
+                        var buttons = aim ? new MouseState().WithButton(MouseButton.Right) : new MouseState();
+                        InputSystem.QueueStateEvent(mouse, buttons);
+                        yield return null;
+                        Physics.SyncTransforms();
+                        camera.transform.LookAt(zone.bounds.center);
+                        InputSystem.QueueStateEvent(mouse, buttons.WithButton(MouseButton.Left));
+                        yield return null;
+                        bool flashed = flash.activeInHierarchy;
+                        yield return null;
+                        Assert.AreEqual(expectFlash, flashed || flash.activeInHierarchy, "Pistol muzzle flash");
+                    }
+                    yield return Click(torso, false, false);
+                    Assert.AreEqual(100f, HP(target), "Holstered pistol fired");
+                    InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
+                    yield return Click(torso, true, false);
+                    Assert.AreEqual(100f, HP(target), "Pistol fired before it was drawn");
+                    yield return new WaitForSeconds(1.4f);
+                    cover.SetActive(true);
+                    yield return Click(torso, true);
+                    Assert.AreEqual(100f, HP(target), "Shot passed through cover");
+                    yield return new WaitForSeconds(.1f);
+                    Assert.IsFalse(flash.activeSelf, "The muzzle flash should extinguish between shots");
+                    cover.SetActive(false);
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        yield return Click(torso, true);
+                        Assert.That(HP(target), Is.EqualTo(100f * (3 - i) / 3f).Within(0.001f), $"Torso shot {i}");
+                    }
+                    yield return Click(head, true);
+                    Assert.AreEqual(0f, HP(guards[1].GetComponent("CombatHealth")), "Headshot must be fatal");
+                }
+                finally
+                {
+                    Object.Destroy(cover);
+                    InputSystem.RemoveDevice(mouse);
+                }
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator WoundedSwatTurnsTowardsIncomingFire()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var guard = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>())
+                .Single(s => s.GetType().Name == "RifleNpc" && (bool)s.GetType().GetProperty("HoldsPosition").GetValue(s));
+            var zones = guard.GetComponent("SwatHitZones");
+            var torso = guard.GetComponentsInChildren<CapsuleCollider>().Single(c => c.name == "Torso hit zone");
+            var shooter = GameObject.FindGameObjectWithTag("Player");
+
+            void ShootFrom(Vector3 towardShooter)
+            {
+                Physics.SyncTransforms();
+                var ray = new Ray(torso.bounds.center + towardShooter * 2f, -towardShooter);
+                Assert.IsTrue(torso.Raycast(ray, out var hit, 3f));
+                zones.GetType().GetMethod("ApplyShot").Invoke(zones, new object[] { hit, ray.direction, shooter });
+            }
+
+            var behind = -guard.transform.forward;
+            var flank = guard.transform.right;
+            foreach (var bearing in new[] { behind, flank })
+            {
+                ShootFrom(bearing);
+                float deadline = Time.time + 1f;
+                while (Vector3.Angle(guard.transform.forward, bearing) > 2f && Time.time < deadline)
+                    yield return null;
+                Assert.That(Vector3.Angle(guard.transform.forward, bearing), Is.LessThanOrEqualTo(2f));
+            }
+            var lastFacing = guard.transform.rotation;
+            ShootFrom(behind);
+            yield return new WaitForSeconds(0.55f);
+            Assert.IsFalse(torso.enabled);
+            Assert.That(Quaternion.Angle(guard.transform.rotation, lastFacing), Is.LessThan(1f));
+        }
+
+        [UnityTest]
+        public IEnumerator SixSealDocumentsCanBeReadInTheTemple()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var scripts = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            var document = scripts.Single(s => s.name == "D01 - Supply note" && s.GetType().Name == "TempleSealDocument");
+            var player = scripts.Single(s => s.GetType().Name == "PlayerInteractor");
+            var orbit = scripts.Single(s => s.GetType().Name == "IvanOrbitCamera");
+            orbit.enabled = false;
+            ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
+            var body = player.GetComponent<CharacterController>();
+            void AimAt(Component sheet, Vector3 feet, Vector3 cameraPosition)
+            {
+                body.enabled = false;
+                player.transform.position = feet;
+                body.enabled = true;
+                orbit.transform.position = cameraPosition;
+                Physics.SyncTransforms();
+                orbit.transform.LookAt(sheet.GetComponent<BoxCollider>().bounds.center);
+            }
+            AimAt(document, new Vector3(7.47f, 0.01f, 5.45f), new Vector3(7.7f, 1.35f, 4.5f));
+            var findTarget = player.GetType().GetMethod("FindTargetInReach",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.AreNotSame(document, findTarget.Invoke(player, null), "Closed niche");
+
+            var tiles = scripts.Where(s => s.GetType().Name == "TempleSlidingTile")
+                .ToDictionary(s => (int)s.GetType().GetProperty("Number").GetValue(s));
+            foreach (int number in new[] { 4, 8, 7, 6, 10, 11, 15 })
+                tiles[number].GetType().GetMethod("Interact").Invoke(tiles[number], new object[] { player });
+            yield return new WaitForSeconds(0.65f);
+            Assert.AreSame(document, findTarget.Invoke(player, null), "Aim at the paper through the open niche");
+
+            var prompt = document.GetType().GetMethod("GetPrompt");
+            var read = document.GetType().GetMethod("Interact");
+            var sheets = scripts.Where(s => s.GetType() == document.GetType()).OrderBy(s => s.name).ToArray();
+            Assert.That(sheets.Length, Is.EqualTo(6));
+            int count = 0;
+            void ReadOnce(Component sheet)
+            {
+                Assert.AreSame(sheet, findTarget.Invoke(player, null), sheet.name);
+                Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain("Прочитать"));
+                read.Invoke(sheet, new object[] { player });
+                read.Invoke(sheet, new object[] { player });
+                Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain($"{++count}/6"));
+            }
+            ReadOnce(document);
+            // Rooms can be searched in any order, including while the library is closed.
+            foreach (var (room, feet, camera) in new[]
+            {
+                (3, new Vector3(19.7f, 0.01f, 5.65f), new Vector3(19.9f, 1.45f, 4.8f)),
+                (2, new Vector3(14.1f, 0.01f, 5.7f), new Vector3(14.3f, 1.55f, 4.8f)),
+                (6, new Vector3(19.25f, 0.01f, -5.75f), new Vector3(19.45f, 1.45f, -4.8f)),
+                (5, new Vector3(12.1f, 0.01f, -5.7f), new Vector3(12.3f, 1.45f, -4.8f)),
+                (4, new Vector3(4.9f, 0.01f, -6.55f), new Vector3(5.7f, 1.5f, -6.65f))
+            })
+            {
+                var sheet = sheets[room - 1];
+                AimAt(sheet, feet, camera);
+                ReadOnce(sheet);
+            }
+            Assert.That((string)prompt.Invoke(document, new object[] { player, "E" }),
+                Does.Contain("6/6").And.Contain("по порядку комнат"));
+        }
+
+        [UnityTest]
+        public IEnumerator ArchiveLeversOpenRoom72AndSixSealsRevealItsSecret()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var scripts = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            var player = scripts.Single(s => s.GetType().Name == "PlayerInteractor");
+            var orbit = scripts.Single(s => s.GetType().Name == "IvanOrbitCamera");
+            var door = scripts.Single(s => s.GetType().Name == "TempleShortDoor" && s.name == "Room 7.1 - Archive entrance");
+            var panel = scripts.Single(s => s.GetType().Name == "TempleSealPanel");
+            var wall = scripts.Single(s => s.GetType().Name == "TemplePassage" && s.name == "Concealed archive wall");
+            var graph = scripts.Single(s => s.GetType().Name == "GraphManager");
+            var east = scripts.Single(s => s.GetType().Name == "Node" && s.name == "HiddenEast");
+            var west = scripts.Single(s => s.GetType().Name == "Node" && s.name == "HiddenWest");
+            bool HasRoute(Component from, Component to) =>
+                graph.GetType().GetMethod("FindPath").Invoke(graph, new object[] { from, to }) != null;
+            bool WallOpen() => (bool)wall.GetType().GetProperty("IsOpen").GetValue(wall);
+            var buttons = scripts.Where(s => s.GetType().Name == "TempleSealButton").ToDictionary(s => s.name);
+            var docs = scripts.Where(s => s.GetType().Name == "TempleSealDocument").ToArray();
+            var controller = player.GetComponent<CharacterController>();
+            orbit.enabled = false;
+            ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
+            var find = player.GetType().GetMethod("FindTargetInReach",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            void Use(Component target) => target.GetType().GetMethod("Interact").Invoke(target, new object[] { player });
+            void Aim(Vector3 point)
+            {
+                orbit.transform.position = player.transform.position + new Vector3(.16f, 1.5f, -.65f);
+                orbit.transform.LookAt(point);
+                Physics.SyncTransforms();
+            }
+            void Place(Vector3 feet)
+            {
+                controller.enabled = false;
+                player.transform.position = feet;
+                controller.enabled = true;
+            }
+            Place(new Vector3(31.7f, .02f, 1.15f));
+            Aim(new Vector3(31.45f, 1.28f, 2.28f));
+            Assert.AreSame(door, find.Invoke(player, null));
+            Use(door);
+            yield return new WaitForSeconds(.55f);
+            Assert.IsTrue((bool)door.GetType().GetProperty("IsPassable").GetValue(door));
+            for (int i = 0; i < 28; i++) controller.Move(Vector3.forward * .14f);
+            Assert.Greater(player.transform.position.z, 4.4f, "Both door leaves must clear the passage");
+
+            Place(east.transform.position + Vector3.up * .02f);
+            for (int i = 0; i < 20; i++) controller.Move(Vector3.left * .12f);
+            Assert.Greater(player.transform.position.x, wall.transform.position.x, "The sealed wall must stop Ivan");
+            Assert.IsFalse(HasRoute(east, west));
+            var levers = scripts.Where(s => s.GetType().Name == "TempleArchiveLever")
+                .OrderBy(s => s.transform.position.x).ToArray();
+            Assert.AreEqual(6, levers.Length);
+            Assert.AreEqual("Room 7.1", levers[0].transform.parent.parent.name);
+            Assert.AreEqual("Room 7.2", panel.transform.parent.name);
+            void Pull(int number)
+            {
+                var lever = levers[number - 1];
+                var handle = lever.GetComponentInChildren<BoxCollider>();
+                Place(new Vector3(handle.bounds.center.x, .02f, 7.25f));
+                Aim(handle.bounds.center);
+                Assert.AreSame(lever, find.Invoke(player, null), lever.name);
+                Use(lever);
+                Physics.SyncTransforms();
+            }
+            Pull(1);
+            Pull(6);
+            Pull(2);
+            Pull(4);
+            Assert.IsFalse(WallOpen(), "An extra lowered lever must keep the wall closed");
+            Pull(1);
+            Assert.IsTrue(WallOpen(), "The lever combination alone opens the passage");
+            Assert.IsFalse(HasRoute(east, west), "The wall is still moving");
+            var shutter = wall.GetComponent<BoxCollider>();
+            float deadline = Time.time + 5f;
+            var moving = wall.GetType().GetProperty("IsMoving");
+            while ((bool)moving.GetValue(wall) && Time.time < deadline) yield return null;
+            Physics.SyncTransforms();
+            Assert.Less(shutter.bounds.max.y, 0f);
+            Assert.IsTrue(HasRoute(east, west));
+            Assert.IsTrue(HasRoute(west, east));
+            Place(east.transform.position + Vector3.up * .02f);
+            for (int i = 0; i < 22; i++) controller.Move(Vector3.left * .12f);
+            Assert.LessOrEqual(player.transform.position.x, west.transform.position.x, "Ivan must enter room 7.2");
+            Place(new Vector3(26.75f, .02f, 7.0f));
+            int Progress() => (int)panel.GetType().GetProperty("Progress").GetValue(panel);
+            var lamps = panel.GetComponentsInChildren<Renderer>()
+                .Where(r => r.name.StartsWith("Witness lamp ")).OrderBy(r => r.transform.position.x).ToArray();
+            Assert.That(lamps.Length, Is.EqualTo(6));
+            var properties = new MaterialPropertyBlock();
+            void CheckLamps(int expected)
+            {
+                for (int i = 0; i < lamps.Length; i++)
+                {
+                    lamps[i].GetPropertyBlock(properties);
+                    Assert.AreEqual(i < expected, properties.GetColor("_EmissionColor").maxColorComponent > 0f, lamps[i].name);
+                }
+            }
+            string Prompt(Component target) => (string)target.GetType().GetMethod("GetPrompt").Invoke(target, new object[] { player, "E" });
+            Assert.That(Prompt(buttons["Gate"]), Does.Contain("0/6"));
+            foreach (var doc in docs.Take(5)) Use(doc);
+            Use(buttons["Gate"]);
+            Assert.AreEqual(0, Progress());
+            Assert.IsTrue(WallOpen());
+            Assert.That(Prompt(buttons["Gate"]), Does.Contain("5/6"));
+            Use(docs.Last());
+            Use(buttons["Gate"]);
+            Assert.AreEqual(1, Progress());
+            Use(buttons["Glyph"]);
+            Assert.AreEqual(0, Progress());
+            CheckLamps(0);
+            Assert.That(Prompt(buttons["Glyph"]), Does.Contain("Неверная"));
+            Assert.IsTrue(WallOpen());
+            int accepted = 0;
+            foreach (string name in new[] { "Gate", "Sun", "Circle", "Glyph", "Dotted crescent", "Crescent" })
+            {
+                var key = buttons[name];
+                Aim(key.GetComponent<BoxCollider>().bounds.center);
+                Assert.AreSame(key, find.Invoke(player, null), name);
+                Use(key);
+                Assert.AreEqual(++accepted, Progress());
+                CheckLamps(accepted);
+                Assert.IsTrue(WallOpen());
+            }
+            Use(buttons["Gate"]);
+            Assert.AreEqual(6, Progress());
+            Assert.That(Prompt(panel), Does.Contain("Тайная запись"));
+            Use(buttons["Crescent"]);
+            Place(west.transform.position + Vector3.up * .02f);
+            for (int i = 0; i < 22; i++) controller.Move(Vector3.right * .12f);
+            Assert.Greater(player.transform.position.x, wall.transform.position.x, "The return passage must stay open");
+        }
+
         private sealed class MovementKeyboard : System.IDisposable
         {
             private readonly InputSettings settings = InputSystem.settings;

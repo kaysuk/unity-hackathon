@@ -177,6 +177,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f07a94117825e7f8d94bac2a96160503, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8856704845747567646}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f07a94117825e7f8d94bac2a96160503, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7351366712367251149}
   m_SourcePrefab: {fileID: 100100000, guid: f07a94117825e7f8d94bac2a96160503, type: 3}
 --- !u!4 &6981703303996481242 stripped
 Transform:
@@ -255,3 +258,15 @@ MonoBehaviour:
   shotInterval: 0.16
   burstSize: 3
   burstPause: 1.6
+--- !u!114 &7351366712367251149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8473306308723301443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8de8ad2789594cb185201e49163f778f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SwatHitZones

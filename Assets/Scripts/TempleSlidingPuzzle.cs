@@ -5,6 +5,7 @@ public sealed class TempleSlidingPuzzle : MonoBehaviour
 {
     public const int Width = 4;
     [SerializeField] private TemplePassage northGate;
+    [SerializeField] private TemplePassage documentShutter;
 
     private readonly TempleSlidingTile[] slots = new TempleSlidingTile[Width * Width];
     private int emptySlot;
@@ -46,6 +47,7 @@ public sealed class TempleSlidingPuzzle : MonoBehaviour
 
         IsSolved = true;
         northGate.SetOpen(true);
+        if (documentShutter != null) documentShutter.SetOpen(true);
         return true;
     }
 }

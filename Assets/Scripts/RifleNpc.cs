@@ -8,6 +8,7 @@ public sealed class RifleNpc : MonoBehaviour
     [SerializeField] private Transform muzzle;
     [SerializeField] private GameObject muzzleFlash;
     [SerializeField] private AudioSource shotAudio;
+    [SerializeField, Tooltip("Stand at the starting post while undisturbed. Return here after an alert.")] private bool holdPosition;
     [SerializeField, Min(0.1f)] private float walkSpeed = 1.55f;
     [SerializeField, Min(1f)] private float detectionRange = 16f;
     [SerializeField, Min(1f)] private float preferredDistance = 6f;
@@ -42,6 +43,20 @@ public sealed class RifleNpc : MonoBehaviour
     private bool firePose;
     private bool hitPending;
     private int hitFrame;
+    private Quaternion? shotFacing;
+
+    public bool HoldsPosition => holdPosition;
+    private NPCChaser chaser;
+    private bool templePerception;
+
+    public void SetTempleTarget(Transform player)
+    {
+        templePerception = true;
+        targetActor = player;
+        target = player.GetComponent<CombatHealth>();
+        targetStealth = player.GetComponent<IvanStealth>();
+        targetBody = player.GetComponent<CharacterController>();
+    }
 
     private void Awake()
     {
@@ -54,7 +69,7 @@ public sealed class RifleNpc : MonoBehaviour
     private void Start()
     {
         var player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
+        if (targetActor == null && player != null)
         {
             targetActor = player.transform;
             target = player.GetComponent<CombatHealth>();
@@ -64,10 +79,23 @@ public sealed class RifleNpc : MonoBehaviour
         nextShot = Time.time + burstPause;
     }
 
+    private AudioClip alertClip;
+    public void SetNavigation(NPCChaser navigation, AudioClip alert)
+    {
+        chaser = navigation;
+        alertClip = alert;
+    }
+
+    public void Shout()
+    {
+        if (alertClip != null) shotAudio.PlayOneShot(alertClip);
+    }
+
     private void OnEnable() => health.onHit.AddListener(OnHit);
 
     private void OnDisable()
     {
+        shotFacing = null;
         takedownOwner = null;
         health.onHit.RemoveListener(OnHit);
         EndBurst();
@@ -80,6 +108,7 @@ public sealed class RifleNpc : MonoBehaviour
     {
         if (!AvailableForTakedown || !animator.HasState(0, VictimState)) return false;
         takedownOwner = owner;
+        shotFacing = null;
         EndBurst();
         muzzleFlash.SetActive(false);
         recoil = 0f;
@@ -123,6 +152,14 @@ public sealed class RifleNpc : MonoBehaviour
         animator.SetTrigger(Hit);
     }
 
+    public void FaceIncomingShot(Vector3 bulletDirection)
+    {
+        if (!isActiveAndEnabled || health.IsDead || takedownOwner != null) return;
+        Vector3 towardShot = Vector3.ProjectOnPlane(-bulletDirection, Vector3.up);
+        if (towardShot.sqrMagnitude > 0.0001f)
+            shotFacing = Quaternion.LookRotation(towardShot);
+    }
+
     private void EndBurst()
     {
         shotsRemaining = 0;
@@ -152,24 +189,59 @@ public sealed class RifleNpc : MonoBehaviour
             hitPending = false;
 
         Vector2 move = Vector2.zero;
-        if (!hitPending && targetActor != null && (target == null || !target.IsDead))
+        if (shotFacing.HasValue)
+        {
+            Quaternion facing = shotFacing.Value;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, 360f * Time.deltaTime);
+            if (Quaternion.Angle(transform.rotation, facing) < 0.1f)
+                shotFacing = null;
+        }
+        else if (!hitPending && targetActor != null && (target == null || !target.IsDead))
         {
             Vector3 delta = Vector3.ProjectOnPlane(targetActor.position - transform.position, Vector3.up);
             float distance = delta.magnitude;
             Vector3 eye = transform.position + Vector3.up * (body.height * 0.75f);
-            bool noticed = targetStealth == null ||
-                ((Vector3.Dot(transform.forward, delta.normalized) > 0.15f ||
-                  (!targetStealth.IsCrouching && distance < 1.8f)) && CanSeeTarget(eye, out _));
-            if (noticed && distance <= detectionRange && distance > 0.001f)
+            bool noticed;
+            if (templePerception)
+            {
+                float range = targetStealth != null && targetStealth.IsCrouching ? 5f : 15f;
+                noticed = (AimPoint - eye).sqrMagnitude <= range * range &&
+                    Vector3.Dot(transform.forward, delta.normalized) >= 0.7071068f && CanSeeTarget(eye, out _);
+            }
+            else
+            {
+                noticed = targetStealth == null ||
+                    ((Vector3.Dot(transform.forward, delta.normalized) > 0.15f ||
+                      (!targetStealth.IsCrouching && distance < 1.8f)) && CanSeeTarget(eye, out _));
+            }
+            Vector3 steering = chaser != null ? chaser.GetDirection(noticed) : Vector3.zero;
+            if (noticed && distance <= detectionRange && distance > 0.001f &&
+                (chaser == null || chaser.CurrentState != NPCChaser.State.RushToGrate))
             {
                 var facing = Quaternion.LookRotation(delta);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, 240f * Time.deltaTime);
+                if (!holdPosition || chaser != null)
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, 240f * Time.deltaTime);
                 bool aligned = Quaternion.Angle(transform.rotation, facing) < 10f;
                 if (aligned && target != null && CanSeeTarget(eye, out _))
                     move = Engage(distance);
                 else EndBurst();
+                if (chaser != null)
+                {
+                    Vector3 local = transform.InverseTransformDirection(steering);
+                    move = distance > 1.1f ? new Vector2(local.x, local.z) : Vector2.zero;
+                }
             }
-            else EndBurst();
+            else
+            {
+                EndBurst();
+                if (steering.sqrMagnitude > 0f)
+                {
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                        Quaternion.LookRotation(steering), 240f * Time.deltaTime);
+                    Vector3 local = transform.InverseTransformDirection(steering);
+                    move = new Vector2(local.x, local.z);
+                }
+            }
         }
         else EndBurst();
 
@@ -187,7 +259,7 @@ public sealed class RifleNpc : MonoBehaviour
             shotsRemaining = burstSize;
             animator.SetBool(Firing, true);
         }
-        if (firePose) return Vector2.zero;
+        if (firePose || holdPosition) return Vector2.zero;
         if (distance > preferredDistance + 1f) return Vector2.up;
         if (distance < preferredDistance - 1f) return Vector2.down;
         return new Vector2(strafeSide, 0f);
