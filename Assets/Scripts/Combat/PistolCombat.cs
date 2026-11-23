@@ -126,6 +126,7 @@ public sealed class PistolCombat : MonoBehaviour
     private void CompleteReload()
     {
         int transferred = Mathf.Min(Mathf.Max(0, magazineCapacity - Ammo), ReserveAmmo);
+        if (transferred > 0) GameAudio.Play(SoundCue.MagazineIn, transform.position, 0.48f);
         Ammo += transferred;
         ReserveAmmo -= transferred;
         CancelReload();
@@ -164,14 +165,18 @@ public sealed class PistolCombat : MonoBehaviour
             Keyboard.current?.rKey.wasPressedThisFrame == true)
         {
             IsReloading = true;
+            GameAudio.Play(SoundCue.MagazineOut, transform.position, 0.41f);
             reloadEnds = Time.time + Mathf.Max(0.1f, reloadDuration);
             CombatAnimation.SetBool(animator, "IsReload", true);
         }
         bool shooting = sidearm != null ? sidearm.ShotRequested :
             captured && wasCaptured && Mouse.current?.leftButton.wasPressedThisFrame == true;
-        if (shooting && Time.timeScale > 0f && Ready && !IsReloading && Ammo > 0 &&
+        if (shooting && Time.timeScale > 0f && Ready && !IsReloading &&
             !CombatAnimation.BlocksAim(animator) && Time.time >= nextShot)
-            Fire();
+        {
+            if (Ammo > 0) Fire();
+            else GameAudio.Play(SoundCue.DryFire, muzzle.position, 0.32f);
+        }
         wasCaptured = captured;
     }
 
@@ -212,6 +217,7 @@ public sealed class PistolCombat : MonoBehaviour
     {
         if (IsMuzzleObstructed()) return;
         if (sidearm != null) sidearm.ShowShot();
+        else GameAudio.PistolShot(muzzle.position);
         Ammo--;
         nextShot = Time.time + Mathf.Max(0.01f, shotInterval);
         Ray cameraRay = sidearm != null
@@ -241,6 +247,8 @@ public sealed class PistolCombat : MonoBehaviour
                     hitMarkerUntil = Time.unscaledTime + 0.15f;
                     break;
                 }
+            if (hit.collider.GetComponentInParent<CombatHealth>() == null)
+                GameAudio.Play(SoundCue.WallHit, hit.point, 0.58f);
             ShowImpact(hit.point, hit.normal);
         }
         StartCoroutine(Tracer(origin, end));

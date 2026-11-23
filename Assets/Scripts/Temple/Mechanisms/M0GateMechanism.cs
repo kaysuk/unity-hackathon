@@ -88,17 +88,21 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
                 if (!player.Inventory.TryUsePair(leftHandleId, rightHandleId))
                     return;
 
+                GameAudio.Play(SoundCue.Key, leftHandle.position);
                 leftHandle.gameObject.SetActive(true);
                 rightHandle.gameObject.SetActive(true);
                 stage = Stage.HandlesInserted;
                 break;
 
             case Stage.HandlesInserted:
+                GameAudio.Play(SoundCue.Lever, leftHandle.position);
                 leftHandle.Rotate(0f, 0f, 90f, Space.Self);
                 stage = Stage.LeftHandleTurned;
                 break;
 
             case Stage.LeftHandleTurned:
+                GameAudio.Play(SoundCue.Lever, rightHandle.position);
+                GameAudio.Play(SoundCue.Gate, gate.position);
                 rightHandle.Rotate(0f, 0f, 90f, Space.Self);
                 stage = Stage.Raising;
                 break;
@@ -124,6 +128,7 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
         if (gate.localPosition == raisedLocalPosition)
         {
             stage = Stage.Open;
+            GameAudio.Play(SoundCue.GateStop, gate.position);
             if (exitDoor != null) exitDoor.SetOpen(true);
             PassabilityChanged?.Invoke();
             if (gameObject.scene == SceneManager.GetActiveScene())

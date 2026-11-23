@@ -21,6 +21,7 @@ public sealed class TempleSecretButton : Interactable
         if (plunger != null)
             plunger.localPosition += Vector3.back * 0.022f;
 
+        GameAudio.Play(SoundCue.Switch, transform.position);
         passage.SetOpen(true);
     }
 }

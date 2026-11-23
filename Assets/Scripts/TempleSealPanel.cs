@@ -47,6 +47,7 @@ public sealed class TempleSealPanel : Interactable
         if (!AcceptsInput(player)) return;
         wrongMark = mark != Code[Progress];
         Progress = wrongMark ? 0 : Progress + 1;
+        GameAudio.Play(wrongMark ? SoundCue.SealFail : IsSolved ? SoundCue.Seal : SoundCue.Switch, transform.position);
         RefreshIndicators();
     }
 

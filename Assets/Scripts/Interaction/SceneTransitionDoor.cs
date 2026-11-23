@@ -51,6 +51,7 @@ public sealed class SceneTransitionDoor : Interactable
         }
 
         isLoading = true;
+        GameAudio.Play(SoundCue.Door, transform.position);
         StartCoroutine(LoadLocation(ivan, playerCamera));
     }
 

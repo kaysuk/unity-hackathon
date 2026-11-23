@@ -8,6 +8,7 @@ public sealed class RifleNpc : MonoBehaviour
     [SerializeField] private Transform muzzle;
     [SerializeField] private GameObject muzzleFlash;
     [SerializeField] private AudioSource shotAudio;
+    [SerializeField] private AudioClip alertClip;
     [SerializeField, Tooltip("Stand at the starting post while undisturbed. Return here after an alert.")] private bool holdPosition;
     [SerializeField, Min(0.1f)] private float walkSpeed = 1.55f;
     [SerializeField, Min(0.1f)] private float patrolSpeed = 1.05f;
@@ -90,16 +91,15 @@ public sealed class RifleNpc : MonoBehaviour
         nextShot = Time.time + burstPause;
     }
 
-    private AudioClip alertClip;
     public void SetNavigation(NPCChaser navigation, AudioClip alert)
     {
         chaser = navigation;
-        alertClip = alert;
+        if (alert != null) alertClip = alert;
     }
 
     public void Shout()
     {
-        if (alertClip != null) shotAudio.PlayOneShot(alertClip);
+        GameAudio.Alert(transform.position, alertClip);
     }
 
     private void OnEnable() => health.onHit.AddListener(OnHit);
@@ -172,6 +172,7 @@ public sealed class RifleNpc : MonoBehaviour
     {
         if (!isActiveAndEnabled || health.IsDead || shooter == null || shooter.transform != targetActor) return;
         if (takedownOwner != null) EndTakedown(takedownOwner, false);
+        if (!recognized && chaser == null) Shout();
         recognized = true;
         chaser?.RecognizePlayer();
         Vector3 towardShot = Vector3.ProjectOnPlane(-bulletDirection, Vector3.up);
@@ -235,7 +236,9 @@ public sealed class RifleNpc : MonoBehaviour
             }
             if (!visible) sightStartedAt = -1f;
             else if (sightStartedAt < 0f) sightStartedAt = Time.time;
-            recognized = visible && (recognized || Time.time - sightStartedAt >= recognitionSeconds);
+            bool seesPlayer = visible && (recognized || Time.time - sightStartedAt >= recognitionSeconds);
+            if (seesPlayer && !recognized && chaser == null) Shout();
+            recognized = seesPlayer;
             Vector3 steering = chaser != null ? chaser.GetDirection(recognized) : Vector3.zero;
             if (recognized && distance <= detectionRange && distance > 0.001f &&
                 (chaser == null || chaser.CurrentState != NPCChaser.State.RushToGrate))

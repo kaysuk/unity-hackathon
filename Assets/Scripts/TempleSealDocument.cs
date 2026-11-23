@@ -42,6 +42,9 @@ public sealed class TempleSealDocument : Interactable
     {
         if (CanInteract(player) && player.Inventory.TryCollect(DocumentId) &&
             gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+        {
+            GameAudio.Interface(SoundCue.Paper);
             GameObjectives.SetArchiveProgress(CountCollected(player.Inventory));
+        }
     }
 }

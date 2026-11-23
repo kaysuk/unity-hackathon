@@ -32,6 +32,7 @@ public sealed class IvanLocomotion : MonoBehaviour
     private float? previousCameraYaw;
     private bool followLook;
     private bool wasAiming;
+    private PlayerFootsteps footsteps;
 
     private void Awake()
     {
@@ -110,6 +111,7 @@ public sealed class IvanLocomotion : MonoBehaviour
 
         wasAiming = aiming;
         float actualSpeed = MoveCapsule(targetSpeed, dt);
+        if (stealth == null || !stealth.IsPerforming) footsteps.Move(capsule, crouched);
         if (crouched)
         {
             Vector3 local = transform.InverseTransformDirection(travelDirection) * (actualSpeed / stealth.Speed);

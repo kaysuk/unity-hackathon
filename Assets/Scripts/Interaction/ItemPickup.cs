@@ -20,6 +20,11 @@ public sealed class ItemPickup : Interactable
     public override void Interact(PlayerInteractor player)
     {
         if (CanInteract(player) && player.Inventory.TryCollect(itemId))
+        {
+            var sound = itemId.StartsWith("rune_") ? SoundCue.Stone :
+                itemId == "archive_documents" ? SoundCue.Paper : SoundCue.Key;
+            GameAudio.Play(sound, transform.position);
             gameObject.SetActive(false);
+        }
     }
 }

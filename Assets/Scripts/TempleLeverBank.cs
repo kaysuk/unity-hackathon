@@ -48,7 +48,11 @@ public sealed class TempleLeverBank : MonoBehaviour
             if ((linked & (1 << i)) != 0) levers[i].ShowState(IsLit(i));
 
         mechanism.PlayOneShot(leverSound, 0.7f);
-        if (lights == 0) passage.SetOpen(true);
+        if (lights == 0)
+        {
+            GameAudio.Play(SoundCue.Seal, passage.transform.position);
+            passage.SetOpen(true);
+        }
     }
 
     internal string DescribeSolution()

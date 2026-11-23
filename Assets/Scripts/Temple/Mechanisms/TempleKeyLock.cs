@@ -20,6 +20,9 @@ public sealed class TempleKeyLock : Interactable
     public override void Interact(PlayerInteractor player)
     {
         if (CanInteract(player) && player.Inventory.TryUse(keyId))
+        {
+            GameAudio.Play(SoundCue.Key, transform.position);
             shutter.SetOpen(true);
+        }
     }
 }

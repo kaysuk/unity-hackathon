@@ -40,6 +40,9 @@ namespace Hackathon.Menu
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             CreateContinueButton();
+            foreach (var button in new[] { newGame, continueGame, settings, exit, settingsBack, exitConfirm, exitCancel,
+                unavailableBack, fullscreen })
+                button.onClick.AddListener(() => GameAudio.Interface(SoundCue.MenuClick));
             RefreshActions();
             newGame.onClick.AddListener(() => StartCoroutine(LoadGame(false)));
             continueGame.onClick.AddListener(() => StartCoroutine(LoadGame(true)));

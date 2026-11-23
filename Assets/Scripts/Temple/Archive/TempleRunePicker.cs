@@ -54,6 +54,7 @@ public sealed class TempleRunePicker : PausedGameOverlay
             return;
         }
 
+        GameAudio.Interface(SoundCue.Cloth);
         selection = 0;
         panel.sizeDelta = new Vector2(Mathf.Max(504f, held.Count * TileStep + 36f), 178f);
         for (int i = 0; i < tiles.Length; i++)
@@ -132,6 +133,7 @@ public sealed class TempleRunePicker : PausedGameOverlay
         if (!IsOpen)
             return;
 
+        GameAudio.Interface(SoundCue.MenuClick);
         selection = (selection + Math.Sign(direction) + held.Count) % held.Count;
         HighlightSelection();
     }
