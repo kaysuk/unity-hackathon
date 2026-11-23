@@ -11,7 +11,6 @@ public sealed class TempleRuneStation : Interactable
     [SerializeField] private TempleRunePuzzle puzzle;
     [SerializeField, Range(0, GlyphCount - 1)] private int initialIndex;
     [SerializeField, Range(0, GlyphCount - 1)] private int targetIndex;
-    [SerializeField, Range(0, GlyphCount - 1)] private int stoneIndex;
     [SerializeField] private GameObject placedStone;
     [SerializeField] private Transform dial;
     [SerializeField] private Vector3 dialAxis = Vector3.forward;
@@ -30,7 +29,7 @@ public sealed class TempleRuneStation : Interactable
     public bool HasStone => OccupantIndex >= 0 && !isSeating;
     public int CurrentIndex { get; private set; }
     public int TargetIndex => targetIndex;
-    public int StoneIndex => stoneIndex;
+    public int StoneIndex => (targetIndex + GlyphCount / 2) % GlyphCount;
     public override bool RequiresDirectAim => true;
     internal bool IsAligned => !isTurning && CurrentIndex == targetIndex;
 
@@ -44,7 +43,7 @@ public sealed class TempleRuneStation : Interactable
         return puzzle == controller && dial != null && dialAxis != Vector3.zero && socketLift != null &&
             placedStone != null && placedStone.TryGetComponent<MeshFilter>(out _) &&
             placedStone.TryGetComponent<MeshRenderer>(out _) && ValidGlyph(initialIndex) &&
-            ValidGlyph(targetIndex) && ValidGlyph(stoneIndex);
+            ValidGlyph(targetIndex);
     }
 
     private static bool ValidGlyph(int index) => index >= 0 && index < GlyphCount;
@@ -67,7 +66,7 @@ public sealed class TempleRuneStation : Interactable
     public override bool CanInteract(PlayerInteractor player) => DialReady && !isTurning;
 
     public override string GetPrompt(PlayerInteractor player, string buttonPrompt) =>
-        DialReady ? WithButton(buttonPrompt, "Повернуть плиту") : null;
+        DialReady ? WithButton(buttonPrompt, "Повернуть диск · знак комнаты к бронзовой риске") : null;
 
     public override void Interact(PlayerInteractor player)
     {

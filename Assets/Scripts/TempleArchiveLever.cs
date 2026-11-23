@@ -4,28 +4,46 @@ using UnityEngine;
 public sealed class TempleArchiveLever : Interactable
 {
     [SerializeField] private Transform handle;
-    [SerializeField] private bool requiredDown;
+    [SerializeField] private MeshRenderer indicator;
+    private Material seal;
     private TempleLeverBank bank;
+    private int index;
 
     public bool IsDown { get; private set; }
-    public bool Matches => IsDown == requiredDown;
 
-    private void Awake() => bank = GetComponentInParent<TempleLeverBank>();
+    internal void Initialize(TempleLeverBank owner, int number, bool lit, Shader sealShader)
+    {
+        bank = owner;
+        index = number;
+        seal = indicator.material;
+        seal.shader = sealShader;
+        ShowState(lit);
+    }
 
-    public override bool CanInteract(PlayerInteractor player) => base.CanInteract(player) && !bank.IsSolved;
+    internal void ShowState(bool lit)
+    {
+        IsDown = lit;
+        handle.localRotation = Quaternion.Euler(lit ? 95f : 0f, 0f, 0f);
+        seal.SetColor("_EmissionColor", lit ? new Color(2.8f, 1.2f, 0.28f) : Color.black);
+    }
+
+    private void OnDestroy()
+    {
+        if (seal != null) Destroy(seal);
+    }
 
     public override string GetPrompt(PlayerInteractor player, string buttonPrompt)
     {
-        if (bank.IsSolved) return "Проход в комнату 7.2 открыт";
-        string action = IsDown ? "Поднять рычаг" : "Опустить рычаг";
-        return $"{buttonPrompt} · {action} · {bank.Clue}";
+        if (bank.IsSolved) return FormatBoundAction(buttonPrompt, "Прочитать расчёт печатей");
+        return FormatBoundAction(buttonPrompt, $"Рычаг {index + 1} · Меняет свой знак и соседние. Погаси все шесть.");
     }
 
     public override void Interact(PlayerInteractor player)
     {
         if (!CanInteract(player)) return;
-        IsDown = !IsDown;
-        handle.localRotation = Quaternion.Euler(IsDown ? 95f : 0f, 0f, 0f);
-        bank.CheckCombination();
+        if (bank.IsSolved)
+            TempleArchiveJournal.GetOrCreate(player.gameObject).ReadSealCalculation(bank.DescribeSolution());
+        else
+            bank.Pull(index);
     }
 }

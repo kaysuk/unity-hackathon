@@ -49,9 +49,7 @@ public sealed class SwatHitZones : MonoBehaviour
         if (!Contains(hit.collider) || health.IsDead) return;
         float third = health.MaximumHP / 3f;
         float damage = hit.collider == head || Mathf.Approximately(health.HP, third) ? health.HP : third;
-        health.TakeDamage(damage, hit.point, direction, shooter);
-        if (!health.IsDead && TryGetComponent<RifleNpc>(out var guard))
-            guard.FaceIncomingShot(direction);
+        health.TakePistolShot(damage, hit.point, direction, shooter);
     }
 
     private void DisableZones()

@@ -7,6 +7,8 @@ public sealed class GraphManager : MonoBehaviour
 {
     [SerializeField, Min(0.1f)] private float anchorRange = 7f;
     [SerializeField, Min(0.05f)] private float floorTolerance = 0.65f;
+    [SerializeField, Tooltip("Volume covering the full stair shaft, including the air between steps.")]
+    private Bounds silentStairwell;
     private readonly List<Node> nodes = new List<Node>();
     private float minimumCostPerMetre;
     public event Action PassageChanged;
@@ -56,10 +58,15 @@ public sealed class GraphManager : MonoBehaviour
 
     public Node FootstepSource(Vector3 feet, CharacterController body, CharacterController player)
     {
-        // Include the step offset so the contact stays quiet between adjacent treads.
-        float reach = player.stepOffset + player.skinWidth;
-        if (Physics.Raycast(feet + Vector3.up * 0.1f, Vector3.down, out _, reach + 0.1f,
-                silentStairsMask, QueryTriggerInteraction.Ignore)) return null;
+        if (silentStairwell.size.y > 0f && silentStairwell.Contains(transform.InverseTransformPoint(feet)))
+            return null;
+
+        // The capsule can still be supported by a tread after its centre has crossed the edge.
+        float radius = Mathf.Min(player.bounds.extents.x, player.bounds.extents.z);
+        Vector3 sole = feet + Vector3.up * radius;
+        Vector3 below = sole - Vector3.up * (player.stepOffset + player.skinWidth);
+        if (Physics.CheckCapsule(below, sole, radius, silentStairsMask, QueryTriggerInteraction.Ignore))
+            return null;
         return SoundAnchor(feet, body, player);
     }
 

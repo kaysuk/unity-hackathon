@@ -234,7 +234,10 @@ public sealed class PistolCombat : MonoBehaviour
             else foreach (var component in hit.collider.GetComponentsInParent<MonoBehaviour>())
                 if (component is IDamageable receiver)
                 {
-                    receiver.TakeDamage(damage, hit.point, delta.normalized, gameObject);
+                    if (receiver is CombatHealth health)
+                        health.TakePistolShot(damage, hit.point, delta.normalized, gameObject);
+                    else
+                        receiver.TakeDamage(damage, hit.point, delta.normalized, gameObject);
                     hitMarkerUntil = Time.unscaledTime + 0.15f;
                     break;
                 }

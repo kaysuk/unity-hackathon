@@ -96,30 +96,33 @@ public sealed class NPCChaser : MonoBehaviour
     {
         direct = CanWalkDirectly(destination);
         blocked = false;
-        mover.SetRoute(direct ? null : graph.ApproachRoute(Anchor(mover.Feet), goal, out blocked));
+        // Mid-flight, neither landing may be reachable by a straight capsule cast.
+        // Continue toward the current waypoint when an alarm changes into a chase.
+        mover.SetRoute(direct ? null : graph.ApproachRoute(Anchor(mover.Feet) ?? mover.Next, goal, out blocked));
         progressTime = Time.time;
         progressPosition = mover.Feet;
     }
 
+    private Vector3 PlayerFeet => playerBody != null ? NPCMover.FootPosition(playerBody) : player.position;
+
+    internal void RecognizePlayer()
+    {
+        lastSeen = PlayerFeet;
+        destination = lastSeen;
+        if (hasSight) return;
+        hasSight = true;
+        Travel(State.Chase, Anchor(lastSeen), lastSeen);
+        if (Time.time >= nextShout)
+        {
+            nextShout = Time.time + 3f;
+            guard.Shout();
+            graph.RaiseAlarm(this, graph.SoundAnchor(mover.Feet, body, playerBody) ?? mover.LastReached);
+        }
+    }
+
     public Vector3 GetDirection(bool visible)
     {
-        Vector3 feet = playerBody != null ? NPCMover.FootPosition(playerBody) : player.position;
-        if (visible)
-        {
-            lastSeen = feet;
-            if (!hasSight)
-            {
-                hasSight = true;
-                Travel(State.Chase, Anchor(feet), feet);
-                if (Time.time >= nextShout)
-                {
-                    nextShout = Time.time + 3f;
-                    guard.Shout();
-                    graph.RaiseAlarm(this, graph.SoundAnchor(mover.Feet, body, playerBody) ?? mover.LastReached);
-                }
-            }
-            destination = lastSeen;
-        }
+        if (visible) RecognizePlayer();
         else if (hasSight)
         {
             hasSight = false;
@@ -139,7 +142,7 @@ public sealed class NPCChaser : MonoBehaviour
                 }
             }
             else if (CurrentState == State.Patrol || CurrentState == State.Return || trackingFootsteps)
-                Listen(feet);
+                Listen(PlayerFeet);
         }
 
         if (inspecting) return Inspect();

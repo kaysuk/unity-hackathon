@@ -12,6 +12,59 @@ namespace Hackathon.Tests
     public sealed class TempleGraphGeometryTests
     {
         [UnityTest]
+        public IEnumerator RunningFromSpawnDownEveryFlightIsSilentUntilTheCorridor()
+        {
+            yield return SceneManager.LoadSceneAsync("temple_v2", LoadSceneMode.Additive);
+            var scene = SceneManager.GetSceneByName("temple_v2");
+            float originalScale = Time.timeScale;
+            try
+            {
+                yield return null;
+                Time.timeScale = 2f;
+                var scripts = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+                var player = scripts.Single(s => s.GetType().Name == "IvanLocomotion");
+                player.enabled = false;
+                var capsule = player.GetComponent<CharacterController>();
+                var guard = scripts.Single(s => s.GetType().Name == "NPCChaser" && s.name == "SWAT - Entrance corridor");
+                var nodes = scripts.Where(s => s.GetType().Name == "Node").ToDictionary(n => n.name);
+                // Isolate hearing: drive the guard's normal sensing tick with no visual contact or squad alerts.
+                foreach (var rifle in scripts.Where(s => s.GetType().Name == "RifleNpc")) rifle.enabled = false;
+                var sense = guard.GetType().GetMethod("GetDirection");
+                string State() => guard.GetType().GetProperty("CurrentState").GetValue(guard).ToString();
+                float fall = -2f;
+
+                IEnumerator RunTo(Vector3 destination, bool silent)
+                {
+                    float deadline = Time.time + 8f;
+                    Vector3 delta;
+                    while ((delta = Vector3.ProjectOnPlane(destination - player.transform.position, Vector3.up)).magnitude > .08f)
+                    {
+                        Assert.Less(Time.time, deadline, $"Blocked on route to {destination} at {player.transform.position}.");
+                        float dt = Time.deltaTime;
+                        fall = (capsule.isGrounded ? -2f : fall) + Physics.gravity.y * dt;
+                        capsule.Move(Vector3.ClampMagnitude(delta, 2.8f * dt) + Vector3.up * (fall * dt));
+                        sense.Invoke(guard, new object[] { false });
+                        if (silent)
+                            Assert.AreEqual("Patrol", State(), $"Guard heard Ivan at {player.transform.position}, on route to {destination}.");
+                        yield return null;
+                    }
+                }
+
+                for (int floor = 1; floor <= 5; floor++)
+                    yield return RunTo(nodes[$"Landing_{floor}"].transform.position, true);
+                // The listener is standing at Entry. Pass beside his capsule.
+                yield return RunTo(nodes["Entry"].transform.position + Vector3.forward * .85f, true);
+                yield return RunTo(nodes["Hall1"].transform.position, false);
+                Assert.AreEqual("Search", State(), "Running in the corridor must alert the same listener.");
+            }
+            finally
+            {
+                Time.timeScale = originalScale;
+                SceneManager.UnloadSceneAsync(scene);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator ReinforcementChecksClosedPassageThenReturns()
         {
             yield return SceneManager.LoadSceneAsync("temple_v2", LoadSceneMode.Additive);
@@ -106,12 +159,23 @@ namespace Hackathon.Tests
                 }
                 Vector3 hide = player.transform.position;
                 Vector3 seen = post + caller.transform.forward * 1.7f;
+                Time.timeScale = 1f;
                 place(seen);
+                yield return new WaitForSeconds(.65f);
+                Assert.AreEqual("Patrol", state(caller), "A glimpse must not trigger an alert");
+                place(hide);
                 yield return null;
                 yield return null;
+                place(seen);
+                float recognitionDeadline = Time.time + 1.22f;
+                yield return new WaitForSeconds(.75f);
+                Assert.AreEqual("Patrol", state(caller), "Broken sight must restart recognition");
+                Assert.IsFalse(squad.Any(s => state(s) == "InvestigateAlarm"));
+                while (state(caller) != "Chase" && Time.time < recognitionDeadline) yield return null;
                 Assert.AreEqual("Chase", state(caller));
                 foreach (var ally in squad.Where(s => s != caller)) Assert.AreEqual("InvestigateAlarm", state(ally));
                 place(hide);
+                Time.timeScale = 3f;
                 bool reached = false, scanned = false;
                 float deadline = Time.time + 14f;
                 while (Time.time < deadline)
@@ -150,6 +214,9 @@ namespace Hackathon.Tests
                 var scripts = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
                 var player = scripts.Single(s => s.GetType().Name == "PlayerInteractor");
                 var guard = scripts.Single(s => s.name == "SWAT - Entrance corridor" && s.GetType().Name == "NPCChaser");
+                var animator = guard.GetComponent<Animator>();
+                animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                var patrolClips = new System.Collections.Generic.HashSet<string>();
                 var door = scripts.Single(s => s.GetType().Name == "TempleShortDoor" &&
                     s.transform.parent.parent.name == "Room 1 - puzzle door");
                 var body = player.GetComponent<CharacterController>();
@@ -173,6 +240,8 @@ namespace Hackathon.Tests
                 void undetected()
                 {
                     reachedGrate |= guard.transform.position.x > 15.8f;
+                    foreach (var info in animator.GetCurrentAnimatorClipInfo(0))
+                        if (info.weight > .1f) patrolClips.Add(info.clip.name);
                     Assert.AreEqual("Patrol", guard.GetType().GetProperty("CurrentState").GetValue(guard).ToString());
                 }
                 IEnumerator walkTo(Vector3 destination)
@@ -218,7 +287,12 @@ namespace Hackathon.Tests
                 do
                 {
                     undetected();
-                    if (reachedGrate && guard.transform.position.x < -0.75f) yield break;
+                    if (reachedGrate && guard.transform.position.x < -0.75f)
+                    {
+                        Assert.That(patrolClips, Does.Contain("Rifle Walk"));
+                        Assert.That(patrolClips, Does.Contain("Rifle Walk To Stop"));
+                        yield break;
+                    }
                     yield return null;
                 } while (Time.time < until);
                 Assert.Fail($"Entrance patrol did not complete its round trip; last position {guard.transform.position}");

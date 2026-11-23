@@ -22,6 +22,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
     private ScrollRect scroll;
     private readonly Text[] seals = new Text[DocumentTotal];
 
+    private bool readingSealCalculation;
     private Action pendingEntrance;
     private Action continueAfterReading;
 
@@ -74,6 +75,19 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             GameObjectives.SetArchiveProgress(DocumentCount);
     }
 
+    internal void ReadSealCalculation(string calculation)
+    {
+        if (IsOpen || !OpenScreen()) return;
+        readingSealCalculation = true;
+        heading.text = "АРХИВ  /  КОМНАТА 7.1";
+        title.text = "Расчёт шести печатей";
+        body.text = calculation;
+        reaction.text = string.Empty;
+        foreach (Text seal in seals) seal.gameObject.SetActive(false);
+        controls.text = "↑ / ↓ Прокрутить    Esc / B Закрыть";
+        FitPage();
+    }
+
     public void ConfirmRitualEntrance(Action enter)
     {
         if (enter == null || IsOpen || !OpenScreen())
@@ -123,6 +137,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     protected override void OnOverlayClosed()
     {
+        readingSealCalculation = false;
         pendingEntrance = null;
         continueAfterReading = null;
     }
@@ -194,6 +209,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     private void FlipPage(int direction)
     {
+        if (readingSealCalculation) return;
         int next = currentDocument;
         do
         {

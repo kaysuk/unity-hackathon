@@ -253,6 +253,7 @@ MonoBehaviour:
   shotAudio: {fileID: 6070274060035039456}
   walkSpeed: 1.55
   detectionRange: 16
+  recognitionSeconds: 1
   preferredDistance: 6
   damage: 5
   shotInterval: 0.16

@@ -34,6 +34,14 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
         Changed?.Invoke(HP);
     }
 
+    internal void TakePistolShot(float damage, Vector3 point, Vector3 direction, GameObject shooter)
+    {
+        float previousHP = HP;
+        TakeDamage(damage, point, direction, shooter);
+        if (HP < previousHP && !IsDead && TryGetComponent(out RifleNpc guard))
+            guard.OnPistolHit(shooter, direction);
+    }
+
     public void TakeDamage(float amount, Vector3 point, Vector3 direction, GameObject source)
     {
         if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;

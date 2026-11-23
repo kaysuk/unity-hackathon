@@ -565,6 +565,14 @@ namespace Hackathon.Tests
                 var feet = floor.bounds.center + Vector3.up * floor.bounds.extents.y;
                 Assert.IsNull(source.Invoke(graph, new object[] {feet, npcBody, playerBody}), floor.name);
             }
+            var exit = floors.Single(c => c.name == "Lower vestibule floor").bounds;
+            var landingEdge = new Vector3(exit.max.x, exit.max.y, 0f);
+            var straddling = landingEdge + Vector3.right * (playerBody.radius * 0.5f);
+            Assert.IsNull(source.Invoke(graph, new object[] {straddling, npcBody, playerBody}),
+                "Footsteps stay silent while Ivan's capsule still touches the landing.");
+            var corridor = landingEdge + Vector3.right * (playerBody.radius + .2f);
+            Assert.IsNotNull(source.Invoke(graph, new object[] {corridor, npcBody, playerBody}),
+                "Footsteps resume when the capsule clears the landing.");
             Assert.IsNotNull(source.Invoke(graph, new object[] {new Vector3(6f, 0f, 0.9f), npcBody, playerBody}));
 
             var camera = scripts.Single(s => s.GetType().Name == "IvanOrbitCamera");
@@ -638,6 +646,46 @@ namespace Hackathon.Tests
                     InputSystem.RemoveDevice(mouse);
                 }
             }
+        }
+
+        [UnityTest]
+        public IEnumerator PistolHitInterruptsAnAlarmAndRecognizesIvanFromBehind()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var scripts = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            var player = scripts.Single(s => s.GetType().Name == "PlayerInteractor");
+            var guard = scripts.Single(s => s.GetType().Name == "RifleNpc" && s.name == "SWAT - Room 6");
+            var brain = guard.GetComponent("NPCChaser");
+            string State() => brain.GetType().GetProperty("CurrentState").GetValue(brain).ToString();
+            var graph = scripts.Single(s => s.GetType().Name == "GraphManager");
+            var room = scripts.Single(s => s.GetType().Name == "Node" && s.name == "Room7");
+            graph.GetType().GetMethod("RaiseAlarm").Invoke(graph, new object[] { null, room });
+            Assert.AreEqual("InvestigateAlarm", State());
+
+            ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
+            var body = player.GetComponent<CharacterController>();
+            Vector3 bearing = guard.transform.forward;
+            body.enabled = false;
+            player.transform.position = guard.transform.position + bearing * 1.7f;
+            body.enabled = true;
+            guard.transform.rotation = Quaternion.LookRotation(-bearing);
+            Physics.SyncTransforms();
+            var torso = guard.GetComponentsInChildren<CapsuleCollider>().Single(c => c.name == "Torso hit zone");
+            var ray = new Ray(torso.bounds.center + bearing * 1.7f, -bearing);
+            Assert.IsTrue(torso.Raycast(ray, out var hit, 3f));
+            var zones = guard.GetComponent("SwatHitZones");
+            zones.GetType().GetMethod("ApplyShot").Invoke(zones, new object[] { hit, ray.direction, player.gameObject });
+            Assert.AreEqual("Chase", State(), "A confirmed hit must interrupt the current task in the same frame.");
+            float deadline = Time.time + 1.4f;
+            while (Time.time < deadline)
+            {
+                yield return null;
+                Assert.AreEqual("Chase", State(), "The guard must keep its target during the turn and hit reaction.");
+            }
+            Assert.Less(Vector3.Angle(guard.transform.forward, bearing), 10f);
         }
 
         [UnityTest]
@@ -813,13 +861,43 @@ namespace Hackathon.Tests
                 Use(lever);
                 Physics.SyncTransforms();
             }
-            Pull(1);
+            int LightMask()
+            {
+                int mask = 0;
+                for (int i = 0; i < levers.Length; i++)
+                {
+                    bool down = (bool)levers[i].GetType().GetProperty("IsDown").GetValue(levers[i]);
+                    var face = levers[i].transform.Find("Indicator").GetComponent<MeshRenderer>();
+                    Assert.That(face.sharedMaterial.GetColor("_EmissionColor").maxColorComponent > 0f, Is.EqualTo(down));
+                    if (down) mask |= 1 << i;
+                }
+                return mask;
+            }
+
+            Assert.AreEqual(37, LightMask());
+            int[] linkedMasks = { 3, 7, 14, 28, 56, 48 };
+            for (int i = 0; i < linkedMasks.Length; i++)
+            {
+                Pull(i + 1);
+                Assert.AreEqual(37 ^ linkedMasks[i], LightMask(), $"Wrong links for lever {i + 1}");
+                Pull(i + 1);
+                Assert.AreEqual(37, LightMask(), "Two pulls cancel");
+                Assert.IsFalse(WallOpen());
+            }
             Pull(6);
-            Pull(2);
             Pull(4);
-            Assert.IsFalse(WallOpen(), "An extra lowered lever must keep the wall closed");
+            Pull(2);
+            Assert.IsFalse(WallOpen());
+            Pull(3);
+            Assert.AreEqual(0, LightMask());
+            Assert.IsTrue(WallOpen());
             Pull(1);
-            Assert.IsTrue(WallOpen(), "The lever combination alone opens the passage");
+            var journal = player.GetComponent("TempleArchiveJournal");
+            string calculation = (string)journal.GetType().GetProperty("VisibleDocumentText").GetValue(journal);
+            StringAssert.Contains("x = (0 1 1 1 0 1)", calculation);
+            Assert.AreEqual(0, journal.GetType().GetProperty("DocumentCount").GetValue(journal));
+            journal.GetType().GetMethod("Close").Invoke(journal, null);
+            Assert.AreEqual(0, LightMask());
             Assert.IsFalse(HasRoute(east, west), "The wall is still moving");
             var shutter = wall.GetComponent<BoxCollider>();
             float deadline = Time.time + 5f;
@@ -894,11 +972,32 @@ namespace Hackathon.Tests
             var hit = health.GetType().GetMethod("TakeDamage");
             var flash = npc.GetComponentsInChildren<Light>(true).Single();
             var start = npc.transform.position;
+            var shooter = npc.GetComponent("RifleNpc");
+            var fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var missChance = shooter.GetType().GetMethod("MissChance", fields);
+            float Chance(Vector3 velocity) => (float)missChance.Invoke(shooter, new object[] { velocity });
+            float standing = Chance(Vector3.zero);
+            float walking = Chance(Vector3.right * 1.5f);
+            float running = Chance(Vector3.forward * 3f);
+            Assert.That(standing, Is.GreaterThan(0f));
+            Assert.That(walking, Is.GreaterThan(standing));
+            Assert.That(running, Is.GreaterThan(walking).And.LessThan(1f));
+            Assert.AreEqual(standing, Chance(Vector3.down * 5f), "Vertical speed must not count as running.");
+
+            // Exercise both outcomes on consecutive live shots without depending on a random seed.
+            var stationaryMissChance = shooter.GetType().GetField("stationaryMissChance", fields);
+            stationaryMissChance.SetValue(shooter, 1f);
             float initialHP = (float)hp.GetValue(playerHealth);
-            float deadline = Time.time + 5f;
+            float deadline = Time.time + 6f;
             while (!flash.gameObject.activeSelf && Time.time < deadline) yield return null;
             Assert.That(flash.gameObject.activeSelf, Is.True, "Expected a visible muzzle flash");
+            Assert.AreEqual(initialHP, (float)hp.GetValue(playerHealth), "A missed shot must not damage Ivan.");
+            stationaryMissChance.SetValue(shooter, 0f);
+            shooter.GetType().GetField("runningMissChance", fields).SetValue(shooter, 0f);
+            while ((float)hp.GetValue(playerHealth) == initialHP && Time.time < deadline) yield return null;
             Assert.That((float)hp.GetValue(playerHealth), Is.LessThan(initialHP));
+            while (Vector3.ProjectOnPlane(npc.transform.position - start, Vector3.up).magnitude <= 0.2f &&
+                Time.time < deadline) yield return null;
             var travelled = Vector3.ProjectOnPlane(npc.transform.position - start, Vector3.up);
             Assert.That(travelled.magnitude, Is.GreaterThan(0.2f));
 

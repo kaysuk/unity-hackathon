@@ -36,11 +36,12 @@ namespace Hackathon.Tests
             .SelectMany(go => go.GetComponentsInChildren<MonoBehaviour>()).ToArray();
 
         [UnityTest]
-        public IEnumerator ArchiveLeverShowsTheBoundKeyAndChangesDirectionOnPress()
+        public IEnumerator ArchiveLeverShowsItsBindingAndTogglesAdjacentSealsOnPress()
         {
             var objects = SceneComponents();
             var player = objects.Single(c => c.GetType().Name == "PlayerInteractor");
-            var lever = objects.First(c => c.GetType().Name == "TempleArchiveLever");
+            var levers = objects.Where(c => c.GetType().Name == "TempleArchiveLever").OrderBy(c => c.name).ToArray();
+            var lever = levers[0];
             var movement = (Behaviour)player.GetComponent("IvanLocomotion");
             var camera = (Behaviour)objects.Single(c => c.GetType().Name == "IvanOrbitCamera");
             var body = player.GetComponent<CharacterController>();
@@ -91,13 +92,14 @@ namespace Hackathon.Tests
                 int binding = action.GetBindingIndexForControl(keyboard.eKey);
                 string keyName = action.GetBindingDisplayString(binding, InputBinding.DisplayStringOptions.DontIncludeInteractions);
                 Assert.That(text, Does.Contain(keyName));
-                Assert.That(text, Does.Contain("Опустить рычаг"));
+                Assert.That(text, Does.Contain("Рычаг 1"));
 
-                Assert.IsFalse(Read<bool>(lever, "IsDown"));
+                Assert.IsTrue(Read<bool>(lever, "IsDown"));
+                Assert.IsFalse(Read<bool>(levers[1], "IsDown"));
                 Poll(new KeyboardState(Key.E));
                 Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
-                Assert.IsTrue(Read<bool>(lever, "IsDown"));
-                Assert.That(Read<string>(label, "text"), Does.Contain("Поднять рычаг"));
+                Assert.IsFalse(Read<bool>(lever, "IsDown"));
+                Assert.IsTrue(Read<bool>(levers[1], "IsDown"));
                 yield return null;
 
                 AimFrom(3f);
@@ -113,6 +115,47 @@ namespace Hackathon.Tests
                 camera.enabled = cameraEnabled;
                 movement.enabled = movementEnabled;
             }
+        }
+
+        [UnityTest]
+        public IEnumerator WorkshopWheelsKeepTheSameSixRunesThroughAFullTurn()
+        {
+            var objects = SceneComponents();
+            var stations = objects.Where(c => c.GetType().Name == "TempleRuneStation").ToArray();
+            Assert.AreEqual(6, stations.Length);
+            var player = objects.Single(c => c.GetType().Name == "PlayerInteractor");
+            Time.timeScale = 3f;
+            for (int step = 0; step <= 6; step++)
+            {
+                foreach (var station in stations)
+                {
+                    var dial = station.transform.Find("Rotating stone slab");
+                    var marks = dial.Cast<Transform>().Where(t => t.name == "Rune cut into stone").ToArray();
+                    Assert.AreEqual(6, marks.Length);
+                    var ordered = marks.OrderBy(t => station.transform.InverseTransformPoint(t.position).z).ToArray();
+                    int index = Read<int>(station, "CurrentIndex");
+                    string Glyph(int n) => $"R72 glyph {n + 1:00}";
+                    Assert.AreEqual(Glyph(index), ordered[0].GetComponent<Renderer>().sharedMaterial.name);
+                    Assert.AreEqual(Glyph((index + 3) % 6), ordered[5].GetComponent<Renderer>().sharedMaterial.name);
+                    Assert.AreEqual((Read<int>(station, "TargetIndex") + 3) % 6, Read<int>(station, "StoneIndex"));
+                }
+                if (step < 6)
+                {
+                    foreach (var station in stations)
+                        station.GetType().GetMethod("Interact").Invoke(station, new object[] { player });
+                    yield return new WaitForSeconds(.85f);
+                }
+            }
+
+            foreach (var station in stations)
+            {
+                for (int turn = 0; turn < 6 && Read<int>(station, "CurrentIndex") != Read<int>(station, "TargetIndex"); turn++)
+                {
+                    station.GetType().GetMethod("Interact").Invoke(station, new object[] { player });
+                    yield return new WaitForSeconds(.85f);
+                }
+            }
+            Assert.IsTrue(Read<bool>(objects.Single(c => c.GetType().Name == "TempleRunePuzzle"), "AreDialsAligned"));
         }
 
         private static T Read<T>(Component target, string property) =>
