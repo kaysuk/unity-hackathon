@@ -1,0 +1,19 @@
+Poly Haven photographic material sources (CC0)
+
+Worn Brick Wall — Amal Kumar
+https://polyhaven.com/a/worn_brick_wall
+Colour, normal, roughness and ambient occlusion; foundation atlas with a damp and salt band.
+
+Brick Wall 11 — Rob Tuytel
+https://polyhaven.com/a/brick_wall_11
+Colour, normal, roughness and ambient occlusion; tunnel and load-bearing pier brick.
+
+Concrete Floor Damaged 01 — see original asset credits
+https://polyhaven.com/a/concrete_floor_damaged_01
+Colour, normal, roughness and ambient occlusion; cellar floor with contraction joints.
+
+Wood Planks Dirt — Rob Tuytel
+https://polyhaven.com/a/wood_planks_dirt
+Colour, normal, roughness and ambient occlusion; joists and ceiling soffit.
+
+Surface response maps store ambient occlusion in green and smoothness in alpha.

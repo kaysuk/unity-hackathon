@@ -1,0 +1,5 @@
+Photographed materials by Poly Haven, licensed under CC0.
+Wood Planks Grey — https://polyhaven.com/a/wood_planks_grey
+Rusty Painted Metal — https://polyhaven.com/a/rusty_painted_metal
+Fabric Leather 02 — https://polyhaven.com/a/fabric_leather_02
+The Unity mask textures pack the downloaded metallic and roughness data. The iron mask derives its metal exposure from roughness.
