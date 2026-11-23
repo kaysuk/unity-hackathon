@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Levels/temple_v2.unity
     guid: 90e5dfeabdbd4bb3889b0963f0e8c5d2
+  - enabled: 1
+    path: Assets/Scenes/Levels/Church_Exterior/Church_Exterior.unity
+    guid: e87431e73f5aa45e49bc74aeeaaccf69
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
