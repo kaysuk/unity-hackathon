@@ -32,6 +32,7 @@ public sealed class TempleMewLever : Interactable
             return;
 
         IsPulled = !IsPulled;
+        GameAudio.Play(SoundCue.Lever, leverPivot.position);
         StartCoroutine(IsPulled ? SwitchDoors(doors[1], doors[0]) : SwitchDoors(doors[0], doors[1]));
     }
 

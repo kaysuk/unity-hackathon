@@ -87,6 +87,7 @@ public sealed class TempleRunePuzzle : MonoBehaviour
         }
 
         stage = Stage.Open;
+        GameAudio.Play(SoundCue.Seal, passage.transform.position);
         passage.SetOpen(true);
     }
 

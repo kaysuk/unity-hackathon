@@ -235,6 +235,7 @@ MonoBehaviour:
   muzzle: {fileID: 3501160195228117233}
   muzzleFlash: {fileID: 4042452091283050980}
   shotAudio: {fileID: 5734064798811749393}
+  alertClip: {fileID: 8300000, guid: 35a2bbb1b7754ca4b50345bcfe05ae81, type: 3}
   walkSpeed: 1.55
   detectionRange: 16
   recognitionSeconds: 1

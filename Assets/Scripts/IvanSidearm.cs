@@ -78,10 +78,13 @@ public sealed class IvanSidearm : MonoBehaviour
         bool aiming = aimRequested && (stealth == null || stealth.TryStandForAim());
         if (aiming) requested = true;
         else if (stow || IsAiming) requested = false;
+        if (aiming != IsAiming && requested == drawing)
+            GameAudio.Play(SoundCue.Cloth, transform.position, 0.17f);
         IsAiming = aiming;
         if (requested != drawing)
         {
             drawing = requested;
+            GameAudio.Play(drawing ? SoundCue.Draw : SoundCue.Stow, holster.position, 0.40f);
             animator.Play(drawing ? Draw : Stow, layer, 0f);
         }
     }
@@ -118,7 +121,7 @@ public sealed class IvanSidearm : MonoBehaviour
         muzzleFlash.transform.localRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.forward);
         muzzleFlash.SetActive(true);
         flashUntil = Time.time + 0.05f;
-        if (shotClip != null) AudioSource.PlayClipAtPoint(shotClip, propDirection.position, 0.7f);
+        GameAudio.PistolShot(propDirection.position, shotClip);
     }
 
     private void OnDisable()

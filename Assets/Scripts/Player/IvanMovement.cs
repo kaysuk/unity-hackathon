@@ -40,6 +40,7 @@ public sealed class IvanMovement : MonoBehaviour
     private readonly Dictionary<string, float> turnLengths = new Dictionary<string, float>();
     private float speed;
     private float verticalSpeed;
+    private PlayerFootsteps footsteps;
     private bool dead;
     [SerializeField, Min(0.1f)] private float crouchHeight = 1.1f;
     private float standingHeight;
@@ -154,6 +155,7 @@ public sealed class IvanMovement : MonoBehaviour
         turnStart = transform.eulerAngles.y;
         turnAngle = angle;
         turnTime = 0f;
+        GameAudio.Play(SoundCue.Scuff, transform.position, 0.22f);
         turning = true;
         speed = 0f;
         animator.CrossFadeInFixedTime(name, TurnBlendDuration, 0);
@@ -186,6 +188,8 @@ public sealed class IvanMovement : MonoBehaviour
             UpdateCursor();
         bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
         bool aimHeld = UpdateAimInput(captured);
+        if (aimHeld != IsAiming && Time.timeScale > 0f)
+            GameAudio.Play(aimHeld ? SoundCue.Draw : SoundCue.Stow, transform.position, 0.40f);
         IsAiming = aimHeld;
 
         float deltaTime = Time.deltaTime;
@@ -224,6 +228,7 @@ public sealed class IvanMovement : MonoBehaviour
             UpdateRotation(desiredYaw, moving, captured, aimHeld, deltaTime);
         }
         UpdateMovement(input, desiredDirection, moving && !weaponTransition, aimHeld, deltaTime);
+        footsteps.Move(controller, IsCrouching);
         UpdateAnimation(aimHeld, deltaTime);
     }
 
@@ -235,7 +240,10 @@ public sealed class IvanMovement : MonoBehaviour
     private void SetCrouching(bool crouching)
     {
         if (!crouching && IsCrouching && !CanStand()) return;
-        IsCrouching = hasCrouchingParameter && crouching;
+        bool next = hasCrouchingParameter && crouching;
+        if (next != IsCrouching && isActiveAndEnabled && !dead)
+            GameAudio.Play(SoundCue.Cloth, transform.position, 0.32f);
+        IsCrouching = next;
         if (controller != null)
         {
             float height = IsCrouching ? Mathf.Clamp(crouchHeight, controller.radius * 2f, standingHeight) : standingHeight;

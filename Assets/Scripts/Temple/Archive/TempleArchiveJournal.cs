@@ -79,6 +79,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
     {
         if (IsOpen || !OpenScreen()) return;
         readingSealCalculation = true;
+        GameAudio.Interface(SoundCue.Paper);
         heading.text = "АРХИВ  /  КОМНАТА 7.1";
         title.text = "Расчёт шести печатей";
         body.text = calculation;
@@ -93,6 +94,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         if (enter == null || IsOpen || !OpenScreen())
             return;
 
+        GameAudio.Interface(SoundCue.MenuClick);
         pendingEntrance = enter;
         heading.text = string.Empty;
         title.text = "Вход в главный зал";
@@ -133,7 +135,11 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         enter();
     }
 
-    public void Close() => CloseOverlay();
+    public void Close()
+    {
+        if (IsOpen) GameAudio.Interface(IsConfirmingEntrance ? SoundCue.MenuClick : SoundCue.Paper);
+        CloseOverlay();
+    }
 
     protected override void OnOverlayClosed()
     {
@@ -221,6 +227,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     private void ShowPage(int number, bool firstRead)
     {
+        GameAudio.Interface(SoundCue.Paper);
         currentDocument = number;
         bool sealedRegister = number == DocumentTotal && collectedMask != CompleteMask;
         bool registerFirstRead = number == DocumentTotal && !sealedRegister && !FullFamilyTruth;

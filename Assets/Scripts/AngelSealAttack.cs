@@ -151,6 +151,7 @@ public sealed class AngelSealAttack : MonoBehaviour
             }
             sweepNext = true;
             center = player.position;
+            GameAudio.Play(SoundCue.AngelCharge, center, 0.64f, 5f);
             casting = true;
             struck = false;
             inscription.enabled = true;
@@ -177,6 +178,7 @@ public sealed class AngelSealAttack : MonoBehaviour
         if (!struck)
         {
             struck = true;
+            GameAudio.Play(SoundCue.AngelStrike, center, 0.91f, 6f);
             Vector3 offset = player.position - center;
             if (Mathf.Abs(offset.y) < 1f && new Vector2(offset.x, offset.z).sqrMagnitude <= radius * radius)
                 health.TakeDamage(damage, player.position, Vector3.up, gameObject);

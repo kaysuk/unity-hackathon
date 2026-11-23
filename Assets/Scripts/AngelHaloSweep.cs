@@ -88,6 +88,7 @@ public sealed class AngelHaloSweep
         raisedCenter = origin + side * 1.65f + Vector3.up * 1.25f;
         released = false;
         hit = false;
+        GameAudio.Play(SoundCue.HaloGrip, raisedCenter, 0.72f, 5f);
     }
 
     // Undo last frame's procedural offsets before the Animator supplies the next pose.
@@ -110,6 +111,7 @@ public sealed class AngelHaloSweep
         {
             SetHandsLit(false);
             released = true;
+            GameAudio.Play(SoundCue.HaloWave, origin, 0.85f, 6f);
             previousGap = DistanceToWaveOrigin() - releaseRadius;
         }
         float radius = Mathf.Min(reach, releaseRadius + (elapsed - windup) * speed);

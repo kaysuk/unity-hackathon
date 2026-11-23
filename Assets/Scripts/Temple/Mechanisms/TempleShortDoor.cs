@@ -47,6 +47,7 @@ public sealed class TempleShortDoor : Interactable, IGraphPassage
     {
         if (!CanInteract(player)) return;
         IsOpen = !IsOpen;
+        GameAudio.Play(SoundCue.Door, hinge.position);
         if (!IsOpen) PassabilityChanged?.Invoke();
     }
 

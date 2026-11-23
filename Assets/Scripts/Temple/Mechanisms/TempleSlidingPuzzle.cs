@@ -38,6 +38,7 @@ public sealed class TempleSlidingPuzzle : MonoBehaviour
         int oldSlot = tile.Slot;
         slots[oldSlot] = null;
         slots[emptySlot] = tile;
+        GameAudio.Play(SoundCue.Slide, tile.transform.position);
         tile.MoveTo(emptySlot);
         emptySlot = oldSlot;
 
@@ -45,6 +46,7 @@ public sealed class TempleSlidingPuzzle : MonoBehaviour
             if (slots[slot] == null || slots[slot].Number != slot + 1)
                 return true;
 
+        GameAudio.Play(SoundCue.Seal, tile.transform.position);
         IsSolved = true;
         northGate.SetOpen(true);
         if (documentShutter != null) documentShutter.SetOpen(true);

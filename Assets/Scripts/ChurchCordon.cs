@@ -147,7 +147,7 @@ public sealed class ChurchCordon : MonoBehaviour
         alertStarted = Time.time;
         contactTime = 0f;
         AlarmCount++;
-        if (alertSource != null && alertClip != null) alertSource.PlayOneShot(alertClip);
+        GameAudio.Alert(alertSource != null ? alertSource.transform.position : transform.position, alertClip);
     }
 
     private static Vector3 Flat(Vector3 delta) => new Vector3(delta.x, 0f, delta.z);

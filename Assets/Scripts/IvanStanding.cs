@@ -59,6 +59,7 @@ public sealed class IvanStanding : MonoBehaviour
             ? (reverse ? TurnBackLeft : TurnLeft)
             : (reverse ? TurnBackRight : TurnRight);
         IsTurning = true;
+        GameAudio.Play(SoundCue.Scuff, transform.position, 0.22f);
         startYaw = transform.eulerAngles.y;
         requestedAngle = angle;
         animator.CrossFadeInFixedTime(turnState, 0.10f, 0, 0f);

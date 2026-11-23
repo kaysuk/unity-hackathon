@@ -748,7 +748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IvanSidearm
   muzzleFlash: {fileID: 3624660800632617285}
-  shotClip: {fileID: 8300000, guid: 8b3844a73f18b89ae965eacfb80d3151, type: 3}
+  shotClip: {fileID: 8300000, guid: 4b4785445d2c4689a223f323aca6192a, type: 3}
   holster: {fileID: 4839241099374858817}
   pistolMount: {fileID: 6728647754188149516}
   propDirection: {fileID: 6762287943050613948}

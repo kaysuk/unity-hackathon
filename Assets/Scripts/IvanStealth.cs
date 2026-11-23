@@ -80,6 +80,7 @@ public sealed class IvanStealth : MonoBehaviour
             var candidate = FindTarget();
             if (candidate == null || !candidate.BeginTakedown(this, PairBlendSeconds)) return;
             victim = candidate;
+            GameAudio.Play(SoundCue.Grapple, victim.transform.position, 0.54f);
             victimCapsule = victim.GetComponent<CharacterController>();
             restorePairCollision = !Physics.GetIgnoreCollision(capsule, victimCapsule);
             if (restorePairCollision) Physics.IgnoreCollision(capsule, victimCapsule);
@@ -103,6 +104,7 @@ public sealed class IvanStealth : MonoBehaviour
     private void SetCrouching(bool crouched)
     {
         IsCrouching = crouched;
+        GameAudio.Play(SoundCue.Cloth, transform.position, 0.32f);
         standing.ContinueIntoLocomotion();
         animator.CrossFadeInFixedTime(crouched ? Crouch : Travel, 0.24f);
     }

@@ -57,6 +57,8 @@ public sealed class TempleRuneStation : Interactable
         }
 
         CurrentIndex = initialIndex;
+        // The six nearby lifts start and stop together. Share one mechanism's gain between them.
+        socketLift.MovementVolume /= GlyphCount;
         restingRotation = dial.localRotation;
         seatPosition = placedStone.transform.localPosition;
         seatRotation = placedStone.transform.localRotation;
@@ -77,6 +79,7 @@ public sealed class TempleRuneStation : Interactable
         CurrentIndex = (CurrentIndex + 1) % GlyphCount;
         turnTime = 0f;
         isTurning = true;
+        GameAudio.Play(SoundCue.Slide, dial.position);
     }
 
     private void AdvanceDial()
@@ -129,6 +132,7 @@ public sealed class TempleRuneStation : Interactable
         {
             if (inventory.TryReturn(TempleRunePuzzle.RuneIds[OccupantIndex]))
             {
+                GameAudio.Play(SoundCue.Stone, placedStone.transform.position);
                 OccupantIndex = -1;
                 placedStone.SetActive(false);
             }
@@ -167,6 +171,7 @@ public sealed class TempleRuneStation : Interactable
         if (seatingTime >= SeatingDuration)
         {
             isSeating = false;
+            GameAudio.Play(SoundCue.Stone, placedStone.transform.position);
             puzzle.CheckStones();
         }
     }

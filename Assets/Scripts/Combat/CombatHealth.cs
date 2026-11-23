@@ -46,6 +46,7 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
     {
         if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
         HP = Mathf.Max(0f, HP - amount);
+        GameAudio.Play(IsDead ? SoundCue.BodyFall : SoundCue.BodyHit, point, IsDead ? 0.63f : 0.46f);
         Changed?.Invoke(HP);
         var movement = GetComponent<IvanMovement>();
         var animator = GetComponent<Animator>();
