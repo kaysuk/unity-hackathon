@@ -2,10 +2,13 @@ using System.Collections;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 namespace Hackathon.Tests
 {
@@ -15,6 +18,116 @@ namespace Hackathon.Tests
 
         private const string FinalRoom = "Assets/Scenes/Levels/Temple_Final_Room.unity";
         private GameObject testTarget;
+
+        private static readonly bool[] CheckpointCases = { false, true };
+
+        [UnityTest]
+        public IEnumerator MainMenuShowsAvailableActionsAndNavigates([ValueSource(nameof(CheckpointCases))] bool hasSave)
+        {
+            const string menuScene = "Assets/UI/MainMenu/MainMenu.unity";
+            const string saveKey = "Karamazovy.StoryCheckpoint";
+            const string volumeKey = "MainMenu.MasterVolume";
+            const float savedVolume = 0.42f;
+            Assert.That(SceneUtility.GetScenePathByBuildIndex(0), Is.EqualTo(menuScene));
+
+            bool hadCheckpoint = PlayerPrefs.HasKey(saveKey);
+            string previousCheckpoint = PlayerPrefs.GetString(saveKey);
+            bool hadVolumePreference = PlayerPrefs.HasKey(volumeKey);
+            float previousVolumePreference = PlayerPrefs.GetFloat(volumeKey);
+            float previousVolume = AudioListener.volume;
+            try
+            {
+                if (hasSave)
+                    PlayerPrefs.SetString(saveKey, "{\"version\":1,\"scene\":\"temple_v2\"}");
+                else
+                    PlayerPrefs.DeleteKey(saveKey);
+                PlayerPrefs.SetFloat(volumeKey, savedVolume);
+
+                yield return SceneManager.LoadSceneAsync(menuScene, LoadSceneMode.Additive);
+                loadedScene = SceneManager.GetSceneByPath(menuScene);
+                yield return null;
+
+                var roots = loadedScene.GetRootGameObjects();
+                var menu = roots.Single(root => root.name == "Main Menu").transform;
+                Assert.That(roots.SelectMany(root => root.GetComponentsInChildren<MonoBehaviour>(true))
+                    .All(script => script != null), Is.True, "All scripts attached to the menu must resolve.");
+
+                var backgrounds = menu.Find("Hallway Backdrop").GetComponentsInChildren<RawImage>(true);
+                Assert.That(backgrounds, Has.Length.EqualTo(1));
+                Assert.That(backgrounds[0].name, Is.EqualTo("Clear day"));
+                Assert.That(backgrounds[0].isActiveAndEnabled, Is.True);
+                Assert.That(backgrounds[0].texture?.name, Is.EqualTo("HallwayDay"));
+
+                var fade = menu.Find("Fade").GetComponent<CanvasGroup>();
+                float deadline = Time.realtimeSinceStartup + 5f;
+                while (fade.blocksRaycasts && Time.realtimeSinceStartup < deadline)
+                    yield return null;
+                Assert.That(fade.blocksRaycasts, Is.False, "The intro fade must release the menu.");
+
+                var events = roots.Single(root => root.name == "Event System").GetComponent<EventSystem>();
+                var input = events.GetComponent<InputSystemUIInputModule>();
+                Assert.That(input.move?.action, Is.Not.Null);
+                Assert.That(input.submit?.action, Is.Not.Null);
+
+                var home = menu.Find("Home");
+                var newGame = home.Find("New Game").GetComponent<Button>();
+                var continueGame = home.Find("Continue").GetComponent<Button>();
+                var settings = home.Find("Settings").GetComponent<Button>();
+                var quit = home.Find("Quit").GetComponent<Button>();
+                var first = hasSave ? continueGame : newGame;
+                Assert.That(home.Find("Game title").GetComponent<Text>().text, Is.EqualTo("Братья\nКарамазовы"));
+                Assert.That(home.Find("Chapter"), Is.Null);
+                Assert.That(continueGame.GetComponentInChildren<Text>(true).text, Is.EqualTo("Продолжить"));
+                Assert.That(continueGame.gameObject.activeInHierarchy, Is.EqualTo(hasSave));
+                Assert.That(newGame.isActiveAndEnabled, Is.True);
+                Assert.That(events.currentSelectedGameObject, Is.SameAs(first.gameObject));
+
+                var move = new AxisEventData(events) { moveDir = MoveDirection.Up, moveVector = Vector2.up };
+                ExecuteEvents.Execute(first.gameObject, move, ExecuteEvents.moveHandler);
+                Assert.That(events.currentSelectedGameObject, Is.SameAs(quit.gameObject));
+
+                move = new AxisEventData(events) { moveDir = MoveDirection.Down, moveVector = Vector2.down };
+                ExecuteEvents.Execute(quit.gameObject, move, ExecuteEvents.moveHandler);
+                Assert.That(events.currentSelectedGameObject, Is.SameAs(first.gameObject));
+
+                var settingsPanel = menu.Find("Settings");
+                var volume = settingsPanel.Find("Volume").GetComponent<Slider>();
+                var volumeValue = settingsPanel.Find("Volume value").GetComponent<Text>();
+                var fullscreen = settingsPanel.Find("Fullscreen").GetComponent<Button>();
+                settings.onClick.Invoke();
+                Assert.That(home.gameObject.activeInHierarchy, Is.False);
+                Assert.That(volume.gameObject.activeInHierarchy, Is.True);
+                Assert.That(fullscreen.interactable, Is.True);
+                Assert.That(fullscreen.GetComponentInChildren<Text>().text,
+                    Is.EqualTo(Screen.fullScreen ? "Полный экран" : "Оконный"));
+                Assert.That(events.currentSelectedGameObject, Is.SameAs(volume.gameObject));
+                Assert.That(volume.value, Is.EqualTo(savedVolume).Within(0.001f));
+                Assert.That(volumeValue.text, Is.EqualTo("42%"));
+                Assert.That(AudioListener.volume, Is.EqualTo(savedVolume).Within(0.001f));
+
+                volume.value = 0.67f;
+                Assert.That(PlayerPrefs.GetFloat(volumeKey), Is.EqualTo(0.67f).Within(0.001f));
+                Assert.That(AudioListener.volume, Is.EqualTo(0.67f).Within(0.001f));
+                Assert.That(volumeValue.text, Is.EqualTo("67%"));
+
+                ExecuteEvents.Execute(volume.gameObject, new BaseEventData(events), ExecuteEvents.cancelHandler);
+                Assert.That(home.gameObject.activeInHierarchy, Is.True);
+                Assert.That(events.currentSelectedGameObject, Is.SameAs(settings.gameObject));
+                LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                if (hadCheckpoint)
+                    PlayerPrefs.SetString(saveKey, previousCheckpoint);
+                else
+                    PlayerPrefs.DeleteKey(saveKey);
+                if (hadVolumePreference)
+                    PlayerPrefs.SetFloat(volumeKey, previousVolumePreference);
+                else
+                    PlayerPrefs.DeleteKey(volumeKey);
+                AudioListener.volume = previousVolume;
+            }
+        }
 
         [UnityTest]
         public IEnumerator IvanTurnsOnTheSpotAndReturnsToIdle()
@@ -487,6 +600,7 @@ namespace Hackathon.Tests
                     cover.SetActive(false);
                     IEnumerator Click(Collider zone, bool aim, bool expectFlash = true)
                     {
+                        yield return new WaitForSeconds(0.20f);
                         var buttons = aim ? new MouseState().WithButton(MouseButton.Right) : new MouseState();
                         InputSystem.QueueStateEvent(mouse, buttons);
                         yield return null;
@@ -805,7 +919,7 @@ namespace Hackathon.Tests
             capsule.radius = 0.3f;
             capsule.center = Vector3.up * 0.9f;
             testTarget.AddComponent(System.Type.GetType("CombatHealth, Assembly-CSharp"));
-            var path = SceneUtility.GetScenePathByBuildIndex(0);
+            const string path = "Assets/Scenes/SampleScene.unity";
             yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
             loadedScene = SceneManager.GetSceneByPath(path);
             yield return null;
@@ -960,6 +1074,70 @@ namespace Hackathon.Tests
                 Assert.IsFalse(wave.enabled);
                 Assert.That((float)hp.GetValue(health), Is.EqualTo(before - (crouch ? 0f : 20f)));
             }
+        }
+
+        [UnityTest]
+        public IEnumerator TempleTransitionCarriesPlayerAndCameraIntoFinalRoom()
+        {
+            const string temple = "Assets/Scenes/Levels/temple_v2.unity";
+            // The empty test-runner scene has no listener while the first level streams in.
+            testTarget = new GameObject("Loading listener");
+            var loadingListener = testTarget.AddComponent<AudioListener>();
+            void OnTempleLoaded(Scene scene, LoadSceneMode mode)
+            {
+                if (scene.name == "temple_v2") loadingListener.enabled = false;
+            }
+            SceneManager.sceneLoaded += OnTempleLoaded;
+            try { yield return SceneManager.LoadSceneAsync(temple, LoadSceneMode.Additive); }
+            finally { SceneManager.sceneLoaded -= OnTempleLoaded; }
+            var source = SceneManager.GetSceneByPath(temple);
+            loadedScene = source;
+            var roots = source.GetRootGameObjects();
+            var player = roots.Single(root => root.CompareTag("Player"));
+            var camera = roots.Single(root => root.CompareTag("MainCamera"));
+            var door = roots.SelectMany(root => root.GetComponentsInChildren<MonoBehaviour>())
+                .Single(component => component != null && component.GetType().Name == "SceneTransitionDoor");
+            Assert.That(player.GetComponent("IvanLocomotion"), Is.Not.Null);
+            Assert.That(camera.GetComponent<Camera>()?.isActiveAndEnabled, Is.True,
+                "The gameplay scene must provide an active camera.");
+            foreach (var root in roots)
+                foreach (var component in root.GetComponentsInChildren<MonoBehaviour>(true))
+                    Assert.That(component == null, Is.False, $"Missing script under {root.name}");
+
+            yield return null;
+            var pistol = (Behaviour)player.GetComponent("PistolCombat");
+            Assert.That(pistol, Is.Not.Null);
+            Assert.That(pistol.isActiveAndEnabled, Is.True);
+            var pistolType = pistol.GetType();
+            pistolType.GetMethod("RestoreAmmo",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(pistol, new object[] { 7, 24, 12 });
+
+            door.GetType().GetMethod("Enter").Invoke(door, new object[] { player.GetComponent<CharacterController>(), camera });
+
+            var deadline = Time.realtimeSinceStartup + 20f;
+            while (source.isLoaded && Time.realtimeSinceStartup < deadline)
+                yield return null;
+
+            var destination = SceneManager.GetSceneByPath(FinalRoom);
+            if (destination.isLoaded) loadedScene = destination;
+            Assert.That(source.isLoaded, Is.False);
+            Assert.That(destination.isLoaded, Is.True);
+            yield return null;
+
+            var destinationRoots = destination.GetRootGameObjects();
+            Assert.That(destinationRoots.Single(root => root.CompareTag("Player")), Is.EqualTo(player));
+            Assert.That(destinationRoots.Single(root => root.CompareTag("MainCamera")), Is.EqualTo(camera));
+            var boss = destinationRoots.Select(root => root.GetComponent("AngelSealAttack")).Single(c => c != null);
+            var bossTarget = boss.GetType().GetField("player", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).GetValue(boss);
+            Assert.That(bossTarget, Is.EqualTo(player.transform));
+            Assert.That(pistolType.GetProperty("Ammo").GetValue(pistol), Is.EqualTo(7));
+            Assert.That(pistolType.GetProperty("ReserveAmmo").GetValue(pistol), Is.EqualTo(24));
+            Assert.That(pistolType.GetProperty("MagazineCapacity").GetValue(pistol), Is.EqualTo(12));
+            Assert.That(camera.GetComponent<AudioListener>().isActiveAndEnabled, Is.True);
+            Assert.That(destinationRoots.SelectMany(r => r.GetComponentsInChildren<AudioListener>())
+                .Count(l => l.isActiveAndEnabled), Is.EqualTo(1));
         }
 
         [UnityTearDown]

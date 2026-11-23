@@ -36,6 +36,13 @@ public sealed class AngelSealAttack : MonoBehaviour
     private bool casting;
     private bool struck;
 
+    public void SetTarget(Transform target)
+    {
+        player = target;
+        health = target.GetComponent<CombatHealth>();
+        haloSweep.SetTarget(target);
+    }
+
     private void Start()
     {
         health = player.GetComponent<CombatHealth>();

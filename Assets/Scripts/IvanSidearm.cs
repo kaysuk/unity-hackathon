@@ -25,9 +25,8 @@ public sealed class IvanSidearm : MonoBehaviour
     [SerializeField] private AudioClip shotClip;
     [SerializeField] private GameObject muzzleFlash;
     private float flashUntil;
-    private const float ShotRange = 100f;
     private InputAction attack;
-    private bool fireRequested;
+    internal bool ShotRequested { get; private set; }
     private IvanStealth stealth;
     private Animator animator;
     private IvanSidearmRig rig;
@@ -44,6 +43,8 @@ public sealed class IvanSidearm : MonoBehaviour
     public bool IsAiming { get; private set; }
     public bool IsSidearmActive => drawing || phase > 0f;
     public float StanceYaw => AimStanceYaw * aimWeight;
+    internal bool IsReadyToFire => isActiveAndEnabled && IsAiming && raise >= .95f;
+    internal float ShotRecoil { private get; set; }
 
     private void Awake()
     {
@@ -61,7 +62,7 @@ public sealed class IvanSidearm : MonoBehaviour
         if (muzzleFlash.activeSelf && Time.time >= flashUntil) muzzleFlash.SetActive(false);
         if (stealth == null || !stealth.IsPerforming) ReadInput();
         AdvanceGesture(Time.deltaTime);
-        fireRequested = Time.timeScale > 0f && drawing && phase >= 1f &&
+        ShotRequested = Time.timeScale > 0f && drawing && phase >= 1f &&
             (stealth == null || !stealth.IsPerforming) && attack?.WasPressedThisFrame() == true;
     }
 
@@ -106,66 +107,28 @@ public sealed class IvanSidearm : MonoBehaviour
             else
             {
                 float pitch = Mathf.Clamp(Mathf.DeltaAngle(0f, view.transform.eulerAngles.x), -45f, 55f);
-                direction = Quaternion.Euler(pitch, transform.eulerAngles.y - StanceYaw, 0f);
+                direction = Quaternion.Euler(pitch - ShotRecoil, transform.eulerAngles.y - StanceYaw, 0f);
             }
         }
         rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction);
-        if (fireRequested)
-        {
-            fireRequested = false;
-            Fire();
-        }
     }
 
-    private void Fire()
+    internal void ShowShot()
     {
-        if (view == null || !view.isActiveAndEnabled) view = Camera.main;
-        if (view == null) return;
-        Physics.SyncTransforms();
-        Vector3 muzzle = propDirection.position;
         muzzleFlash.transform.localRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.forward);
         muzzleFlash.SetActive(true);
         flashUntil = Time.time + 0.05f;
-        if (shotClip != null) AudioSource.PlayClipAtPoint(shotClip, muzzle, 0.7f);
-        Ray sight = view.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-        Vector3 aimPoint = FirstShotHit(sight, ShotRange, out var aimed) ? aimed.point : sight.GetPoint(ShotRange);
-
-        // A hand reaching through cover must not let the shot originate beyond the wall.
-        Vector3 chest = animator.GetBoneTransform(HumanBodyBones.Chest).position;
-        Vector3 arm = muzzle - chest;
-        if (FirstShotHit(new Ray(chest, arm.normalized), arm.magnitude, out _)) return;
-        Vector3 shot = aimPoint - muzzle;
-        if (Vector3.Dot(shot, sight.direction) <= 0f) return;
-        if (FirstShotHit(new Ray(muzzle, shot.normalized), shot.magnitude + 0.02f, out var hit))
-            hit.collider.GetComponentInParent<SwatHitZones>()?.ApplyShot(hit, shot.normalized, gameObject);
-    }
-
-    private bool FirstShotHit(Ray ray, float range, out RaycastHit nearest)
-    {
-        nearest = default;
-        float best = float.PositiveInfinity;
-        foreach (var hit in Physics.RaycastAll(ray, range, Physics.AllLayers, QueryTriggerInteraction.Collide))
-        {
-            if (hit.distance >= best || hit.transform.IsChildOf(transform)) continue;
-            var zones = hit.collider.GetComponentInParent<SwatHitZones>();
-            if (hit.collider.isTrigger || (Physics.IgnoreRaycastLayer & (1 << hit.collider.gameObject.layer)) != 0)
-            {
-                if (zones == null || !zones.Contains(hit.collider)) continue;
-            }
-            else if (zones != null && hit.collider is CharacterController) continue;
-            best = hit.distance;
-            nearest = hit;
-        }
-        return nearest.collider != null;
+        if (shotClip != null) AudioSource.PlayClipAtPoint(shotClip, propDirection.position, 0.7f);
     }
 
     private void OnDisable()
     {
         muzzleFlash.SetActive(false);
-        fireRequested = false;
+        ShotRequested = false;
         IsAiming = false;
         aimRequested = false;
         aimWeight = 0f;
+        ShotRecoil = 0f;
         raise = 0f;
         drawing = false;
         phase = 0f;

@@ -109394,7 +109394,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec522b5c75a234f3c8ea64ec59f3203a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Door
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionDoor
+  confirmRitualEntrance: 1
   nextScene: Temple_Final_Room
   arrivalPosition: {x: 0, y: 0.1, z: 0}
 --- !u!1 &1510623378
@@ -170500,12 +170501,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 6602110045}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f65d0647234f47adb5f01c5ca9ccfa4, type: 3}
+  m_Script: {fileID: 11500000, guid: 889f6fac4df64717beeea1b095c9361d, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TempleSouthLever
+  m_EditorClassIdentifier: Assembly-CSharp::TempleMewLever
   leverPivot: {fileID: 6602110053}
-  room4Gate: {fileID: 6602110006}
-  room5Gate: {fileID: 6602110028}
+  doors:
+  - {fileID: 6602110006}
+  - {fileID: 6602110028}
 --- !u!1 &6602110048
 GameObject:
   m_ObjectHideFlags: 0

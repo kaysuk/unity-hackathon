@@ -282,7 +282,7 @@ namespace Hackathon.Tests
                 }
                 Assert.That(problems, Is.Empty, string.Join("\n", problems));
                 var player = scripts.Single(s => s != null && s.GetType().Name == "PlayerInteractor");
-                var lever = scripts.Single(s => s != null && s.GetType().Name == "TempleSouthLever");
+                var lever = scripts.Single(s => s != null && s.GetType().Name == "TempleMewLever");
                 var button = scripts.Single(s => s != null && s.GetType().Name == "TempleSecretButton");
                 var room4Gate = scripts.Single(s => s != null && s.GetType().Name == "TemplePassage" &&
                     s.name == "Mew gate to Room 4");

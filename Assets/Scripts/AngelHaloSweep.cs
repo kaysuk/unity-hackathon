@@ -43,8 +43,7 @@ public sealed class AngelHaloSweep
     public void Initialize(Transform angel, Transform target, Material material)
     {
         boss = angel;
-        capsule = target.GetComponent<CharacterController>();
-        victim = target.GetComponent<CombatHealth>();
+        SetTarget(target);
         gripProperties = new MaterialPropertyBlock();
         var bones = angel.GetComponentsInChildren<Transform>(true);
         foreach (var bone in bones)
@@ -70,6 +69,12 @@ public sealed class AngelHaloSweep
         wave.positionCount = 120;
         wave.widthMultiplier = WaveThickness;
         wave.enabled = false;
+    }
+
+    public void SetTarget(Transform target)
+    {
+        capsule = target.GetComponent<CharacterController>();
+        victim = target.GetComponent<CombatHealth>();
     }
 
     public void Begin()

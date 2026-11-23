@@ -37,6 +37,8 @@ public sealed class TempleSealDocument : Interactable
 
     public override void Interact(PlayerInteractor player)
     {
-        if (CanInteract(player)) player.Inventory.TryCollect(DocumentId);
+        if (CanInteract(player) && player.Inventory.TryCollect(DocumentId) &&
+            gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+            GameObjectives.SetArchiveProgress(CountCollected(player.Inventory));
     }
 }

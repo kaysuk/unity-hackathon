@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Camera))]
 public sealed class IvanOrbitCamera : MonoBehaviour
 {
+    private const float MinimumPitch = -25f;
+    private const float MaximumPitch = 55f;
+
     [SerializeField] private Transform target;
     [SerializeField] private float sensitivity = 0.14f;
     [SerializeField, Min(0f)] private float stickDegreesPerSecond = 180f;
@@ -40,6 +43,12 @@ public sealed class IvanOrbitCamera : MonoBehaviour
     private float yaw;
     private float pitch = 6f;
 
+    internal void AddRecoil(float degrees)
+    {
+        if (isActiveAndEnabled)
+            pitch = Mathf.Clamp(pitch - Mathf.Max(0f, degrees), MinimumPitch, MaximumPitch);
+    }
+
     private void Start()
     {
         view = GetComponent<Camera>();
@@ -73,7 +82,7 @@ public sealed class IvanOrbitCamera : MonoBehaviour
             delta *= stickDegreesPerSecond * Time.deltaTime;
 
         yaw = Mathf.Repeat(yaw + delta.x, 360f);
-        pitch = Mathf.Clamp(pitch - delta.y, -25f, 55f);
+        pitch = Mathf.Clamp(pitch - delta.y, MinimumPitch, MaximumPitch);
 
         // Locomotion and the hand rig read this orientation later in the same frame.
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
