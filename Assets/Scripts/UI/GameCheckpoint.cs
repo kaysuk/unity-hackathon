@@ -11,7 +11,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     private const string Church = "Church_Interior";
     private const string FirstTemple = "temple_firts_v2";
     private const string EntranceScene = "temple_v2";
-    private const string RitualScene = "Temple_Final_Room";
+    private const string RitualScene = NimbEncounter.ArenaScene;
     private const string SaveKey = "Karamazovy.StoryCheckpoint";
     private const int SaveVersion = 2;
 
@@ -54,6 +54,29 @@ public sealed class GameCheckpoint : MonoBehaviour
 
     public static bool HasSave => ReadSave() != null;
 
+    private static string RitualReachedKey => NimbAttackCsv.IsAutomatedRun
+        ? "Karamazovy.TestReachedRitual" : "Karamazovy.ReachedRitual";
+
+    internal static bool HasReachedRitual
+    {
+        get
+        {
+            if (PlayerPrefs.GetInt(RitualReachedKey) == 1) return true;
+            // Players from earlier versions may already have the arena checkpoint or trained weights.
+            if (ReadSave()?.scene != RitualScene && !NimbAttackLearning.HasSavedProfile) return false;
+            MarkRitualReached();
+            return true;
+        }
+    }
+
+    private static void MarkRitualReached()
+    {
+        string key = RitualReachedKey;
+        if (PlayerPrefs.GetInt(key) == 1) return;
+        PlayerPrefs.SetInt(key, 1);
+        PlayerPrefs.Save();
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
@@ -95,8 +118,8 @@ public sealed class GameCheckpoint : MonoBehaviour
         if (scene.name == "MainMenu" && !loading) storyRun = false;
         GameObjectives.ConfigureScene(scene.name);
         BindPlayer(FindPlayer(scene));
-        if (scene.name == RitualScene)
-            GameObjectives.EnterStage(GameObjectives.Stage.DestroyAltars);
+        if (scene.name == RitualScene && player != null)
+            MarkRitualReached();
         if (storyRun && !loading && player != null && IsStoryScene(scene.name))
             SaveEntry(scene.name);
     }
@@ -123,10 +146,51 @@ public sealed class GameCheckpoint : MonoBehaviour
         return null;
     }
 
-    private bool TryLoad(Snapshot save)
+    private static void EndArenaAttempt(Scene arena)
+    {
+        if (!arena.isLoaded || arena.name != RitualScene) return;
+        foreach (var root in arena.GetRootGameObjects())
+            if (root.TryGetComponent(out AngelSealAttack boss))
+                boss.LearnFromAttempt();
+    }
+
+    internal static bool RestartRitualFight()
+    {
+        Scene arena = SceneManager.GetActiveScene();
+        if (instance == null || instance.loading || arena.name != RitualScene) return false;
+        if (instance.storyRun && instance.currentCheckpoint?.scene == RitualScene)
+            return instance.TryLoad(instance.currentCheckpoint, true);
+
+        if (!Application.CanStreamedLevelBeLoaded(arena.path)) return false;
+        EndArenaAttempt(arena);
+        instance.StartCoroutine(instance.ReloadStandaloneArena(arena));
+        return true;
+    }
+
+    private IEnumerator ReloadStandaloneArena(Scene arena)
+    {
+        loading = true;
+        hud.SetLoading(true);
+        string path = arena.path;
+        if (SceneManager.sceneCount == 1)
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Single);
+        else
+        {
+            // Designers can run the arena beside other open scenes. Restart only this fight.
+            yield return SceneManager.UnloadSceneAsync(arena);
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+        }
+        loading = false;
+        hud.SetLoading(false);
+    }
+
+    private bool TryLoad(Snapshot save, bool restartingArena = false)
     {
         if (loading || !Application.CanStreamedLevelBeLoaded(EntranceScene))
             return false;
+        if (restartingArena || save == null)
+            EndArenaAttempt(SceneManager.GetActiveScene());
         StartCoroutine(LoadStory(save));
         return true;
     }
@@ -198,8 +262,6 @@ public sealed class GameCheckpoint : MonoBehaviour
             if (save != null) ApplySave(save, player);
             else if (scene == EntranceScene && player.TryGetComponent(out PistolCombat pistol))
                 pistol.RestoreAmmo(12, 24, 12);
-            if (save != null && scene == RitualScene)
-                GameObjectives.EnterStage(GameObjectives.Stage.DestroyAltars);
             if (save == null) SaveEntry(scene);
             else currentCheckpoint = save;
         }
@@ -259,6 +321,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     {
         loading = true;
         hud.SetLoading(true);
+        while (StorySpeech.Busy) yield return null;
         bool truth = player.TryGetComponent(out TempleArchiveJournal journal) && journal.FullFamilyTruth;
         yield return comics.Play(34, 38, StoryComics.Ending(comics.DmitrySpared, truth));
         storyRun = false;
@@ -304,7 +367,10 @@ public sealed class GameCheckpoint : MonoBehaviour
             journal.SealCalculation = save.sealCalculation;
             objectives.DocumentsCollected = journal.DocumentCount == TempleArchiveJournal.DocumentTotal;
         }
-        GameObjectives.Restore(objectives);
+        if (save.scene == RitualScene)
+            GameObjectives.ConfigureScene(RitualScene);
+        else
+            GameObjectives.Restore(objectives);
     }
 
     private void SaveEntry(string scene)

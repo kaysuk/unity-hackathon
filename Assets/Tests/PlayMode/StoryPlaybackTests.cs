@@ -157,16 +157,31 @@ namespace Hackathon.Tests
                 Assert.That(Score("boss_fight"), Is.SameAs(originalScore));
                 Assert.That(originalScore.time, Is.GreaterThan(18f), "A retry restarted the score.");
             }
-            var room = SceneManager.GetActiveScene().GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<MonoBehaviour>()).ToArray();
-            var altars = room.Where(m => m.GetType().Name == "RitualAltar").ToArray();
-            Assert.That(altars.Length, Is.EqualTo(6));
-            foreach (var altar in altars)
+            var room = SceneManager.GetActiveScene().GetRootGameObjects();
+            var encounter = room.Select(go => go.GetComponent("NimbEncounter")).Single(c => c != null);
+            var boss = room.Select(go => go.GetComponent("NimbVulnerability")).Single(c => c != null);
+            var active = encounter.GetType().GetProperty("ActiveAltar");
+            var confirmed = encounter.GetType().GetProperty("ConfirmedAltars");
+            var runeChangesAt = encounter.GetType().GetField("runeChangesAt", BindingFlags.Instance | BindingFlags.NonPublic);
+            var actor = Actor;
+            Place(boss.transform.position + Vector3.forward * 1.8f);
+            yield return null;
+            Assert.That(Page, Is.Zero, "Approaching a living Nimb must not start the ending.");
+            for (int n = 1; n <= 6; n++)
             {
-                var hit = altar.GetType().GetMethod("TakeDamage");
-                for (int i = 0; i < 2; i++) hit.Invoke(altar, new object[] {25f, altar.transform.position, Vector3.forward, Actor});
-                Assert.That(altar.gameObject.activeSelf, Is.False);
+                var altar = (Component)active.GetValue(encounter);
+                Assert.That(altar, Is.Not.Null);
+                Place(altar.transform.position);
+                Assert.That(altar.GetType().GetMethod("TryPistolStrike").Invoke(altar, new object[] {actor}), Is.True);
+                Assert.That(Page, Is.Zero, "The altar opens a vulnerability before the boss can be defeated.");
+                Assert.That(boss.GetType().GetMethod("TryPistolStrike").Invoke(boss, new object[] {actor}), Is.True);
+                Assert.That(confirmed.GetValue(encounter), Is.EqualTo(n));
+                if (n < 6)
+                {
+                    runeChangesAt.SetValue(encounter, Time.time);
+                    yield return WaitFor(() => active.GetValue(encounter) != null);
+                }
             }
-            Place(room.Single(m => m.GetType().Name == "AngelSealAttack").transform.position + Vector3.forward * 1.8f);
             for (int n = 34; n <= 38; n++)
                 yield return ReadPage(n, n + "_" + ending, "comics34-38_" + ending);
             yield return WaitFor(() => SceneManager.GetActiveScene().name == "MainMenu" && Page == 0);

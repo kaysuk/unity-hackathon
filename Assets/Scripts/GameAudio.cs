@@ -10,7 +10,7 @@ internal enum SoundCue
     Cloth, Scuff, Draw, Stow, MagazineOut, MagazineIn, DryFire, Pistol,
     BodyHit, BodyFall, Land, Grapple, WallHit, Key, Paper, Stone,
     Lever, Switch, Door, Gate, GateStop, Slide, Seal, SealFail,
-    AngelCharge, AngelStrike, HaloGrip, HaloWave, MenuClick
+    AngelCharge, AngelStrike, HaloGrip, HaloWave, MenuClick, HeadDash, LightSpear
 }
 
 internal sealed class GameAudio : MonoBehaviour

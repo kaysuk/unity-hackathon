@@ -35,6 +35,7 @@ public sealed class IvanMovement : MonoBehaviour
     private ShoulderCamera orbitCamera;
     private Transform cameraTransform;
     private InputAction moveAction;
+    private InputAction aimAction;
     private InputAction sprintAction;
     private InputAction crouchAction;
     private readonly Dictionary<string, float> turnLengths = new Dictionary<string, float>();
@@ -77,6 +78,7 @@ public sealed class IvanMovement : MonoBehaviour
         if (GetComponent<CombatHealth>() == null) gameObject.AddComponent<CombatHealth>();
         if (GetComponent<PistolCombat>() == null) gameObject.AddComponent<PistolCombat>();
         animator.applyRootMotion = false;
+        aimAction = InputSystem.actions?.FindAction("Player/Aim");
         moveAction = InputSystem.actions?.FindAction("Player/Move");
         sprintAction = InputSystem.actions?.FindAction("Player/Sprint");
         crouchAction = InputSystem.actions?.FindAction("Player/Crouch");
@@ -164,6 +166,7 @@ public sealed class IvanMovement : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay) return;
         if (dead)
         {
             ApplyGravity(Time.deltaTime);
@@ -285,18 +288,18 @@ public sealed class IvanMovement : MonoBehaviour
 
         if (readAimFromMouse)
         {
-            bool held = captured && Application.isFocused && Mouse.current?.rightButton.isPressed == true;
+            bool held = captured && Application.isFocused && aimAction?.IsPressed() == true;
             animator.SetBool(AimHeldId, held);
         }
 
         return animator.GetBool(AimHeldId);
     }
 
-    private static void UpdateCursor()
+    private void UpdateCursor()
     {
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
             SetCursor(false);
-        else if (Mouse.current?.leftButton.wasPressedThisFrame == true && Application.isFocused)
+        else if (Application.isFocused && (Mouse.current?.leftButton.wasPressedThisFrame == true || aimAction?.WasPressedThisFrame() == true))
             SetCursor(true);
     }
 

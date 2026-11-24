@@ -19,12 +19,25 @@ public sealed class TempleRunePicker : PausedGameOverlay
     private readonly TempleRuneIcon[] edges = new TempleRuneIcon[GlyphCount];
     private RectTransform panel;
     private Text controls;
+    private OverlayControls input;
+    private InputAction interact;
+    private InputAction point;
+    private InputAction click;
+    private Vector2 previousPointer;
     private Action<int> onChoose;
     private int selection;
     private int openedFrame;
 
     public int ChoiceCount => held.Count;
     public int SelectedGlyph => IsOpen ? held[selection] : -1;
+
+    private void Awake()
+    {
+        input = new OverlayControls(RefreshControls);
+        interact = OverlayControls.Find("Player/Interact");
+        point = OverlayControls.Find("UI/Point");
+        click = OverlayControls.Find("UI/Click");
+    }
 
     public static void Open(PlayerInteractor player, MeshRenderer[] models, string[] ids, Action<int> choose)
     {
@@ -72,8 +85,9 @@ public sealed class TempleRunePicker : PausedGameOverlay
             faces[i].SetStone(mesh, 0, surfaces[0]);
         }
         HighlightSelection();
-        UpdateControls(Gamepad.current != null &&
-            (Keyboard.current == null || Gamepad.current.buttonNorth.wasPressedThisFrame));
+        input.UseDevice(interact.activeControl?.device);
+        previousPointer = point.ReadValue<Vector2>();
+        RefreshControls();
 
         onChoose = choose;
         openedFrame = Time.frameCount;
@@ -81,40 +95,32 @@ public sealed class TempleRunePicker : PausedGameOverlay
 
     private void LateUpdate()
     {
-        if (!IsOpen || openedFrame == Time.frameCount || !Application.isFocused)
+        if (!IsOpen || openedFrame == Time.frameCount || !Application.isFocused || ControlBindingsPanel.BlocksGameplay)
             return;
 
-        Keyboard keys = Keyboard.current;
-        Gamepad pad = Gamepad.current;
-        if (keys?.escapeKey.wasPressedThisFrame == true || pad?.buttonEast.wasPressedThisFrame == true)
+        if (input.Pressed(input.Back))
         {
             Cancel();
             return;
         }
 
-        bool padLeft = pad?.dpad.left.wasPressedThisFrame == true;
-        bool padRight = pad?.dpad.right.wasPressedThisFrame == true;
-        bool left = keys?.leftArrowKey.wasPressedThisFrame == true || keys?.aKey.wasPressedThisFrame == true;
-        bool right = keys?.rightArrowKey.wasPressedThisFrame == true || keys?.dKey.wasPressedThisFrame == true;
-        if (left || right || padLeft || padRight)
-        {
-            UpdateControls(padLeft || padRight);
-            MoveSelection(left || padLeft ? -1 : 1);
-        }
+        if (input.Pressed(input.Left))
+            MoveSelection(-1);
+        else if (input.Pressed(input.Right))
+            MoveSelection(1);
 
-        if (keys?.eKey.wasPressedThisFrame == true || keys?.enterKey.wasPressedThisFrame == true ||
-            keys?.numpadEnterKey.wasPressedThisFrame == true || pad?.buttonSouth.wasPressedThisFrame == true)
+        bool clicked = input.Pressed(click);
+        if (!clicked && (input.Pressed(input.Accept) || input.Pressed(interact)))
         {
             Confirm();
             return;
         }
 
-        Mouse mouse = Mouse.current;
-        if (mouse == null || (mouse.delta.ReadValue() == Vector2.zero && !mouse.leftButton.wasPressedThisFrame))
+        Vector2 pointer = point.ReadValue<Vector2>();
+        if (!clicked && pointer == previousPointer)
             return;
-
-        UpdateControls(false);
-        Vector2 pointer = mouse.position.ReadValue();
+        previousPointer = pointer;
+        input.UseDevice(point.activeControl?.device);
         for (int i = 0; i < held.Count; i++)
         {
             if (!RectTransformUtility.RectangleContainsScreenPoint(tiles[i].rectTransform, pointer))
@@ -122,7 +128,7 @@ public sealed class TempleRunePicker : PausedGameOverlay
 
             selection = i;
             HighlightSelection();
-            if (mouse.leftButton.wasPressedThisFrame)
+            if (clicked)
                 Confirm();
             return;
         }
@@ -165,10 +171,13 @@ public sealed class TempleRunePicker : PausedGameOverlay
             tiles[i].color = i == selection ? brass : idle;
     }
 
-    private void UpdateControls(bool gamepad)
+    private void RefreshControls()
     {
-        controls.text = gamepad ? "← →   Выбор      A   Положить      B   Назад" :
-            "← →   Выбор      ЛКМ / E   Положить      Esc   Назад";
+        if (!IsOpen)
+            return;
+
+        string confirm = input.GamepadHints ? input.Label(input.Accept) : $"{input.Label(click)} / {input.Label(interact)}";
+        controls.text = $"{input.Label(input.Left)} / {input.Label(input.Right)}   Выбор      {confirm}   Положить      {input.Label(input.Back)}   Назад";
     }
 
     protected override void BuildView(Transform root)
@@ -190,6 +199,9 @@ public sealed class TempleRunePicker : PausedGameOverlay
         title.color = GameUiStyle.Ink;
         controls = Label(interior, -62f, 19);
         controls.color = GameUiStyle.MutedInk;
+        controls.resizeTextForBestFit = true;
+        controls.resizeTextMinSize = 14;
+        controls.resizeTextMaxSize = 19;
 
         for (int i = 0; i < GlyphCount; i++)
         {

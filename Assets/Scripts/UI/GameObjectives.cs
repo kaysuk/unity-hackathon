@@ -38,6 +38,7 @@ public static class GameObjectives
         public Stage Stage;
         public int AltarsDestroyed;
         public bool DocumentsCollected;
+        public bool NimbVulnerable;
     }
 
     private const int AltarCount = 6;
@@ -70,16 +71,18 @@ public static class GameObjectives
         Stage.FindWayToMainHall => "Найти путь к главному залу",
         Stage.ReachRitualHall => "Добраться до ритуального зала",
         Stage.EnterHall => "Войти в зал",
-        Stage.DestroyAltars => current.AltarsDestroyed < AltarCount
-            ? $"Уничтожить алтари {current.AltarsDestroyed} из {AltarCount}"
-            : "Добить существо",
+        Stage.DestroyAltars when current.AltarsDestroyed >= AltarCount => "Нимб повержен",
+        Stage.DestroyAltars when current.NimbVulnerable => "Ранить Нимба",
+        Stage.DestroyAltars => $"Уничтожить алтари {current.AltarsDestroyed} из {AltarCount}",
         _ => string.Empty
     };
 
-    public static string Secondary =>
-        !current.DocumentsCollected && current.Stage is (Stage.ReachRitualHall or Stage.EnterHall)
-            ? "Собрать тайные документы"
-            : string.Empty;
+    public static string Secondary => current.Stage switch
+    {
+        Stage.ReachRitualHall or Stage.EnterHall when !current.DocumentsCollected => "Собрать тайные документы",
+        Stage.DestroyAltars when current.AltarsDestroyed < AltarCount => $"Удар рукоятью · {GameBindings.Label("Player/Melee")} / {GameBindings.Label("Player/Melee", true)}",
+        _ => string.Empty
+    };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Reset()
@@ -88,10 +91,14 @@ public static class GameObjectives
         Changed = null;
     }
 
-    // The temple prototype is the only enabled gameplay scene with an authored quest path.
     public static void ConfigureScene(string sceneName) => Apply(new State
     {
-        Stage = sceneName == "temple_v2" ? Stage.FindWayToMainHall : Stage.None
+        Stage = sceneName switch
+        {
+            "temple_v2" => Stage.FindWayToMainHall,
+            NimbEncounter.ArenaScene => Stage.DestroyAltars,
+            _ => Stage.None
+        }
     });
 
     public static void EnterStage(Stage nextStage)
@@ -102,6 +109,7 @@ public static class GameObjectives
         State next = current;
         next.Stage = nextStage;
         next.AltarsDestroyed = 0;
+        next.NimbVulnerable = false;
         Apply(next);
     }
 
@@ -129,13 +137,16 @@ public static class GameObjectives
         Apply(next);
     }
 
-    public static void SetAltarsDestroyed(int destroyed)
+    public static void SetAltarsDestroyed(int destroyed) => SetNimbProgress(destroyed, current.NimbVulnerable);
+
+    internal static void SetNimbProgress(int confirmedAltars, bool vulnerable)
     {
         if (current.Stage != Stage.DestroyAltars)
             return;
 
         State next = current;
-        next.AltarsDestroyed = Mathf.Clamp(destroyed, 0, AltarCount);
+        next.AltarsDestroyed = Mathf.Clamp(confirmedAltars, 0, AltarCount);
+        next.NimbVulnerable = vulnerable && next.AltarsDestroyed < AltarCount;
         Apply(next);
     }
 
@@ -148,13 +159,14 @@ public static class GameObjectives
         state.AltarsDestroyed = state.Stage == Stage.DestroyAltars
             ? Mathf.Clamp(state.AltarsDestroyed, 0, AltarCount)
             : 0;
+        state.NimbVulnerable &= state.Stage == Stage.DestroyAltars && state.AltarsDestroyed < AltarCount;
         Apply(state);
     }
 
     private static void Apply(State next)
     {
         if (current.Stage == next.Stage && current.AltarsDestroyed == next.AltarsDestroyed &&
-            current.DocumentsCollected == next.DocumentsCollected)
+            current.DocumentsCollected == next.DocumentsCollected && current.NimbVulnerable == next.NimbVulnerable)
             return;
 
         current = next;

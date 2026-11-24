@@ -18,6 +18,7 @@ public sealed class ShoulderCamera : MonoBehaviour
     [SerializeField, Range(20f, 90f)] private float aimFieldOfView = 45f;
     [SerializeField, Min(0.01f)] private float aimBlendTime = 0.15f;
 
+    private InputAction look;
     private Camera viewCamera;
     private IvanMovement playerMovement;
     private Transform playerRoot;
@@ -40,6 +41,7 @@ public sealed class ShoulderCamera : MonoBehaviour
 
     private void Start()
     {
+        look = InputSystem.actions?.FindAction("Player/Look");
         viewCamera = GetComponent<Camera>();
         normalFieldOfView = viewCamera.fieldOfView;
         playerMovement = target != null ? target.GetComponentInParent<IvanMovement>() : null;
@@ -51,9 +53,11 @@ public sealed class ShoulderCamera : MonoBehaviour
     private void Update()
     {
         YawDelta = 0f;
-        if (!Application.isFocused || Time.timeScale <= 0f || Cursor.lockState != CursorLockMode.Locked || Mouse.current == null)
+        if (!Application.isFocused || Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay ||
+            Cursor.lockState != CursorLockMode.Locked || look == null)
             return;
-        Vector2 delta = Mouse.current.delta.ReadValue() * mouseSensitivity;
+        Vector2 delta = look.ReadValue<Vector2>() * (look.activeControl?.device is Gamepad
+            ? 180f * Time.deltaTime : mouseSensitivity);
         YawDelta = delta.x;
         yaw += delta.x;
         pitch = Mathf.Clamp(pitch - delta.y, pitchLimits.x, pitchLimits.y);

@@ -1,5 +1,10 @@
 using UnityEngine;
 
+internal interface IPistolStrikeTarget
+{
+    bool TryPistolStrike(GameObject source);
+}
+
 // A short upper-body gesture sampled after the sidearm's ordinary pose.
 internal sealed class IvanPistolStrike
 {
@@ -33,8 +38,7 @@ internal sealed class IvanPistolStrike
     private Quaternion spineApplied;
     private bool spinePosed;
     private float elapsed;
-    private CombatHealth target;
-    private SwatHitZones targetZones;
+    private Target target;
     private float stepLength;
     private Vector3 wristCorrection;
     private Vector3 previousGrip;
@@ -60,8 +64,7 @@ internal sealed class IvanPistolStrike
         hasPreviousGrip = false;
         wristCorrection = Vector3.zero;
         target = FindTarget(facing * Vector3.forward);
-        targetZones = target != null ? target.GetComponent<SwatHitZones>() : null;
-        stepLength = target != null ? Mathf.Clamp(PlanarOffset(target).magnitude - StandingReach, 0f, .33f) : 0f;
+        stepLength = target.Available ? Mathf.Clamp(PlanarOffset(target).magnitude - StandingReach, 0f, .33f) : 0f;
         landed = false;
     }
 
@@ -80,7 +83,7 @@ internal sealed class IvanPistolStrike
         // Even at a low frame rate, evaluate the contact pose once before recovery.
         if (!sampledContact) elapsed = Mathf.Min(elapsed, Contact);
         else if (previous < ContactEnd) elapsed = Mathf.Min(elapsed, ContactEnd);
-        if (stepLength > 0f && target != null && !target.IsDead && controller != null && controller.enabled && previous < Contact)
+        if (stepLength > 0f && target.Available && controller != null && controller.enabled && previous < Contact)
         {
             Vector3 offset = PlanarOffset(target);
             float stride = stepLength * (Ease(.045f, Contact, elapsed) - Ease(.045f, Contact, previous));
@@ -141,12 +144,14 @@ internal sealed class IvanPistolStrike
         Quaternion rotation = facing * Quaternion.Slerp(RaisedPistol, ContactPistol, roll) * gripRotation;
         Vector3 elbowHint = Vector3.Lerp(new Vector3(.45f, -1f, -.15f), new Vector3(.72f, -.82f, .08f), roll);
         // Correct the wrist for the actual grip position on this hand pose.
-        if (!sampledContact && target != null && !target.IsDead)
+        if (!sampledContact && target.Available)
         {
             Vector3 wristToGrip = Quaternion.Inverse(right.Wrist.rotation) * (grip.position - right.Wrist.position);
             Vector3 nominalGrip = right.Shoulder + facing * ContactOffset * right.Length
                 + facing * ContactPistol * gripRotation * wristToGrip;
-            Vector3 nearSide = AimPoint(target, targetZones) - PlanarOffset(target).normalized * .10f;
+            Vector3 nearSide = target.Receiver is CombatHealth
+                ? target.AimPoint - PlanarOffset(target).normalized * .10f
+                : target.Part.ClosestPoint(nominalGrip);
             Vector3 error = nearSide - nominalGrip;
             wristCorrection = Vector3.ClampMagnitude(error - Vector3.ClampMagnitude(error, .08f), .34f);
         }
@@ -161,37 +166,71 @@ internal sealed class IvanPistolStrike
         return released;
     }
 
-    private Vector3 PlanarOffset(CombatHealth health) =>
-        Vector3.ProjectOnPlane(health.transform.position - actor.position, Vector3.up);
+    private readonly struct Target
+    {
+        public readonly Collider Part;
+        public readonly MonoBehaviour Receiver;
+        private readonly CombatHealth health;
+        private readonly SwatHitZones zones;
 
-    private static Vector3 AimPoint(CombatHealth health, SwatHitZones zones) =>
-        zones != null ? zones.HeadPosition : health.transform.position + Vector3.up * 1.55f;
+        public Target(Collider part, MonoBehaviour receiver, CombatHealth health, SwatHitZones zones)
+        {
+            Part = part;
+            Receiver = receiver;
+            this.health = health;
+            this.zones = zones;
+        }
 
-    private CombatHealth FindTarget(Vector3 forward)
+        public bool Available => Part != null && Part.enabled && Receiver != null && Receiver.isActiveAndEnabled &&
+            (health == null || !health.IsDead);
+        public Vector3 Center => health != null ? health.transform.position : Part.bounds.center;
+        public Vector3 AimPoint => health == null ? Part.bounds.center :
+            zones != null ? zones.HeadPosition : health.transform.position + Vector3.up * 1.55f;
+    }
+
+    private Vector3 PlanarOffset(Target candidate) =>
+        Vector3.ProjectOnPlane(candidate.Center - actor.position, Vector3.up);
+
+    private Target Resolve(Collider part)
+    {
+        if (part.gameObject.scene != actor.gameObject.scene || part.transform.IsChildOf(actor)) return default;
+        var health = part.GetComponentInParent<CombatHealth>();
+        if (health != null)
+        {
+            var zones = health.GetComponent<SwatHitZones>();
+            if (part.isTrigger && (zones == null || !zones.Contains(part))) return default;
+            return new Target(part, health, health, zones);
+        }
+        if (part.isTrigger) return default;
+        var receiver = part.GetComponentInParent<IPistolStrikeTarget>() as MonoBehaviour;
+        return new Target(part, receiver, null, null);
+    }
+
+    private Target FindTarget(Vector3 forward)
     {
         Physics.SyncTransforms();
-        CombatHealth best = null;
+        Target best = default;
         float bestScore = float.PositiveInfinity;
         foreach (var part in Physics.OverlapSphere(actor.position + Vector3.up, AssistRange,
                      Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            var health = part.GetComponentInParent<CombatHealth>();
-            if (health == null || health.transform == actor || health.IsDead) continue;
-            Vector3 offset = PlanarOffset(health);
+            Target candidate = Resolve(part);
+            if (!candidate.Available) continue;
+            Vector3 offset = PlanarOffset(candidate);
             float distance = offset.magnitude;
             float alignment = Vector3.Dot(offset.normalized, forward);
             if (distance > AssistRange || alignment < .74f) continue;
             float score = distance + (1f - alignment) * .65f;
             if (score >= bestScore) continue;
-            Vector3 point = AimPoint(health, health.GetComponent<SwatHitZones>());
-            if (Mathf.Abs(point.y - actor.position.y - 1.6f) > .48f || !CanReach(health, point)) continue;
-            best = health;
+            Vector3 point = candidate.AimPoint;
+            if (Mathf.Abs(point.y - actor.position.y - 1.6f) > .48f || !CanReach(candidate, point)) continue;
+            best = candidate;
             bestScore = score;
         }
         return best;
     }
 
-    private bool CanReach(CombatHealth health, Vector3 point)
+    private bool CanReach(Target candidate, Vector3 point)
     {
         Vector3 origin = actor.position;
         origin.y = point.y;
@@ -199,7 +238,7 @@ internal sealed class IvanPistolStrike
         foreach (var hit in Physics.SphereCastAll(origin, .035f, reach.normalized, reach.magnitude,
                      Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            if (!hit.transform.IsChildOf(actor) && !hit.transform.IsChildOf(health.transform)) return false;
+            if (!hit.transform.IsChildOf(actor) && !hit.transform.IsChildOf(candidate.Receiver.transform)) return false;
         }
         return true;
     }
@@ -221,30 +260,34 @@ internal sealed class IvanPistolStrike
         sampledContact = true;
 
         Physics.SyncTransforms();
-        CombatHealth victim = null;
+        Target victim = default;
         Vector3 impact = end;
         float bestDistance = float.PositiveInfinity;
         foreach (var part in Physics.OverlapCapsule(start, end, ContactRadius,
                      Physics.AllLayers, QueryTriggerInteraction.Collide))
         {
-            var health = part.GetComponentInParent<CombatHealth>();
-            if (health == null || health.transform == actor || health.IsDead || Vector3.Dot(PlanarOffset(health), forward) <= 0f)
-                continue;
-            if (part.isTrigger && (!health.TryGetComponent<SwatHitZones>(out var zones) || !zones.Contains(part)))
-                continue;
+            Target candidate = Resolve(part);
+            if (!candidate.Available || Vector3.Dot(PlanarOffset(candidate), forward) <= 0f) continue;
             Vector3 point = part.ClosestPoint(end);
             float distance = (point - end).sqrMagnitude;
-            if (distance >= bestDistance || !CanReach(health, point)) continue;
-            victim = health;
+            if (distance >= bestDistance || !CanReach(candidate, point)) continue;
+            victim = candidate;
             impact = point;
             bestDistance = distance;
         }
-        if (victim == null) return;
+        if (!victim.Available) return;
+        if (victim.Receiver is IPistolStrikeTarget receiver)
+        {
+            if (!receiver.TryPistolStrike(actor.gameObject)) return;
+        }
+        else if (victim.Receiver is CombatHealth health)
+        {
+            Vector3 direction = PlanarOffset(victim).normalized;
+            health.TakeDamage(20f, impact, direction, actor.gameObject);
+            if (!health.IsDead && health.TryGetComponent<RifleNpc>(out var guard))
+                guard.OnMeleeHit(actor.gameObject, direction);
+        }
         landed = true;
         landedAt = elapsed;
-        Vector3 direction = PlanarOffset(victim).normalized;
-        victim.TakeDamage(20f, impact, direction, actor.gameObject);
-        if (!victim.IsDead && victim.TryGetComponent<RifleNpc>(out var guard))
-            guard.OnMeleeHit(actor.gameObject, direction);
     }
 }

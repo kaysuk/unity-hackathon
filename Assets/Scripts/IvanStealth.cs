@@ -51,7 +51,7 @@ public sealed class IvanStealth : MonoBehaviour
 
     private void Update()
     {
-        if (Time.timeScale <= 0f) return;
+        if (Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay) return;
         if (!IsPerforming && !sidearm.IsAiming && crouch?.WasPressedThisFrame() == true &&
             (!IsCrouching || CanStand()))
         {

@@ -9,7 +9,9 @@ public sealed class GameHud : MonoBehaviour
 
     private Canvas canvas;
     private RawImage bloodRim;
-    private RawImage bloodSpatter;
+    private BloodSplash leftSplash;
+    private BloodSplash rightSplash;
+    private bool lastHitWasRight = true;
     private GameObject objectivesPanel;
     private Text primaryObjective;
     private Text secondaryObjective;
@@ -19,7 +21,6 @@ public sealed class GameHud : MonoBehaviour
     private Text inventoryHint;
 
     private float lostHealth;
-    private float hitPulse;
     private int displayedMagazine = -1;
     private int displayedReserve = -1;
     private bool displayedReload;
@@ -38,7 +39,9 @@ public sealed class GameHud : MonoBehaviour
         font = GameUiStyle.Font;
 
         bloodRim = CreateBloodLayer("Blood rim", "KaramazovyHud/BloodRim");
-        bloodSpatter = CreateBloodLayer("Blood spatter", "KaramazovyHud/BloodSpatter");
+        leftSplash = new BloodSplash(CreateBloodLayer("Blood spatter", "KaramazovyHud/BloodSpatter"), false);
+        rightSplash = new BloodSplash(CreateBloodLayer("Blood spatter right", "KaramazovyHud/BloodSprayRight"), true);
+        OnRectTransformDimensionsChange();
         BuildObjectives();
         BuildAmmo();
         inventoryHint = AddLabel(transform, "Inventory shortcut", 25, GameUiStyle.Ink, TextAnchor.MiddleLeft);
@@ -95,39 +98,105 @@ public sealed class GameHud : MonoBehaviour
         }
     }
 
-    public void SetHealth(float hp, float maxHp, bool tookHit)
+    public void SetHealth(float hp, float maxHp, bool tookHit) => SetHealth(hp, maxHp, tookHit, 0f);
+
+    internal void SetHealth(float hp, float maxHp, bool tookHit, float sourceSide)
     {
         float damage = maxHp > 0f ? 1f - Mathf.Clamp01(hp / maxHp) : 0f;
         if (tookHit && damage > 0f)
         {
-            float lossThisHit = Mathf.Max(0f, damage - lostHealth);
-            hitPulse = Mathf.Max(hitPulse, Mathf.Lerp(.6f, 1f, Mathf.Clamp01(lossThisHit * 3f)));
+            // Centered or unattributed hits alternate between the two margins.
+            lastHitWasRight = Mathf.Abs(sourceSide) < .15f ? !lastHitWasRight : sourceSide > 0f;
+            var splash = lastHitWasRight ? rightSplash : leftSplash;
+            splash.Hit(Mathf.Lerp(.60f, 1f, Mathf.Clamp01((damage - lostHealth) * 2.5f)));
         }
         else
         {
-            // Binding or restoring health starts a new visual state without replaying a hit.
-            hitPulse = 0f;
+            leftSplash.Settle();
+            rightSplash.Settle();
         }
 
+        if (damage == 0f) ClearBlood();
         lostHealth = damage;
         UpdateBlood();
     }
 
+    internal void ClearBlood()
+    {
+        lastHitWasRight = true;
+        leftSplash.Clear();
+        rightSplash.Clear();
+    }
+
     private void Update()
     {
-        if (hitPulse <= 0f)
-            return;
-
-        hitPulse = Mathf.MoveTowards(hitPulse, 0f, Time.unscaledDeltaTime / .4f);
+        if (Time.deltaTime <= 0f || (leftSplash.Wetness <= 0f && rightSplash.Wetness <= 0f)) return;
+        leftSplash.Advance(Time.deltaTime);
+        rightSplash.Advance(Time.deltaTime);
         UpdateBlood();
+    }
+
+    private void OnRectTransformDimensionsChange()
+    {
+        if (leftSplash == null || rightSplash == null) return;
+        Vector2 screen = ((RectTransform)transform).rect.size;
+        leftSplash.Resize(screen);
+        rightSplash.Resize(screen);
     }
 
     private void UpdateBlood()
     {
-        float rim = Mathf.SmoothStep(0f, .92f, lostHealth);
-        float spatter = Mathf.SmoothStep(0f, .76f, (lostHealth - .18f) / .82f);
-        SetBloodOpacity(bloodRim, Mathf.Clamp01(rim + hitPulse * .3f));
-        SetBloodOpacity(bloodSpatter, Mathf.Clamp01(spatter + hitPulse * .85f));
+        float rim = Mathf.SmoothStep(0f, .23f, lostHealth);
+        SetBloodOpacity(bloodRim, rim + .12f * Mathf.Max(leftSplash.Wetness, rightSplash.Wetness));
+        leftSplash.Draw(lostHealth);
+        rightSplash.Draw(lostHealth);
+    }
+
+    private sealed class BloodSplash
+    {
+        private readonly RawImage image;
+        private readonly bool right;
+        private float strength;
+        public float Wetness { get; private set; }
+
+        public BloodSplash(RawImage image, bool right)
+        {
+            this.image = image;
+            this.right = right;
+            var rect = image.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(right ? 1f : 0f, right ? .64f : .49f);
+            rect.pivot = new Vector2(right ? 1f : 0f, .5f);
+        }
+
+        public void Resize(Vector2 screen)
+        {
+            if (image.texture == null) return;
+            float aspect = (float)image.texture.width / image.texture.height;
+            float height = Mathf.Min(screen.y * (right ? .85f : 1.02f), screen.x * .32f / aspect);
+            image.rectTransform.sizeDelta = new Vector2(height * aspect, height);
+        }
+
+        public void Hit(float amount)
+        {
+            strength = amount;
+            Wetness = 1f;
+        }
+
+        public void Advance(float deltaTime) => Wetness = Mathf.MoveTowards(Wetness, 0f, deltaTime / 1.15f);
+        public void Settle() => Wetness = 0f;
+        public void Clear() { strength = 0f; Wetness = 0f; }
+
+        public void Draw(float injury)
+        {
+            float fresh = Wetness * Wetness;
+            float residual = Mathf.SmoothStep(0f, .82f, injury);
+            float alpha = strength * Mathf.Lerp(residual, 1f, fresh);
+            float slide = (1f - fresh) * image.rectTransform.rect.height * .016f;
+            image.rectTransform.anchoredPosition = Vector2.down * slide;
+            image.enabled = alpha > 0f && image.texture != null;
+            image.color = new Color(Mathf.Lerp(.76f, 1f, fresh), Mathf.Lerp(.69f, 1f, fresh),
+                Mathf.Lerp(.74f, 1f, fresh), alpha);
+        }
     }
 
     private static void SetBloodOpacity(RawImage layer, float opacity)

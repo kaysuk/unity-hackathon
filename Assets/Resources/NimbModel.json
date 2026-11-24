@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "attacks": [
+        {
+            "attack": "EyeSeal",
+            "bias": -1.105943002537762,
+            "distanceMeters": -0.009302491847751846,
+            "recentCoverCount": 0.33560589103445254,
+            "inCover": 0.7344745330677089
+        },
+        {
+            "attack": "HaloWave",
+            "bias": 1.0666141028213332,
+            "distanceMeters": -0.029534251988906933,
+            "recentCoverCount": -1.0587955642193092,
+            "inCover": -2.117724268899486
+        },
+        {
+            "attack": "LightArrows",
+            "bias": -1.004839987076943,
+            "distanceMeters": 0.028660003244786132,
+            "recentCoverCount": -0.3271029347921494,
+            "inCover": -1.6155613598386696
+        },
+        {
+            "attack": "HeadDash",
+            "bias": -0.5657985040359927,
+            "distanceMeters": -0.05589906286784894,
+            "recentCoverCount": -0.19108594606121596,
+            "inCover": -1.0
+        },
+        {
+            "attack": "HandTouch",
+            "bias": 0.13400270354795007,
+            "distanceMeters": -0.15359535679909178,
+            "recentCoverCount": -0.19471127018814122,
+            "inCover": -1.4052332946301223
+        }
+    ]
+}
