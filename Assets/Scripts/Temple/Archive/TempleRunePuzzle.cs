@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public sealed class TempleRunePuzzle : MonoBehaviour
@@ -20,6 +21,12 @@ public sealed class TempleRunePuzzle : MonoBehaviour
 
     public bool AreDialsAligned => stage != Stage.Dials;
     public bool IsSolved => stage == Stage.Open;
+
+    private bool InActiveScene => gameObject.scene == SceneManager.GetActiveScene();
+
+    internal bool CanHearRiddle(PlayerInteractor player) =>
+        isActiveAndEnabled && !IsSolved && InActiveScene && player != null &&
+        player.gameObject.scene == gameObject.scene && player.CompareTag("Player");
 
     private void Awake()
     {
@@ -71,6 +78,8 @@ public sealed class TempleRunePuzzle : MonoBehaviour
         }
 
         stage = Stage.Stones;
+        if (InActiveScene)
+            StorySpeech.SayPrompt("temple.rune.dials-aligned");
         foreach (var station in stations)
             station.RaiseSocket();
     }
@@ -80,13 +89,20 @@ public sealed class TempleRunePuzzle : MonoBehaviour
         if (!isActiveAndEnabled || !AreDialsAligned || IsSolved)
             return;
 
+        bool correctOrder = true;
         foreach (var station in stations)
         {
-            if (!station.HasStone || station.OccupantIndex != station.StoneIndex)
-                return;
+            if (!station.HasStone) return;
+            if (station.OccupantIndex != station.StoneIndex) correctOrder = false;
+        }
+        if (!correctOrder)
+        {
+            StoryGameplayVoice.InScene(this, "temple.rune.wrong", "temple_v2");
+            return;
         }
 
         stage = Stage.Open;
+        StoryGameplayVoice.InScene(this, "temple.rune.solved", "temple_v2");
         GameAudio.Play(SoundCue.Seal, passage.transform.position);
         passage.SetOpen(true);
     }

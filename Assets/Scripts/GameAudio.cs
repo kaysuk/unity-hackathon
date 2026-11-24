@@ -15,6 +15,7 @@ internal enum SoundCue
 
 internal sealed class GameAudio : MonoBehaviour
 {
+    internal const string BossTrack = "sounds/ambience/boss_fight";
     private const string Bank = "GameAudio/";
     private static GameAudio instance;
     private readonly Dictionary<SoundCue, AudioClip> clips = new();
@@ -23,6 +24,9 @@ internal sealed class GameAudio : MonoBehaviour
     private AudioReverbZone room;
     private int currentMusic;
     private string track;
+    private string sceneTrack;
+    private bool scoreHeld;
+    private AudioSource heartbeat;
     private float nextAlert;
     private uint pitchSeed = 47;
 
@@ -45,9 +49,11 @@ internal sealed class GameAudio : MonoBehaviour
     {
         string nextTrack = next.name switch
         {
-            "Temple_Final_Room" => "Ritual",
-            "MainMenu" or "SampleScene" or "Church_Exterior" or "Church_Interior"
-                or "temple_v2" or "temple_firts_v2" => "Undercroft",
+            "Temple_Final_Room" => BossTrack,
+            "Church_Exterior" => "sounds/ambience/church_exterior",
+            "Church_Interior" => "sounds/ambience/church_interior",
+            "temple_v2" or "temple_firts_v2" or "SampleScene" => "sounds/ambience/temple",
+            "MainMenu" => Bank + "Undercroft",
             _ => null
         };
         if (nextTrack == null)
@@ -84,6 +90,8 @@ internal sealed class GameAudio : MonoBehaviour
         }
     }
 
+    private void Start() => GameSoundLevels.ApplySaved();
+
     private AudioSource AddSource(string label)
     {
         var emitter = new GameObject(label);
@@ -91,6 +99,7 @@ internal sealed class GameAudio : MonoBehaviour
         var source = emitter.AddComponent<AudioSource>();
         source.playOnAwake = false;
         source.dopplerLevel = 0f;
+        GameSoundLevels.Route(source, GameSoundChannel.Effects);
         return source;
     }
 
@@ -101,14 +110,62 @@ internal sealed class GameAudio : MonoBehaviour
         room.enabled = next.name is "temple_v2" or "temple_firts_v2" or "Temple_Final_Room" or "Church_Interior";
         if (room.enabled)
             room.reverbPreset = next.name == "Temple_Final_Room" ? AudioReverbPreset.Auditorium : AudioReverbPreset.Stoneroom;
+        sceneTrack = nextTrack;
+        if (!scoreHeld) SetTrack(nextTrack);
+    }
+
+    internal static void HoldScore(string cue)
+    {
+        if (instance == null) Create();
+        if (!instance.scoreHeld)
+        {
+            foreach (var voice in instance.voices) voice.Stop();
+            if (instance.heartbeat != null) instance.heartbeat.Stop();
+        }
+        instance.scoreHeld = true;
+        instance.SetTrack(cue);
+    }
+
+    internal static void ReleaseScore()
+    {
+        if (instance == null) return;
+        instance.scoreHeld = false;
+        instance.SetTrack(instance.sceneTrack);
+    }
+
+    internal static void Heartbeat(bool lowHealth)
+    {
+        if (instance == null) return;
+        if (!lowHealth || instance.scoreHeld)
+        {
+            if (instance.heartbeat != null && instance.heartbeat.isPlaying) instance.heartbeat.Stop();
+            return;
+        }
+        if (instance.heartbeat == null)
+        {
+            instance.heartbeat = instance.AddSource("Сердцебиение");
+            instance.heartbeat.loop = true;
+            instance.heartbeat.volume = 0.38f;
+            instance.heartbeat.bypassReverbZones = true;
+            instance.heartbeat.clip = Resources.Load<AudioClip>("sounds/player_sounds/player_heartb");
+        }
+        if (!instance.heartbeat.isPlaying) instance.heartbeat.Play();
+    }
+
+    private void SetTrack(string nextTrack)
+    {
         if (nextTrack == track) return;
         track = nextTrack;
         currentMusic = 1 - currentMusic;
         AudioSource incoming = music[currentMusic];
         incoming.Stop();
         incoming.volume = 0f;
-        incoming.clip = Resources.Load<AudioClip>(Bank + track);
+        bool ambience = track is "sounds/ambience/church_exterior" or "sounds/ambience/church_interior"
+            or "sounds/ambience/temple" or "sounds/comics/comics5-6";
+        GameSoundLevels.Route(incoming, ambience ? GameSoundChannel.Effects : GameSoundChannel.Music);
+        incoming.clip = track == null ? null : Resources.Load<AudioClip>(track);
         if (incoming.clip != null) incoming.Play();
+        else if (track != null) Debug.LogError($"Нет аудиоклипа Resources/{track}");
     }
 
     private void Update()
@@ -116,9 +173,9 @@ internal sealed class GameAudio : MonoBehaviour
         for (int i = 0; i < music.Length; i++)
         {
             var source = music[i];
-            float target = i == currentMusic && track != null ? (track == "Ritual" ? 0.24f : 0.15f) : 0f;
-            source.volume = Mathf.MoveTowards(source.volume, target, Time.unscaledDeltaTime * 0.16f);
-            if (source.volume == 0f && source.isPlaying) source.Stop();
+            float target = i == currentMusic && track != null ? (scoreHeld || track == BossTrack ? 0.39f : 0.25f) : 0f;
+            source.volume = Mathf.MoveTowards(source.volume, target, Time.unscaledDeltaTime * 0.9f);
+            if (i != currentMusic && source.volume == 0f && source.isPlaying) source.Stop();
         }
     }
 
@@ -201,7 +258,11 @@ internal struct PlayerFootsteps
         }
         var feet = NPCMover.FootPosition(body);
         if (!grounded && fallingSpeed > 3.5f)
+        {
             GameAudio.Play(SoundCue.Land, feet, 0.48f);
+            if (fallingSpeed > 6f && body.CompareTag("Player") && body.gameObject.scene == SceneManager.GetActiveScene())
+                StorySpeech.Say("ivan.landing_exhale", false);
+        }
         grounded = true;
         fallingSpeed = 0f;
         float speed = new Vector2(velocity.x, velocity.z).magnitude;

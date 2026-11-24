@@ -95,6 +95,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             return;
 
         GameAudio.Interface(SoundCue.MenuClick);
+        StoryGameplayVoice.FromPlayer(this, gameObject, "temple.ritual.door", "temple_v2");
         pendingEntrance = enter;
         heading.text = string.Empty;
         title.text = "Вход в главный зал";
@@ -231,6 +232,12 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         currentDocument = number;
         bool sealedRegister = number == DocumentTotal && collectedMask != CompleteMask;
         bool registerFirstRead = number == DocumentTotal && !sealedRegister && !FullFamilyTruth;
+        if (sealedRegister && firstRead)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d06.sealed", "temple_v2");
+        else if (registerFirstRead)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d06.open", "temple_v2");
+        else if (firstRead && number < DocumentTotal)
+            StoryGameplayVoice.FromPlayer(this, gameObject, $"archive.d{number:00}", "temple_v2");
 
         heading.text = $"ЖУРНАЛ  /  {DocumentCount} ИЗ {DocumentTotal}";
         title.text = $"D{number:00}  {TempleArchiveText.Titles[number - 1]}";

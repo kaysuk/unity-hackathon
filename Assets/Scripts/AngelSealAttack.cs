@@ -123,6 +123,16 @@ public sealed class AngelSealAttack : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Time.timeScale <= 0f) return;
+        if (GameObjectives.Capture().AltarsDestroyed == 6 && gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+        {
+            HideSeal();
+            if (sweeping) { haloSweep.Stop(); sweeping = false; }
+            if (player != null && health != null && !health.IsDead &&
+                Vector3.Distance(player.position, transform.position) < 3.5f)
+                GameCheckpoint.FinishRitual();
+            return;
+        }
         if (health == null || health.IsDead)
         {
             enabled = false;

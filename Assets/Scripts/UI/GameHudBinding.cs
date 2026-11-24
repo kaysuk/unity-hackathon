@@ -53,6 +53,7 @@ internal sealed class GameHudBinding : MonoBehaviour
     private void LateUpdate()
     {
         view.SetGameplayVisible(player != null && !loading && Time.timeScale > 0f);
+        GameAudio.Heartbeat(!loading && health != null && !health.IsDead && health.HP <= health.MaximumHP * 0.3f);
         bool hasPistol = pistol != null && pistol.isActiveAndEnabled;
         view.SetAmmo(hasPistol ? pistol.Ammo : 0, hasPistol ? pistol.ReserveAmmo : 0,
             hasPistol && pistol.IsReloading, hasPistol && pistol.ShowsAmmo);

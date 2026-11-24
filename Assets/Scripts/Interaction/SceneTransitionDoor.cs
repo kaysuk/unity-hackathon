@@ -58,11 +58,15 @@ public sealed class SceneTransitionDoor : Interactable
     private IEnumerator LoadLocation(CharacterController ivan, GameObject playerCamera)
     {
         Scene oldScene = gameObject.scene;
+        StoryComics comics = GameCheckpoint.Comics;
+        bool ritual = nextScene == "Temple_Final_Room" && comics != null;
+        if (ritual) yield return comics.Play(30, 33);
         yield return SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Additive);
 
         Scene newScene = SceneManager.GetSceneByName(nextScene);
         MovePlayer(newScene, ivan, playerCamera, arrivalPosition);
         SceneManager.SetActiveScene(newScene);
+        if (ritual) comics.Close();
         SceneManager.UnloadSceneAsync(oldScene);
     }
 

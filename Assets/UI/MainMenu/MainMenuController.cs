@@ -7,8 +7,6 @@ namespace Hackathon.Menu
 {
     public sealed class MainMenuController : MonoBehaviour
     {
-        private const string VolumePreference = "MainMenu.MasterVolume";
-
         [SerializeField] private GameObject mainPanel;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private GameObject exitPanel;
@@ -53,14 +51,70 @@ namespace Hackathon.Menu
             exitCancel.onClick.AddListener(() => Show(mainPanel, exit));
             unavailableBack.onClick.AddListener(() => Show(mainPanel, FirstAction));
             fullscreen.onClick.AddListener(ToggleFullscreen);
+            ConfigureAudioSliders();
+            GameSoundLevels.ApplySaved();
+            volume.SetValueWithoutNotify(AudioListener.volume);
+            ApplyVolume(volume.value);
             volume.onValueChanged.AddListener(SetVolume);
-
-            float savedVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolumePreference, AudioListener.volume));
-            volume.SetValueWithoutNotify(savedVolume);
-            ApplyVolume(savedVolume);
             Show(mainPanel, null);
             StartCoroutine(ShowIntro());
         }
+
+        private void ConfigureAudioSliders()
+        {
+            Text label = settingsPanel.transform.Find("Volume label").GetComponent<Text>();
+            label.text = "Общая громкость";
+            label.fontSize = 31;
+            Position(label.rectTransform, 4f, -222f, 232f);
+            Position((RectTransform)volume.transform, 240f, -223f, 245f);
+            volume.handleRect.sizeDelta = new Vector2(volume.handleRect.sizeDelta.x, -5f);
+            Position(volumeValue.rectTransform, 493f, -222f, 90f);
+
+            var music = AddVolumeSlider(GameSoundChannel.Music, "Музыка", label, -278f);
+            var dialogue = AddVolumeSlider(GameSoundChannel.Dialogue, "Диалоги", label, -334f);
+            var effects = AddVolumeSlider(GameSoundChannel.Effects, "Звуки", label, -390f);
+            SetVerticalNavigation(volume, settingsBack, music);
+            SetVerticalNavigation(music, volume, dialogue);
+            SetVerticalNavigation(dialogue, music, effects);
+            SetVerticalNavigation(effects, dialogue, fullscreen);
+            SetVerticalNavigation(fullscreen, effects, settingsBack);
+
+            var screenLabel = (RectTransform)settingsPanel.transform.Find("Screen label");
+            screenLabel.anchoredPosition = new Vector2(4f, -463f);
+            ((RectTransform)fullscreen.transform).anchoredPosition = new Vector2(4f, -497f);
+            ((RectTransform)settingsBack.transform).anchoredPosition = new Vector2(4f, -580f);
+        }
+
+        private Slider AddVolumeSlider(GameSoundChannel channel, string caption, Text labelTemplate, float y)
+        {
+            Transform panel = settingsPanel.transform;
+            var label = Instantiate(labelTemplate, panel, false);
+            var slider = Instantiate(volume, panel, false);
+            var valueLabel = Instantiate(volumeValue, panel, false);
+            label.name = channel + " label";
+            label.text = caption;
+            slider.name = channel.ToString();
+            valueLabel.name = channel + " value";
+            label.rectTransform.anchoredPosition = new Vector2(4f, y);
+            ((RectTransform)slider.transform).anchoredPosition = new Vector2(240f, y - 1f);
+            valueLabel.rectTransform.anchoredPosition = new Vector2(493f, y);
+            slider.SetValueWithoutNotify(GameSoundLevels.Get(channel));
+            valueLabel.text = FormatPercent(slider.value);
+            slider.onValueChanged.AddListener(value =>
+            {
+                GameSoundLevels.Set(channel, value);
+                valueLabel.text = FormatPercent(value);
+            });
+            return slider;
+        }
+
+        private static void Position(RectTransform rect, float x, float y, float width)
+        {
+            rect.anchoredPosition = new Vector2(x, y);
+            rect.sizeDelta = new Vector2(width, rect.sizeDelta.y);
+        }
+
+        private static string FormatPercent(float value) => $"{Mathf.RoundToInt(value * 100)}%";
 
         private void CreateContinueButton()
         {
@@ -87,7 +141,7 @@ namespace Hackathon.Menu
             SetVerticalNavigation(exit, settings, FirstAction);
         }
 
-        private static void SetVerticalNavigation(Button button, Selectable up, Selectable down)
+        private static void SetVerticalNavigation(Selectable button, Selectable up, Selectable down)
         {
             Navigation navigation = button.navigation;
             navigation.selectOnUp = up;
@@ -116,6 +170,7 @@ namespace Hackathon.Menu
 
         private void Show(GameObject panel, Selectable focus)
         {
+            if (activePanel == settingsPanel && panel != settingsPanel) PlayerPrefs.Save();
             mainPanel.SetActive(panel == mainPanel);
             settingsPanel.SetActive(panel == settingsPanel);
             exitPanel.SetActive(panel == exitPanel);
@@ -179,13 +234,13 @@ namespace Hackathon.Menu
         private void SetVolume(float value)
         {
             ApplyVolume(value);
-            PlayerPrefs.SetFloat(VolumePreference, value);
+            PlayerPrefs.SetFloat(GameSoundLevels.MasterPreference, value);
         }
 
         private void ApplyVolume(float value)
         {
             AudioListener.volume = value;
-            volumeValue.text = $"{Mathf.RoundToInt(value * 100)}%";
+            volumeValue.text = FormatPercent(value);
         }
 
         private void ToggleFullscreen()

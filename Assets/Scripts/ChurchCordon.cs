@@ -67,6 +67,13 @@ public sealed class ChurchCordon : MonoBehaviour
         initialized = true;
     }
 
+    internal void OpenForFirstVisit()
+    {
+        enabled = false;
+        foreach (var officer in courtyardOfficers) if (officer != null) officer.gameObject.SetActive(false);
+        foreach (var officer in streetOfficers) if (officer != null) officer.gameObject.SetActive(false);
+    }
+
     private void Register(RifleNpc[] members, bool courtyard)
     {
         if (members == null) return;
@@ -147,6 +154,7 @@ public sealed class ChurchCordon : MonoBehaviour
         alertStarted = Time.time;
         contactTime = 0f;
         AlarmCount++;
+        StoryGameplayVoice.FromPlayer(this, player.gameObject, "cordon.challenge", "Church_Exterior");
         GameAudio.Alert(alertSource != null ? alertSource.transform.position : transform.position, alertClip);
     }
 
@@ -215,6 +223,8 @@ public sealed class ChurchCordon : MonoBehaviour
 
     private void BeginReturn()
     {
+        if (playerHealth != null && !playerHealth.IsDead)
+            StoryGameplayVoice.FromPlayer(this, player.gameObject, "cordon.detour", "Church_Exterior");
         phase = Phase.Returning;
         contactTime = 0f;
     }

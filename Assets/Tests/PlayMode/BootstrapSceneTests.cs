@@ -1170,6 +1170,16 @@ namespace Hackathon.Tests
 
             door.GetType().GetMethod("Enter").Invoke(door, new object[] { player.GetComponent<CharacterController>(), camera });
 
+            yield return StoryPlaybackTests.WaitFor(() => StoryPlaybackTests.Page == 30);
+            var score = StoryPlaybackTests.Score("boss_fight");
+            // Place the playback cursor well past zero so a restart is observable even in batch mode.
+            score.time = 16f;
+            for (int n = 30; n <= 33; n++)
+            {
+                yield return StoryPlaybackTests.ReadPage(n, n.ToString(), "boss_fight");
+                Assert.That(StoryPlaybackTests.Score("boss_fight"), Is.SameAs(score));
+            }
+
             var deadline = Time.realtimeSinceStartup + 20f;
             while (source.isLoaded && Time.realtimeSinceStartup < deadline)
                 yield return null;
@@ -1180,6 +1190,11 @@ namespace Hackathon.Tests
             Assert.That(destination.isLoaded, Is.True);
             yield return null;
 
+            Assert.That(StoryPlaybackTests.Score("boss_fight"), Is.SameAs(score));
+            Assert.That(score.time, Is.GreaterThanOrEqualTo(15f), "Boss music restarted on scene activation.");
+            score.time = score.clip.length - 0.3f;
+            yield return StoryPlaybackTests.WaitFor(() => score.time < 2f);
+            Assert.That(score.isPlaying, Is.True, "The boss music must loop during gameplay.");
             var destinationRoots = destination.GetRootGameObjects();
             Assert.That(destinationRoots.Single(root => root.CompareTag("Player")), Is.EqualTo(player));
             Assert.That(destinationRoots.Single(root => root.CompareTag("MainCamera")), Is.EqualTo(camera));

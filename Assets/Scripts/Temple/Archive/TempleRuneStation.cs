@@ -75,6 +75,8 @@ public sealed class TempleRuneStation : Interactable
         if (!CanInteract(player))
             return;
 
+        if (player != null)
+            StoryGameplayVoice.FromPlayer(this, player.gameObject, "temple.rune.slots", "temple_v2");
         turnStartAngle = (initialIndex - CurrentIndex) * StepAngle;
         CurrentIndex = (CurrentIndex + 1) % GlyphCount;
         turnTime = 0f;
