@@ -71,6 +71,7 @@ public static class GameBindings
         Add("Player/Next", "Достать пистолет", Gameplay);
         Add("Player/Previous", "Убрать пистолет", Gameplay);
         Add("Player/Interact", "Взаимодействовать", Gameplay);
+        Add("Player/Investigate", "Чутьё детектива", Gameplay);
         Add("Player/Move", "Вперёд", Movement, "up");
         Add("Player/Move", "Назад", Movement, "down");
         Add("Player/Move", "Влево", Movement, "left");
@@ -139,6 +140,7 @@ public static class GameBindings
             "<Gamepad>/rightStickPress" => "R3",
             "<Gamepad>/leftStickPress" => "L3",
             "<Gamepad>/leftTrigger" => "LT",
+            "<Gamepad>/leftShoulder" => "LB",
             "<Gamepad>/rightShoulder" => "RB",
             "<Gamepad>/buttonSouth" => "A / ×",
             "<Gamepad>/buttonEast" => "B / ○",

@@ -177,6 +177,7 @@ namespace Hackathon.Tests
         {
             yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
             loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            Assert.That(SceneManager.SetActiveScene(loadedScene), Is.True);
             yield return null;
             var player = loadedScene.GetRootGameObjects().Single(root => root.CompareTag("Player"));
             var animator = player.GetComponent<Animator>();
@@ -194,6 +195,13 @@ namespace Hackathon.Tests
                 yield return new WaitForSeconds(0.85f);
                 Assert.That(animator.GetFloat("MoveSpeed"), Is.GreaterThan(walk * 1.5f));
                 Assert.That(animator.GetCurrentAnimatorClipInfo(0).Any(c => c.clip.name == "Run" && c.weight > 0.8f), Is.True);
+                input.Press(Key.W, Key.LeftShift, Key.V);
+                yield return new WaitForSeconds(.12f);
+                Assert.That(animator.GetFloat("MoveSpeed"), Is.InRange(.3f, walk + .1f),
+                    "Detective sense must immediately reduce an existing sprint to walking.");
+                input.Press(Key.W, Key.LeftShift);
+                yield return new WaitForSeconds(.5f);
+                Assert.That(animator.GetFloat("MoveSpeed"), Is.GreaterThan(walk * 1.5f));
                 input.Press();
                 yield return new WaitForSeconds(1f);
                 Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Idle"), Is.True);
@@ -1096,6 +1104,12 @@ namespace Hackathon.Tests
 
             var tiles = scripts.Where(s => s.GetType().Name == "TempleSlidingTile")
                 .ToDictionary(s => (int)s.GetType().GetProperty("Number").GetValue(s));
+            var gate = scripts.Single(s => s.name == "M1 North bypass gate" && s.GetType().Name == "TemplePassage");
+            var reference = gate.transform.Find("M1 - Completed mosaic reference").GetComponent<MeshRenderer>();
+            Assert.That(reference.sharedMaterial, Is.SameAs(tiles[1].GetComponent<MeshRenderer>().sharedMaterial));
+            Assert.That(reference.HasPropertyBlock(), Is.False, "The door must display the whole atlas.");
+            Assert.That(Vector3.Dot(-reference.transform.forward, orbit.transform.position - reference.transform.position),
+                Is.GreaterThan(0f), "The sample must face the puzzle room.");
             foreach (int number in new[] { 4, 8, 7, 6, 10, 11, 15 })
                 tiles[number].GetType().GetMethod("Interact").Invoke(tiles[number], new object[] { player });
             yield return new WaitForSeconds(0.65f);
@@ -1186,6 +1200,9 @@ namespace Hackathon.Tests
                 .OrderBy(s => s.transform.position.x).ToArray();
             Assert.AreEqual(6, levers.Length);
             Assert.AreEqual("Room 7.1", levers[0].transform.parent.parent.name);
+            var inscription = levers[0].transform.parent.GetComponentInChildren<Text>();
+            Assert.That(inscription.canvas.renderMode, Is.EqualTo(RenderMode.WorldSpace));
+            Assert.That(inscription.text, Does.Contain("Опустите все рычаги").And.Contain("погасить шесть огней"));
             var workshop = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true))
                 .Single(t => t.name == "Room 7.2");
             var workshopScripts = workshop.GetComponentsInChildren<MonoBehaviour>(true);
@@ -1208,8 +1225,9 @@ namespace Hackathon.Tests
                 {
                     bool down = (bool)levers[i].GetType().GetProperty("IsDown").GetValue(levers[i]);
                     var face = levers[i].transform.Find("Indicator").GetComponent<MeshRenderer>();
-                    Assert.That(face.sharedMaterial.GetColor("_EmissionColor").maxColorComponent > 0f, Is.EqualTo(down));
-                    if (down) mask |= 1 << i;
+                    bool lit = face.sharedMaterial.GetColor("_EmissionColor").maxColorComponent > 0f;
+                    Assert.That(down, Is.EqualTo(!lit), "A lowered handle must extinguish its light.");
+                    if (lit) mask |= 1 << i;
                 }
                 return mask;
             }

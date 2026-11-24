@@ -31,6 +31,8 @@ public sealed class TempleRuneStation : Interactable
     public int TargetIndex => targetIndex;
     public int StoneIndex => (targetIndex + GlyphCount / 2) % GlyphCount;
     public override bool RequiresDirectAim => true;
+    internal override Transform HighlightRoot => dial;
+    internal Transform SocketHighlightRoot => socketLift != null ? socketLift.transform : null;
     internal bool IsAligned => !isTurning && CurrentIndex == targetIndex;
 
     private bool PuzzleActive => isActiveAndEnabled && puzzle != null && puzzle.isActiveAndEnabled && !puzzle.IsSolved;

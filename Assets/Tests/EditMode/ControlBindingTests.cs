@@ -63,6 +63,11 @@ namespace Hackathon.Tests
         [Test]
         public void ConflictsIncludeAlternateButtonsButPermitSeparateContexts()
         {
+            object sense = Entry("Чутьё детектива");
+            Assert.That(Label("Player/Investigate"), Is.EqualTo("V"));
+            Assert.That(Label("Player/Investigate", true), Is.EqualTo("LB"));
+            Assert.That(Call("Apply", sense, "<Keyboard>/q"), Is.Not.Null);
+            Assert.That(Call("Apply", Entry("Прицелиться"), "<Keyboard>/v"), Is.Not.Null);
             object melee = Entry("Удар рукоятью");
             Assert.That(Call("Apply", melee, "<Mouse>/rightButton"), Is.Not.Null, "Right click also aims.");
             Assert.That(Label("Player/Melee"), Is.EqualTo("F"));

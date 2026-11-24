@@ -94,12 +94,13 @@ namespace Hackathon.Tests
                 Assert.That(text, Does.Contain(keyName));
                 Assert.That(text, Does.Contain("Рычаг 1"));
 
-                Assert.IsTrue(Read<bool>(lever, "IsDown"));
-                Assert.IsFalse(Read<bool>(levers[1], "IsDown"));
-                Poll(new KeyboardState(Key.E));
-                Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
+                Assert.That(text, Does.Contain("Опустить").And.Contain("Погасите все шесть огней"));
                 Assert.IsFalse(Read<bool>(lever, "IsDown"));
                 Assert.IsTrue(Read<bool>(levers[1], "IsDown"));
+                Poll(new KeyboardState(Key.E));
+                Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
+                Assert.IsTrue(Read<bool>(lever, "IsDown"));
+                Assert.IsFalse(Read<bool>(levers[1], "IsDown"));
                 yield return null;
 
                 AimFrom(3f);

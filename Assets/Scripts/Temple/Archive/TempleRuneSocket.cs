@@ -6,6 +6,7 @@ public sealed class TempleRuneSocket : Interactable
     [SerializeField] private TempleRuneStation station;
 
     public override bool RequiresDirectAim => true;
+    internal override Transform HighlightRoot => station != null ? station.SocketHighlightRoot : null;
     public override bool CanInteract(PlayerInteractor player) =>
         base.CanInteract(player) && station != null && station.CanUseSocket(player?.Inventory);
 

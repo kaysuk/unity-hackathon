@@ -51,6 +51,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     private ChurchBookshelf bookshelf;
     private bool returnedToChurch;
     internal static StoryComics Comics => instance != null ? instance.comics : null;
+    internal static bool IsLoading => instance != null && instance.loading;
     private StoryComics comics;
 
     public static bool HasSave => ReadSave() != null;
@@ -140,6 +141,12 @@ public sealed class GameCheckpoint : MonoBehaviour
             health.onDeath.RemoveListener(OnPlayerDeath);
 
         player = actor;
+        // The standalone ritual room also has seals that can be struck up close.
+        if (actor != null && actor.scene.name == RitualScene && !actor.TryGetComponent<PlayerInteractor>(out _))
+            actor.AddComponent<PlayerInteractor>();
+        if (actor != null && actor.TryGetComponent<CharacterController>(out _) &&
+            !actor.TryGetComponent<PlayerInvestigationSense>(out _))
+            actor.AddComponent<PlayerInvestigationSense>();
         health = actor != null ? actor.GetComponent<CombatHealth>() : null;
         if (health != null)
             health.onDeath.AddListener(OnPlayerDeath);

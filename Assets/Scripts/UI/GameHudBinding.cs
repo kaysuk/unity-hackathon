@@ -32,7 +32,8 @@ internal sealed class GameHudBinding : MonoBehaviour
         if (player != actor) view.ClearBlood();
         damageSourceSide = 0f;
         player = actor;
-        view.SetInventoryHint(actor != null && actor.TryGetComponent<InventoryMenu>(out _));
+        view.SetShortcutHints(actor != null && actor.TryGetComponent<InventoryMenu>(out _),
+            actor != null && actor.TryGetComponent<PlayerInvestigationSense>(out _));
         health = actor != null ? actor.GetComponent<CombatHealth>() : null;
         pistol = actor != null ? actor.GetComponent<PistolCombat>() : null;
         previousHP = health != null ? health.HP : 1f;
