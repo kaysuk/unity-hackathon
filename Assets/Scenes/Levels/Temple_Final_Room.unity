@@ -6216,6 +6216,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 221796389}
+  - component: {fileID: 2108000004}
+  - component: {fileID: 2108000005}
   m_Layer: 0
   m_Name: Alcove seal 03
   m_TagString: Untagged
@@ -33502,6 +33504,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1002426299}
+  - component: {fileID: 2108000010}
+  - component: {fileID: 2108000011}
   m_Layer: 0
   m_Name: Alcove seal 06
   m_TagString: Untagged
@@ -42504,6 +42508,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1320356921}
+  - component: {fileID: 2108000008}
+  - component: {fileID: 2108000009}
   m_Layer: 0
   m_Name: Alcove seal 05
   m_TagString: Untagged
@@ -49777,6 +49783,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1553672205}
+  - component: {fileID: 2108000000}
+  - component: {fileID: 2108000001}
   m_Layer: 0
   m_Name: Alcove seal 01
   m_TagString: Untagged
@@ -50338,6 +50346,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1560331735}
+  - component: {fileID: 2108000002}
+  - component: {fileID: 2108000003}
   m_Layer: 0
   m_Name: Alcove seal 02
   m_TagString: Untagged
@@ -50468,6 +50478,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1574946458}
+  - component: {fileID: 2108000006}
+  - component: {fileID: 2108000007}
   m_Layer: 0
   m_Name: Alcove seal 04
   m_TagString: Untagged
@@ -68296,6 +68308,180 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5352819271103691372, guid: a73bae0886d47449b8ab193450aae1ca, type: 3}
   m_PrefabInstance: {fileID: 2136375692}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &2108000000
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1553672204}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1553672204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
+--- !u!65 &2108000002
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560331734}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560331734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
+--- !u!65 &2108000004
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221796388}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221796388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
+--- !u!65 &2108000006
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574946457}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574946457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
+--- !u!65 &2108000008
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1320356920}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1320356920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
+--- !u!65 &2108000010
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002426298}
+  m_Material: {fileID: 0}
+  m_IncludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_ExcludeLayers: {serializedVersion: 2, m_Bits: 0}
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6, y: 2.1, z: 0.55}
+  m_Center: {x: 0, y: -0.55, z: -0.2}
+--- !u!114 &2108000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002426298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7326a016c4086bda73590619fc81a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RitualAltar
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

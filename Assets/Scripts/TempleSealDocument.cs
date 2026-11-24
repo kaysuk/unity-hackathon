@@ -44,6 +44,9 @@ public sealed class TempleSealDocument : Interactable
             gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
         {
             GameAudio.Interface(SoundCue.Paper);
+            // Only the separate register in the workshop reveals D06.
+            if (number < TempleArchiveJournal.DocumentTotal)
+                StoryGameplayVoice.FromPlayer(this, player.gameObject, $"archive.d{number:00}", "temple_v2");
             GameObjectives.SetArchiveProgress(CountCollected(player.Inventory));
         }
     }

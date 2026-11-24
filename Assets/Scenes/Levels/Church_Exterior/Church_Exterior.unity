@@ -129372,6 +129372,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 960126533}
+  - component: {fileID: 2108000002}
   m_Layer: 0
   m_Name: Exit - Rear Church Door
   m_TagString: Untagged
@@ -243695,6 +243696,7 @@ GameObject:
   - component: {fileID: 1769283166}
   - component: {fileID: 1769283165}
   - component: {fileID: 1769283164}
+  - component: {fileID: 2108000000}
   m_Layer: 0
   m_Name: Main Entrance Landing
   m_TagString: Untagged
@@ -327300,6 +327302,34 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9141440403838797561, guid: 7b1baf175d0630e06b01c9b93849d1c0, type: 3}
   m_PrefabInstance: {fileID: 2143096705}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2108000000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769283162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e279b759c0094ee4857cbcae7bee4bbe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryWaypoint
+  passage: 0
+  radius: 3
+--- !u!114 &2108000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960126532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e279b759c0094ee4857cbcae7bee4bbe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryWaypoint
+  passage: 1
+  radius: 2.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

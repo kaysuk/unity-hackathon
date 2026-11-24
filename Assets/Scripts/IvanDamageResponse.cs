@@ -80,7 +80,10 @@ public sealed class IvanDamageResponse : MonoBehaviour
 
     private void OnHit()
     {
-        if (!health.IsDead) animator.SetTrigger(Hit);
+        if (health.IsDead) return;
+        animator.SetTrigger(Hit);
+        if (gameObject.CompareTag("Player") && gameObject.scene == SceneManager.GetActiveScene())
+            StorySpeech.Say(health.HP <= health.MaximumHP * .3f ? "ivan.critical" : "ivan.hurt", false);
     }
 
     private void OnDeath()
