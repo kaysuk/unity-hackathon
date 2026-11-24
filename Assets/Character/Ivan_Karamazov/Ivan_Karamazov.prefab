@@ -29,6 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8953638237495313112}
   - {fileID: 8953638237495313106}
   - {fileID: 1443986718528243284}
   m_Father: {fileID: 6728647754188149516}
@@ -59,6 +60,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.000335, y: 0.00128, z: 0.002025}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6762287943050613948}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8953638237495313111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8953638237495313112}
+  m_Layer: 0
+  m_Name: Grip Base
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8953638237495313112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953638237495313111}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0003000, y: 0.000077655, z: 0.0003000}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -752,9 +784,10 @@ MonoBehaviour:
   holster: {fileID: 4839241099374858817}
   pistolMount: {fileID: 6728647754188149516}
   propDirection: {fileID: 6762287943050613948}
+  gripBase: {fileID: 8953638237495313112}
   rightGrip: {fileID: 4527961096407226447}
   leftGrip: {fileID: 4711345902811851758}
-  drawSeconds: 1.15
+  drawSeconds: 0.72
   stowSeconds: 1.4
 --- !u!114 &3801048806922224506
 MonoBehaviour:

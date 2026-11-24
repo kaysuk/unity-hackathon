@@ -17,15 +17,19 @@ public sealed class IvanSidearm : MonoBehaviour
     [SerializeField] private Transform holster;
     [SerializeField] private Transform pistolMount;
     [SerializeField] private Transform propDirection;
+    [SerializeField] private Transform gripBase;
     [SerializeField] private Transform rightGrip;
     [SerializeField] private Transform leftGrip;
-    [SerializeField, Min(0.1f)] private float drawSeconds = 1.15f;
+    [SerializeField, Min(0.1f)] private float drawSeconds = 0.72f;
     [SerializeField, Min(0.1f)] private float stowSeconds = 1.4f;
 
     [SerializeField] private AudioClip shotClip;
     [SerializeField] private GameObject muzzleFlash;
     private float flashUntil;
     private InputAction attack;
+    private InputAction melee;
+    private PistolCombat combat;
+    private IvanPistolStrike strike;
     internal bool ShotRequested { get; private set; }
     private IvanStealth stealth;
     private Animator animator;
@@ -43,7 +47,7 @@ public sealed class IvanSidearm : MonoBehaviour
     public bool IsAiming { get; private set; }
     public bool IsSidearmActive => drawing || phase > 0f;
     public float StanceYaw => AimStanceYaw * aimWeight;
-    internal bool IsReadyToFire => isActiveAndEnabled && IsAiming && raise >= .95f;
+    internal bool IsReadyToFire => isActiveAndEnabled && !strike.Active && IsAiming && raise >= .95f;
     internal float ShotRecoil { private get; set; }
 
     private void Awake()
@@ -51,9 +55,12 @@ public sealed class IvanSidearm : MonoBehaviour
         stealth = GetComponent<IvanStealth>();
         animator = GetComponent<Animator>();
         rig = new IvanSidearmRig(animator, holster, pistolMount, propDirection, rightGrip, leftGrip);
+        strike = new IvanPistolStrike(animator, gripBase);
+        combat = GetComponent<PistolCombat>();
         layer = animator.GetLayerIndex("Sidearm");
         next = InputSystem.actions?.FindAction("Player/Next");
         attack = InputSystem.actions?.FindAction("Player/Attack");
+        melee = InputSystem.actions?.FindAction("Player/Melee");
         previous = InputSystem.actions?.FindAction("Player/Previous");
     }
 
@@ -62,7 +69,12 @@ public sealed class IvanSidearm : MonoBehaviour
         if (muzzleFlash.activeSelf && Time.time >= flashUntil) muzzleFlash.SetActive(false);
         if (stealth == null || !stealth.IsPerforming) ReadInput();
         AdvanceGesture(Time.deltaTime);
-        ShotRequested = Time.timeScale > 0f && drawing && phase >= 1f &&
+        strike.Advance(Time.deltaTime);
+        if (Time.timeScale > 0f && drawing && phase >= 1f && !strike.Active &&
+            melee?.WasPressedThisFrame() == true && combat != null && combat.isActiveAndEnabled &&
+            !combat.IsReloading && !CombatAnimation.HasActiveTag(animator, "Hit"))
+            strike.Begin(Facing);
+        ShotRequested = Time.timeScale > 0f && drawing && phase >= 1f && !strike.Active &&
             (stealth == null || !stealth.IsPerforming) && attack?.WasPressedThisFrame() == true;
     }
 
@@ -84,6 +96,7 @@ public sealed class IvanSidearm : MonoBehaviour
         if (requested != drawing)
         {
             drawing = requested;
+            if (!drawing) strike.Cancel();
             GameAudio.Play(drawing ? SoundCue.Draw : SoundCue.Stow, holster.position, 0.40f);
             animator.Play(drawing ? Draw : Stow, layer, 0f);
         }
@@ -99,6 +112,8 @@ public sealed class IvanSidearm : MonoBehaviour
         animator.SetLayerWeight(layer, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(phase / 0.12f)));
     }
 
+    private Quaternion Facing => Quaternion.Euler(0f, transform.eulerAngles.y - StanceYaw, 0f);
+
     private void LateUpdate()
     {
         Quaternion direction = Quaternion.identity;
@@ -113,7 +128,9 @@ public sealed class IvanSidearm : MonoBehaviour
                 direction = Quaternion.Euler(pitch - ShotRecoil, transform.eulerAngles.y - StanceYaw, 0f);
             }
         }
-        rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction);
+        Quaternion facing = Facing;
+        rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction, strike, facing);
+        strike.CheckContact(facing * Vector3.forward);
     }
 
     internal void ShowShot()
@@ -128,6 +145,8 @@ public sealed class IvanSidearm : MonoBehaviour
     {
         muzzleFlash.SetActive(false);
         ShotRequested = false;
+        strike?.Cancel();
+        rig?.RestoreClavicle();
         IsAiming = false;
         aimRequested = false;
         aimWeight = 0f;

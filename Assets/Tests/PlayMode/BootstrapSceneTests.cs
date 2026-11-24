@@ -346,20 +346,21 @@ namespace Hackathon.Tests
             using (var input = new MovementKeyboard())
             {
                 input.Press(Key.W, Key.Digit2);
-                yield return new WaitForSeconds(0.17f);
+                yield return new WaitForSeconds(0.12f);
                 Assert.That(mount.parent, Is.EqualTo(holster));
                 input.Press(Key.W, Key.Digit1);
                 yield return new WaitForSeconds(0.35f);
                 Assert.That(animator.GetLayerWeight(layer), Is.LessThan(0.001f));
 
                 input.Press(Key.W, Key.Digit2);
-                float deadline = Time.time + 0.9f;
+                float deadline = Time.time + 0.85f;
                 while (mount.parent == holster && Time.time < deadline) yield return null;
                 Assert.That(mount.parent, Is.EqualTo(hand));
                 Assert.That(Vector3.Distance(hand.Find("Right Palm Grip").position, holster.position), Is.LessThan(0.035f),
                     "The hand must meet the holster on the moving thigh at transfer.");
                 Assert.That(Quaternion.Angle(hand.Find("Right Palm Grip").rotation, holster.rotation), Is.LessThan(10f));
-                yield return new WaitForSeconds(0.85f);
+                while (animator.GetFloat("SidearmTime") < 1f && Time.time < deadline) yield return null;
+                Assert.That(animator.GetFloat("SidearmTime"), Is.EqualTo(1f), "Finish the draw within 0.85 seconds.");
                 Assert.That(animator.GetCurrentAnimatorStateInfo(layer).IsName("Sidearm.Draw"), Is.True);
                 Assert.That(animator.GetLayerWeight(layer), Is.EqualTo(1f).Within(0.001f));
                 Assert.That(Vector3.Distance(mount.position, holster.position), Is.GreaterThan(0.15f));
@@ -380,6 +381,176 @@ namespace Hackathon.Tests
                 Assert.That(mount.localPosition, Is.EqualTo(Vector3.zero));
                 Assert.That(animator.GetLayerWeight(layer), Is.LessThan(0.001f));
                 Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Idle"), Is.True);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator DrawnPistolStrikesOnceAtContactAndCanFinishAGuard()
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            yield return null;
+            var roots = loadedScene.GetRootGameObjects();
+            var player = roots.Single(r => r.CompareTag("Player"));
+            var guard = roots.Single(r => r.name == "Temple Guard");
+            var health = guard.GetComponent("CombatHealth");
+            float HP() => (float)health.GetType().GetProperty("HP").GetValue(health);
+            var combat = player.GetComponent("PistolCombat");
+            var fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            combat.GetType().GetMethod("RestoreAmmo", fields).Invoke(combat, new object[] {0, 0, 12});
+            ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
+            var npc = (Behaviour)guard.GetComponent("RifleNpc");
+            npc.enabled = false;
+            var animator = player.GetComponent<Animator>();
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            var hand = animator.GetBoneTransform(HumanBodyBones.RightHand);
+            Vector3 origin = Vector3.right * 120f;
+            void Place(GameObject actor, float z, float x = 0f)
+            {
+                var body = actor.GetComponent<CharacterController>();
+                body.enabled = false;
+                actor.transform.SetPositionAndRotation(origin + new Vector3(x, 0f, z), Quaternion.identity);
+                body.enabled = true;
+                Physics.SyncTransforms();
+            }
+            Place(player, 0f);
+            Place(guard, .72f);
+            var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            floor.transform.position = origin + Vector3.down * .5f;
+            floor.transform.localScale = new Vector3(5f, 1f, 5f);
+            var cover = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cover.transform.position = origin + new Vector3(0f, 1f, .36f);
+            cover.transform.localScale = new Vector3(1f, 2f, .02f);
+            using var input = new MovementKeyboard();
+            try
+            {
+                IEnumerator Swing()
+                {
+                    input.Press();
+                    yield return null;
+                    input.Press(Key.F);
+                    yield return new WaitForSeconds(.73f);
+                }
+                yield return Swing();
+                Assert.AreEqual(100f, HP(), "Holstered");
+                input.Press(Key.Digit2);
+                yield return new WaitForSeconds(1.4f);
+                yield return Swing();
+                Assert.AreEqual(100f, HP(), "Thin wall blocks contact");
+                cover.SetActive(false);
+                Place(guard, 1.8f);
+                yield return Swing();
+                Assert.AreEqual(100f, HP(), "Out of reach");
+                Place(guard, -.72f);
+                yield return Swing();
+                Assert.AreEqual(100f, HP(), "A guard behind Ivan is outside the swing");
+                Place(guard, .72f);
+                npc.enabled = true;
+                input.Press();
+                yield return null;
+                var guardAnimator = guard.GetComponent<Animator>();
+                guardAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                var head = guardAnimator.GetBoneTransform(HumanBodyBones.Head);
+                var pistol = hand.Find("Sidearm Mount/Sidearm Direction");
+                var gripBase = pistol.Find("Grip Base");
+                var muzzle = pistol.Find("Muzzle");
+                float contactHeightError = float.PositiveInfinity;
+                float gripLead = 0f;
+                float magazineLeft = 0f;
+                float slideRight = 0f;
+                float magazineAlignment = 0f;
+                Vector3 previousGrip = gripBase.position;
+                System.Action<float> measureHit = _ =>
+                {
+                    contactHeightError = Mathf.Abs(gripBase.position.y - (head.position.y + .075f));
+                    Vector3 left = -player.transform.right;
+                    gripLead = Vector3.Dot(gripBase.position - muzzle.position, left);
+                    slideRight = Vector3.Dot(pistol.up, player.transform.right);
+                    Vector3 magazine = pistol.TransformDirection(new Vector3(-.039f, -1f, -.161f).normalized);
+                    magazineLeft = Vector3.Dot(magazine, left);
+                    magazineAlignment = Vector3.Dot(magazine, (gripBase.position - previousGrip).normalized);
+                };
+                var changed = health.GetType().GetEvent("Changed");
+                changed.AddEventHandler(health, measureHit);
+                var rest = player.transform.InverseTransformPoint(hand.position);
+                input.Press(Key.F);
+                yield return new WaitForSeconds(.13f);
+                Assert.AreEqual(100f, HP(), "Windup");
+                Assert.Greater(Vector3.Distance(rest, player.transform.InverseTransformPoint(hand.position)), .08f);
+                // Sample between rendered poses, before Update restores the previous IK offsets.
+                float deadline = Time.time + .30f;
+                while (HP() == 100f && Time.time < deadline)
+                {
+                    yield return new WaitForFixedUpdate();
+                    if (HP() == 100f) previousGrip = gripBase.position;
+                }
+                yield return new WaitForSeconds(.65f);
+                changed.RemoveEventHandler(health, measureHit);
+                Assert.AreEqual(80f, HP(), "Holding F hits once");
+                Assert.Less(contactHeightError, .13f, "Grip base should reach head height at contact");
+                Assert.Greater(gripLead, .07f, "The grip base should pass to the left of the muzzle");
+                Assert.Greater(magazineLeft, .97f, "The magazine should point to Ivan's left at impact");
+                Assert.Greater(slideRight, .95f, "The slide should sit on Ivan's right at impact");
+                Assert.Greater(magazineAlignment, .78f, "The magazine should point along the incoming swing");
+                Assert.Greater(guard.transform.position.z - origin.z, .78f, "Surviving guard staggers");
+                Vector2[] guardOffsets = { new(-.30f, .80f), new(.30f, .80f), new(0f, .61f), new(0f, 1.10f) };
+                for (int i = 0; i < guardOffsets.Length; i++)
+                {
+                    Vector2 offset = guardOffsets[i];
+                    Place(player, 0f);
+                    Place(guard, offset.y, offset.x);
+                    yield return Swing();
+                    Assert.AreEqual(80f - 20f * (i + 1), HP(), $"One hit with guard at (x, z) = {offset}");
+                }
+                Assert.IsFalse(guard.GetComponent<CharacterController>().enabled, "Fatal blow");
+                Assert.AreEqual(0, combat.GetType().GetProperty("Ammo").GetValue(combat));
+            }
+            finally
+            {
+                Object.Destroy(cover);
+                Object.Destroy(floor);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator AimedMeleeReleasesTheSupportHandAndRestoresAimAfterAMiss()
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            yield return null;
+            var roots = loadedScene.GetRootGameObjects();
+            roots.Single(r => r.name == "Temple Guard").SetActive(false);
+            var player = roots.Single(r => r.CompareTag("Player"));
+            var animator = player.GetComponent<Animator>();
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            var left = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+            var grip = player.GetComponentsInChildren<Transform>().Single(t => t.name == "Left Support Grip");
+            var muzzle = grip.parent.Find("Sidearm Direction");
+            var camera = roots.SelectMany(r => r.GetComponentsInChildren<Camera>()).Single(c => c.CompareTag("MainCamera"));
+            var combat = player.GetComponent("PistolCombat");
+            int Ammo() => (int)combat.GetType().GetProperty("Ammo").GetValue(combat);
+            using var input = new MovementKeyboard();
+            var mouse = InputSystem.AddDevice<Mouse>();
+            var pad = InputSystem.AddDevice<Gamepad>();
+            try
+            {
+                var aiming = new MouseState().WithButton(MouseButton.Right);
+                InputSystem.QueueStateEvent(mouse, aiming);
+                yield return new WaitForSeconds(1.5f);
+                int before = Ammo();
+                InputSystem.QueueStateEvent(pad, new GamepadState().WithButton(GamepadButton.RightStick));
+                InputSystem.QueueStateEvent(mouse, aiming.WithButton(MouseButton.Left));
+                yield return new WaitForSeconds(.18f);
+                Assert.Greater(Vector3.Distance(left.position, grip.position), .10f, "Support hand releases");
+                Assert.AreEqual(before, Ammo(), "Melee has priority over firing");
+                yield return new WaitForSeconds(.55f);
+                Assert.Less(Vector3.Distance(left.position, grip.position), .04f, "Support grip restored");
+                Assert.Greater(Vector3.Dot(muzzle.forward, camera.transform.forward), .98f, "Aim restored");
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(pad);
+                InputSystem.RemoveDevice(mouse);
             }
         }
 
@@ -434,6 +605,12 @@ namespace Hackathon.Tests
 
                     var elbow = animator.GetBoneTransform(HumanBodyBones.RightLowerArm);
                     Vector3 elbowStart = player.transform.InverseTransformPoint(elbow.position);
+                    var clavicle = animator.GetBoneTransform(HumanBodyBones.RightShoulder);
+                    var shoulder = animator.GetBoneTransform(HumanBodyBones.RightUpperArm);
+                    Vector3 ShoulderSpan() => Quaternion.Inverse(clavicle.parent.rotation) *
+                        (shoulder.position - clavicle.position);
+                    Vector3 shoulderStart = ShoulderSpan();
+                    Vector3 forwardInChest = Quaternion.Inverse(clavicle.parent.rotation) * player.transform.forward;
                     InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
                     float deadline = Time.time + 0.5f;
                     do { yield return null; } while (animator.GetFloat("SidearmTime") < 0.15f && Time.time < deadline);
@@ -442,6 +619,8 @@ namespace Hackathon.Tests
                         Vector3 elbowNow = player.transform.InverseTransformPoint(elbow.position);
                         Assert.That(elbowNow.z, Is.LessThan(elbowStart.z - 0.02f),
                             "The elbow should lead back before the prop leaves the holster.");
+                        Assert.Less(Vector3.Dot(ShoulderSpan() - shoulderStart, forwardInChest), -.012f,
+                            "The right shoulder should retract relative to the chest before the hand takes the prop.");
                         Assert.That(mount.parent, Is.EqualTo(holster));
                     }
                     Assert.That(camera.fieldOfView, Is.LessThan(lens - 1f));
@@ -528,7 +707,7 @@ namespace Hackathon.Tests
                     Assert.That(animator.GetLayerWeight(animator.GetLayerIndex("Sidearm")), Is.LessThan(0.001f));
 
                     InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
-                    yield return new WaitForSeconds(0.20f);
+                    yield return new WaitForSeconds(0.13f);
                     InputSystem.QueueStateEvent(mouse, new MouseState());
                     yield return new WaitForSeconds(0.38f);
                     Assert.That(mount.parent, Is.EqualTo(holster));

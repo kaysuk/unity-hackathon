@@ -54,6 +54,7 @@ public sealed class RifleNpc : MonoBehaviour
     private bool hitPending;
     private int hitFrame;
     private Quaternion? shotFacing;
+    private Vector3 staggerVelocity;
 
     public bool HoldsPosition => holdPosition;
     private NPCChaser chaser;
@@ -109,6 +110,7 @@ public sealed class RifleNpc : MonoBehaviour
         recognized = false;
         sightStartedAt = -1f;
         shotFacing = null;
+        staggerVelocity = Vector3.zero;
         takedownOwner = null;
         health.onHit.RemoveListener(OnHit);
         EndBurst();
@@ -168,14 +170,21 @@ public sealed class RifleNpc : MonoBehaviour
         animator.SetTrigger(Hit);
     }
 
-    internal void OnPistolHit(GameObject shooter, Vector3 bulletDirection)
+    internal void OnMeleeHit(GameObject attacker, Vector3 direction)
     {
-        if (!isActiveAndEnabled || health.IsDead || shooter == null || shooter.transform != targetActor) return;
+        if (!isActiveAndEnabled || health.IsDead) return;
+        staggerVelocity = Vector3.ProjectOnPlane(direction, Vector3.up).normalized * 1.7f;
+        RecognizeAttacker(attacker, direction);
+    }
+
+    internal void RecognizeAttacker(GameObject attacker, Vector3 incomingDirection)
+    {
+        if (!isActiveAndEnabled || health.IsDead || attacker == null || attacker.transform != targetActor) return;
         if (takedownOwner != null) EndTakedown(takedownOwner, false);
         if (!recognized && chaser == null) Shout();
         recognized = true;
         chaser?.RecognizePlayer();
-        Vector3 towardShot = Vector3.ProjectOnPlane(-bulletDirection, Vector3.up);
+        Vector3 towardShot = Vector3.ProjectOnPlane(-incomingDirection, Vector3.up);
         if (towardShot.sqrMagnitude > 0.0001f)
             shotFacing = Quaternion.LookRotation(towardShot);
     }
@@ -272,7 +281,8 @@ public sealed class RifleNpc : MonoBehaviour
 
         Vector3 direction = transform.right * move.x + transform.forward * move.y;
         bool patrolling = chaser != null && chaser.CurrentState == NPCChaser.State.Patrol;
-        body.SimpleMove(direction * (patrolling ? patrolSpeed : walkSpeed));
+        body.SimpleMove(direction * (patrolling ? patrolSpeed : walkSpeed) + staggerVelocity);
+        staggerVelocity = Vector3.MoveTowards(staggerVelocity, Vector3.zero, 8f * Time.deltaTime);
         animator.SetBool(Patrolling, patrolling);
         animator.SetBool(PatrolWalking, patrolling && move.sqrMagnitude > 0.01f);
         animator.SetFloat(MoveX, move.x, 0.12f, Time.deltaTime);
