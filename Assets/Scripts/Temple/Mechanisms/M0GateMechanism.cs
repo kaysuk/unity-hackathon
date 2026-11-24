@@ -62,7 +62,11 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
         {
             int count = CountHandles(player?.Inventory);
             if (count < 2)
+            {
+                if (player != null)
+                    StoryGameplayVoice.FromPlayer(this, player.gameObject, "temple.gate.handles", "temple_v2");
                 return $"Две рукояти. Одной не открыть. Ключей {count}/2";
+            }
         }
 
         if (string.IsNullOrEmpty(buttonPrompt))
@@ -129,6 +133,7 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
         {
             stage = Stage.Open;
             GameAudio.Play(SoundCue.GateStop, gate.position);
+            StoryGameplayVoice.InScene(this, "temple.gate.open", "temple_v2");
             if (exitDoor != null) exitDoor.SetOpen(true);
             PassabilityChanged?.Invoke();
             if (gameObject.scene == SceneManager.GetActiveScene())

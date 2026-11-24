@@ -226,6 +226,12 @@ public sealed class PistolCombat : MonoBehaviour
         if (sidearm != null) sidearm.ShowShot();
         else GameAudio.PistolShot(muzzle.position);
         Ammo--;
+        // Count the reserve as well: an empty magazine alone only calls for a reload.
+        int roundsLeft = Ammo + ReserveAmmo;
+        if (roundsLeft == 3)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "combat.low_ammo");
+        else if (roundsLeft == 0)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "combat.empty_ammo");
         nextShot = Time.time + Mathf.Max(0.01f, shotInterval);
         Ray cameraRay = sidearm != null
             ? viewCamera.ViewportPointToRay(new Vector3(.5f, .5f, 0f))

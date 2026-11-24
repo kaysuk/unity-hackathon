@@ -25,6 +25,7 @@ public sealed class TempleLeverBank : MonoBehaviour
             levers[i].Initialize(this, i, IsLit(i), sealShader);
 
         mechanism = gameObject.AddComponent<AudioSource>();
+        GameSoundLevels.Route(mechanism, GameSoundChannel.Effects);
         mechanism.playOnAwake = false;
         mechanism.spatialBlend = 1f;
         mechanism.minDistance = 2f;

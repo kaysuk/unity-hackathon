@@ -24,6 +24,8 @@ public sealed class ItemPickup : Interactable
             var sound = itemId.StartsWith("rune_") ? SoundCue.Stone :
                 itemId == "archive_documents" ? SoundCue.Paper : SoundCue.Key;
             GameAudio.Play(sound, transform.position);
+            if (sound == SoundCue.Stone)
+                StoryGameplayVoice.FromPlayer(this, player.gameObject, "temple.rune.found", "temple_v2");
             gameObject.SetActive(false);
         }
     }

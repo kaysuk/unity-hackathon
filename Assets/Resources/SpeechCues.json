@@ -1,0 +1,833 @@
+{
+  "cues": [
+    {
+      "key": "page.07",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 0.0,
+          "end": 9.704979
+        }
+      ]
+    },
+    {
+      "key": "page.08",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 9.704979,
+          "end": 20.86
+        }
+      ]
+    },
+    {
+      "key": "page.09",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 20.86,
+          "end": 30.08
+        }
+      ]
+    },
+    {
+      "key": "page.10",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 30.08,
+          "end": 40.54
+        }
+      ]
+    },
+    {
+      "key": "page.11",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 40.54,
+          "end": 59.69
+        }
+      ]
+    },
+    {
+      "key": "page.12",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 59.69,
+          "end": 68.545
+        }
+      ]
+    },
+    {
+      "key": "page.13",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 68.545,
+          "end": 80.315
+        }
+      ]
+    },
+    {
+      "key": "page.14",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/01-intro/OI.01.family_father_missing_letter_and_church",
+          "start": 80.315,
+          "end": 92.436458
+        }
+      ]
+    },
+    {
+      "key": "page.15",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.10.someone_coming_follow_them"
+        },
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.11.follow_voices_to_hall"
+        }
+      ]
+    },
+    {
+      "key": "page.16",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.02.children_in_chains_and_blood"
+        }
+      ]
+    },
+    {
+      "key": "page.17",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.12.cultists_collapse_then_rejuvenate"
+        }
+      ]
+    },
+    {
+      "key": "page.18",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.13.agency_and_new_manager"
+        },
+        {
+          "path": "speech/cut-scenes/03-cultists/OI.14.recognize_mitya"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.15.must_leave_and_call_for_help"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.16.quiet_get_out"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.17.escape_panic_curse"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.18.escape_hope_they_do_not_notice"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.19.escape_there_it_is"
+        }
+      ]
+    },
+    {
+      "key": "page.19",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/04-escape/OI.20.escape_finally_out"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.21.escape_church_and_call_partner"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.22.dmitry_knows_about_father"
+        },
+        {
+          "path": "speech/cut-scenes/04-escape/OI.23.will_not_ask_again"
+        }
+      ]
+    },
+    {
+      "key": "page.20",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OD.04.protests_office_arrest"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.24.where_is_father"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.05.demands_handcuffs_off"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.25.saw_children_heard_about_agency"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.06.warns_about_cult"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.26.explain_now"
+        }
+      ]
+    },
+    {
+      "key": "page.21",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OI.27.ask_about_raid"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/ON.01.phone_identify_colleague"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.28.who_is_this_where_is_she"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/ON.02.phone_colleague_died_in_crash"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.29.just_spoke_to_her"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/ON.03.phone_condolences"
+        }
+      ]
+    },
+    {
+      "key": "page.22",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OI.30.i_called_her"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.07.warns_against_involving_colleague"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.31.shut_up"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.32.what_did_you_do_to_father"
+        }
+      ]
+    },
+    {
+      "key": "page.23",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OD.08.father_knew_too_much"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.33.who_killed_him"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.09.admits_killing_father"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.34.did_you_kill_our_father"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.10.followed_orders"
+        }
+      ]
+    },
+    {
+      "key": "page.24",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OI.35.reward_for_fathers_death"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.11.given_a_chance_for_first_time"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.36.sold_him_for_an_office"
+        }
+      ]
+    },
+    {
+      "key": "page.25",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OD.12.defends_cult_sacrifices"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.37.saw_children_in_chains"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.13.serves_six_priests"
+        }
+      ]
+    },
+    {
+      "key": "page.26",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OI.38.what_happened_to_your_eyes"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.14.feels_better_than_ever"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.39.do_you_drink_this"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.15.demands_vial_back"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.40.temporary_effect"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.16.claims_he_speaks_freely"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.41.what_they_tell_you_to_think"
+        }
+      ]
+    },
+    {
+      "key": "page.27",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OD.17.objects_to_taking_key"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.42.key_to_lower_door"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OD.18.warns_ivan_will_not_return"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.43.thought_i_could_help_you"
+        }
+      ]
+    },
+    {
+      "key": "page.28",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/OD.19.accuses_ivan_of_demanding_gratitude"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.44.wanted_you_as_my_brother"
+        }
+      ]
+    },
+    {
+      "key": "page.29_alive",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/dmitry-alive/OD.20.warns_ivan_after_being_spared"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.47.office_aftermath_loss"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.48.return_to_church_with_key"
+        }
+      ]
+    },
+    {
+      "key": "page.29_dead",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/05-office/dmitry-dead/OI.45.sorry_after_shooting"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.47.office_aftermath_loss"
+        },
+        {
+          "path": "speech/cut-scenes/05-office/OI.48.return_to_church_with_key"
+        }
+      ]
+    },
+    {
+      "key": "page.30",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.50.child_in_chains_and_prayer"
+        },
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.51.dark_spirit_enters_child"
+        }
+      ]
+    },
+    {
+      "key": "page.31",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.52.priests_fall_alyosha"
+        },
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.53.stay_away_from_the_child"
+        }
+      ]
+    },
+    {
+      "key": "page.32",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.54.priest_turns_into_boss"
+        }
+      ]
+    },
+    {
+      "key": "page.33",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.55.columns_hold_the_boss_take_1"
+        }
+      ]
+    },
+    {
+      "key": "page.34_bad",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/common/OI.62.injured_one_more_step"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.21.narrates_ivan_defeating_the_six"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.22.finds_ivan_bleeding_in_hall"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.23.tells_ivan_the_cult_will_continue"
+        }
+      ]
+    },
+    {
+      "key": "page.35_bad",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.24.refuses_to_save_ivan"
+        }
+      ]
+    },
+    {
+      "key": "page.36_bad",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.25.raises_new_altar_where_ivan_died"
+        }
+      ]
+    },
+    {
+      "key": "page.37_bad",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.26.prays_at_new_altar"
+        }
+      ]
+    },
+    {
+      "key": "page.38_bad",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.27.narrates_towers_falling_and_wars"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/bad/OD.28.says_ivan_failed_to_stop_the_cult"
+        }
+      ]
+    },
+    {
+      "key": "page.34_good",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/common/OI.62.injured_one_more_step"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.63.reach_for_child"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.64.please_get_up"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.65.i_am_sorry"
+        }
+      ]
+    },
+    {
+      "key": "page.35_good",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.66.thought_i_had_won"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.67.could_not_save_boy_burn_church"
+        }
+      ]
+    },
+    {
+      "key": "page.36_good",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.70.lost_my_family_and_partner"
+        }
+      ]
+    },
+    {
+      "key": "page.37_good",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.68.cult_gone_world_changes"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.69.twin_towers_still_stand"
+        }
+      ]
+    },
+    {
+      "key": "page.38_good",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/good/OI.71.saved_world_but_lost_loved_ones"
+        }
+      ]
+    },
+    {
+      "key": "page.34_best",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/common/OI.62.injured_one_more_step"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.72.alyosha_i_am_your_brother"
+        }
+      ]
+    },
+    {
+      "key": "page.35_best",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.73.find_strength_to_carry_alyosha"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.74.seven_years_underground"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.75.carry_boy_out_and_burn_church"
+        }
+      ]
+    },
+    {
+      "key": "page.36_best",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.78.remember_father_and_mitya"
+        }
+      ]
+    },
+    {
+      "key": "page.37_best",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.76.cult_leaders_disappear"
+        }
+      ]
+    },
+    {
+      "key": "page.38_best",
+      "lines": [
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.77.september_with_alyosha"
+        },
+        {
+          "path": "speech/cut-scenes/11-ending/best/OI.79.found_a_family_again"
+        }
+      ]
+    },
+    {
+      "key": "cordon.challenge",
+      "lines": [
+        {
+          "path": "speech/scenes/06-church-exterior/OI.49.tell_officer_im_police"
+        }
+      ]
+    },
+    {
+      "key": "cordon.detour",
+      "lines": [
+        {
+          "path": "speech/scenes/06-church-exterior/OI.130.try_another_entrance"
+        }
+      ]
+    },
+    {
+      "key": "temple.gate.handles",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.135.two_levers_needed"
+        }
+      ]
+    },
+    {
+      "key": "temple.gate.open",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.137.passage_open"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.found",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.147.strange_rune_part_of_something"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.intro",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/room-7-2/gladivir_riddle"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.remind",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/room-7-2/gladivir_riddle_remind"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.dials-aligned",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/room-7-2/gladivir_ecourage"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.slots",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.148.six_places_six_symbols"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.wrong",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.149.wrong_rune_order"
+        }
+      ]
+    },
+    {
+      "key": "temple.rune.solved",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.150.rune_puzzle_solved"
+        }
+      ]
+    },
+    {
+      "key": "archive.d02",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.139.agency_part_of_network"
+        }
+      ]
+    },
+    {
+      "key": "archive.d03",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.140.identify_black_liquid"
+        }
+      ]
+    },
+    {
+      "key": "archive.d04",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.141.confirm_summoning"
+        }
+      ]
+    },
+    {
+      "key": "archive.d05",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.142.mother_sofia_karamazova"
+        }
+      ]
+    },
+    {
+      "key": "archive.d06",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.143.mother_died_after_childbirth"
+        }
+      ]
+    },
+    {
+      "key": "archive.d07.sealed",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.144.hidden_continuation"
+        }
+      ]
+    },
+    {
+      "key": "archive.d07.open",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.146.alyosha_is_our_brother"
+        }
+      ]
+    },
+    {
+      "key": "temple.ritual.door",
+      "lines": [
+        {
+          "path": "speech/scenes/08-temple/OI.151.close_to_ritual_hall"
+        }
+      ]
+    },
+    {
+      "key": "combat.low_ammo",
+      "lines": [
+        {
+          "path": "speech/ivan/phrases/OI.82.03.low_ammo"
+        }
+      ]
+    },
+    {
+      "key": "combat.empty_ammo",
+      "lines": [
+        {
+          "path": "speech/ivan/phrases/OI.93.use_knife"
+        }
+      ]
+    },
+    {
+      "key": "boss.first_altar",
+      "lines": [
+        {
+          "path": "speech/scenes/10-bossfight/OI.57.first_altar_it_works"
+        }
+      ]
+    },
+    {
+      "key": "boss.last_altar",
+      "lines": [
+        {
+          "path": "speech/scenes/10-bossfight/OI.58.last_altar_now_alone_take_1"
+        }
+      ]
+    },
+    {
+      "key": "ivan.hurt",
+      "lines": [
+        {
+          "path": "speech/ivan/phrases/OI.83.hurt_curse"
+        }
+      ]
+    },
+    {
+      "key": "ivan.critical",
+      "lines": [
+        {
+          "path": "speech/ivan/phrases/OI.84.hold_on"
+        }
+      ]
+    },
+    {
+      "key": "ivan.landing_exhale",
+      "lines": [
+        {
+          "path": "speech/ivan/sounds/OI.119.sharp_exhale_t14_02",
+          "effect": true
+        }
+      ]
+    },
+    {
+      "key": "basement_door_checked",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.04.basement_door_open"
+        }
+      ]
+    },
+    {
+      "key": "dark_stain_inspected",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.05.wine_stain_too_dark"
+        }
+      ]
+    },
+    {
+      "key": "cabinet_scratches_inspected",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.06.scratches_on_floor"
+        }
+      ]
+    },
+    {
+      "key": "cabinet_inspected",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.07.what_is_behind_cabinet"
+        }
+      ]
+    },
+    {
+      "key": "cabinet_moved_passage_revealed",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.08.hidden_passage_revealed"
+        }
+      ]
+    },
+    {
+      "key": "first_descent",
+      "lines": [
+        {
+          "path": "speech/scenes/02-church-first-visit/OI.09.under_the_church"
+        }
+      ]
+    },
+    {
+      "key": "lights_out_stealth",
+      "lines": [
+        {
+          "path": "speech/scenes/07-church-interior/OI.131.flashlight_would_give_me_away"
+        }
+      ]
+    },
+    {
+      "key": "nearing_basement",
+      "lines": [
+        {
+          "path": "speech/scenes/07-church-interior/OI.132.almost_there"
+        }
+      ]
+    },
+    {
+      "key": "key_fits",
+      "lines": [
+        {
+          "path": "speech/scenes/07-church-interior/OI.133.key_fits"
+        }
+      ]
+    },
+    {
+      "key": "lower_door_opened",
+      "lines": [
+        {
+          "path": "speech/scenes/07-church-interior/OI.134.only_forward_now"
+        }
+      ]
+    }
+  ]
+}

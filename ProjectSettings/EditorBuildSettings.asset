@@ -20,5 +20,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Levels/Church_Exterior/Church_Exterior.unity
     guid: e87431e73f5aa45e49bc74aeeaaccf69
+  - enabled: 1
+    path: Assets/Scenes/Levels/Church_Interior.unity
+    guid: 8b605adab6aff40bb943f26a6c6ffee7
+  - enabled: 1
+    path: Assets/Scenes/Levels/temple_firts_v2.unity
+    guid: 49a451ef5c10247e0b214c0a4cc2183e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

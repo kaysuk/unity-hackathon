@@ -77,6 +77,8 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         collectedMask |= 1 << (number - 1);
         DocumentCount++;
         currentDocument = number;
+        if (number > 1 && number < DocumentTotal)
+            StoryGameplayVoice.FromPlayer(this, gameObject, $"archive.d{number:00}", "temple_v2");
         if (gameObject.scene == SceneManager.GetActiveScene())
             GameObjectives.SetArchiveProgress(DocumentCount);
         return true;
@@ -123,6 +125,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             return;
 
         GameAudio.Interface(SoundCue.MenuClick);
+        StoryGameplayVoice.FromPlayer(this, gameObject, "temple.ritual.door", "temple_v2");
         pendingEntrance = enter;
         heading.text = string.Empty;
         title.text = "Вход в главный зал";
@@ -266,6 +269,10 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         currentDocument = number;
         bool sealedRegister = number == DocumentTotal && collectedMask != CompleteMask;
         bool registerFirstRead = number == DocumentTotal && !sealedRegister && !FullFamilyTruth;
+        if (sealedRegister && firstRead)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d07.sealed", "temple_v2");
+        else if (registerFirstRead)
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d07.open", "temple_v2");
 
         string room = number == DocumentTotal ? "7.2" : number.ToString();
         heading.text = $"АРХИВ ПОДЗЕМНОГО ХРАМА  /  КОМНАТА {room}  ·  {DocumentCount} ИЗ {DocumentTotal}";

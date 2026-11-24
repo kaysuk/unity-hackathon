@@ -319,6 +319,8 @@ namespace Hackathon.Tests
                 Assert.That(nodes.Length, Is.GreaterThan(30));
                 Assert.That(guards.Count(g => g.GetComponent("NPCChaser") != null), Is.EqualTo(3));
                 Assert.That(scripts.Count(s => s != null && s.GetType().Name == "PlayerInteractor"), Is.EqualTo(1));
+                // The lever moves its initially open gate during Start, before the next physics step.
+                Physics.SyncTransforms();
                 var capsule = guards[0].GetComponent<CharacterController>();
                 var problems = new List<string>();
                 foreach (var node in nodes)

@@ -60,7 +60,7 @@ public static class GameObjectives
         Stage.InspectLetter => "Осмотреть письмо",
         Stage.FollowDmitry => "Проследить за Дмитрием",
         Stage.InspectChurch => "Осмотреть церковь",
-        Stage.CheckMarks => "Проверить следы у стены",
+        Stage.CheckMarks => "Найти потайной проход за шкафом",
         Stage.InvestigateVoices => "Выяснить источник голосов",
         Stage.EscapeAndCallForHelp => "Выбраться наружу и вызвать помощь",
         Stage.InspectDmitrysDesk => "Осмотреть стол Дмитрия",

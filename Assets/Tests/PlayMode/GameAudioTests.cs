@@ -38,7 +38,7 @@ namespace Hackathon.Tests
             try
             {
                 Assert.That(audio.GetComponentsInChildren<AudioSource>().Any(source =>
-                    source.loop && source.clip?.name == "Undercroft" && source.isPlaying), Is.True);
+                    source.loop && source.clip?.name == "temple" && source.isPlaying), Is.True);
                 pickup.GetType().GetMethod("Interact").Invoke(pickup, new object[] { player });
                 Assert.That(pickup.gameObject.activeSelf, Is.False);
                 Assert.That(audio.GetComponentsInChildren<AudioSource>().Any(source =>
@@ -47,7 +47,7 @@ namespace Hackathon.Tests
                 yield return SceneManager.LoadSceneAsync("Temple_Final_Room", LoadSceneMode.Additive);
                 SceneManager.SetActiveScene(SceneManager.GetSceneByName("Temple_Final_Room"));
                 Assert.That(audio.GetComponentsInChildren<AudioSource>().Any(source =>
-                    source.loop && source.clip?.name == "Ritual" && source.isPlaying), Is.True);
+                    source.loop && source.clip?.name == "boss_fight" && source.isPlaying), Is.True);
             }
             finally
             {
