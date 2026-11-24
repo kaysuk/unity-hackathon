@@ -27,6 +27,8 @@ internal sealed class GameAudio : MonoBehaviour
     private string sceneTrack;
     private bool scoreHeld;
     private AudioSource heartbeat;
+    private AudioSource guardVoice;
+    private float nextFootstepLine, nextSpottedLine;
     private float nextAlert;
     private uint pitchSeed = 47;
 
@@ -92,20 +94,22 @@ internal sealed class GameAudio : MonoBehaviour
 
     private void Start() => GameSoundLevels.ApplySaved();
 
-    private AudioSource AddSource(string label)
+    private AudioSource AddSource(string label, GameSoundChannel channel = GameSoundChannel.Effects)
     {
         var emitter = new GameObject(label);
         emitter.transform.SetParent(transform, false);
         var source = emitter.AddComponent<AudioSource>();
         source.playOnAwake = false;
         source.dopplerLevel = 0f;
-        GameSoundLevels.Route(source, GameSoundChannel.Effects);
+        GameSoundLevels.Route(source, channel);
         return source;
     }
 
     private void ChangeScene(Scene next, string nextTrack)
     {
         foreach (var voice in voices) voice.Stop();
+        if (guardVoice != null) guardVoice.Stop();
+        nextFootstepLine = nextSpottedLine = 0f;
         nextAlert = 0f;
         room.enabled = next.name is "temple_v2" or "temple_firts_v2" or "Temple_Final_Room" or "Church_Interior";
         if (room.enabled)
@@ -120,6 +124,7 @@ internal sealed class GameAudio : MonoBehaviour
         if (!instance.scoreHeld)
         {
             foreach (var voice in instance.voices) voice.Stop();
+            if (instance.guardVoice != null) instance.guardVoice.Stop();
             if (instance.heartbeat != null) instance.heartbeat.Stop();
         }
         instance.scoreHeld = true;
@@ -189,6 +194,27 @@ internal sealed class GameAudio : MonoBehaviour
         if (instance == null || clip == null || Time.time < instance.nextAlert) return;
         instance.nextAlert = Time.time + 3f;
         instance.PlayVoice(clip, position, 0.73f, 5f, 1f);
+    }
+
+    internal static void GuardLine(Vector3 position, AudioClip clip, bool spotted)
+    {
+        if (instance == null || clip == null || instance.scoreHeld || Time.timeScale == 0f) return;
+        if (Time.time < (spotted ? instance.nextSpottedLine : instance.nextFootstepLine)) return;
+        instance.nextFootstepLine = Time.time + 3f;
+        if (spotted) instance.nextSpottedLine = instance.nextFootstepLine;
+        if (instance.guardVoice == null)
+        {
+            instance.guardVoice = instance.AddSource("Голос охраны", GameSoundChannel.Dialogue);
+            instance.guardVoice.spatialBlend = 1f;
+            instance.guardVoice.minDistance = 5f;
+            instance.guardVoice.maxDistance = 50f;
+            instance.guardVoice.priority = 48;
+        }
+        var voice = instance.guardVoice;
+        voice.transform.position = position;
+        voice.volume = spotted ? 0.90f : 0.70f;
+        voice.clip = clip;
+        voice.Play();
     }
 
     internal static void PistolShot(Vector3 position, AudioClip clip = null)

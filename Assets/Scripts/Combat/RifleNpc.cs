@@ -9,6 +9,8 @@ public sealed class RifleNpc : MonoBehaviour
     [SerializeField] private GameObject muzzleFlash;
     [SerializeField] private AudioSource shotAudio;
     [SerializeField] private AudioClip alertClip;
+    [SerializeField] private AudioClip heardFootstepsLine;
+    [SerializeField] private AudioClip spottedPlayerLine;
     [SerializeField, Tooltip("Stand at the starting post while undisturbed. Return here after an alert.")] private bool holdPosition;
     [SerializeField, Min(0.1f)] private float walkSpeed = 1.55f;
     [SerializeField, Min(0.1f)] private float patrolSpeed = 1.05f;
@@ -42,6 +44,7 @@ public sealed class RifleNpc : MonoBehaviour
     private IvanStealth targetStealth;
     private float sightStartedAt = -1f;
     private bool recognized;
+    private bool hadVisualContact;
     private CombatHealth target;
     private CharacterController targetBody;
     private Quaternion rifleRest;
@@ -63,6 +66,7 @@ public sealed class RifleNpc : MonoBehaviour
     public void SetTempleTarget(Transform player)
     {
         recognized = false;
+        hadVisualContact = false;
         sightStartedAt = -1f;
         templePerception = true;
         targetActor = player;
@@ -103,11 +107,15 @@ public sealed class RifleNpc : MonoBehaviour
         GameAudio.Alert(transform.position, alertClip);
     }
 
+    internal void ReportFootsteps() =>
+        GameAudio.GuardLine(transform.position, heardFootstepsLine, spotted: false);
+
     private void OnEnable() => health.onHit.AddListener(OnHit);
 
     private void OnDisable()
     {
         recognized = false;
+        hadVisualContact = false;
         sightStartedAt = -1f;
         shotFacing = null;
         staggerVelocity = Vector3.zero;
@@ -123,6 +131,7 @@ public sealed class RifleNpc : MonoBehaviour
     {
         if (!AvailableForTakedown || !animator.HasState(0, VictimState)) return false;
         recognized = false;
+        hadVisualContact = false;
         sightStartedAt = -1f;
         takedownOwner = owner;
         shotFacing = null;
@@ -181,7 +190,7 @@ public sealed class RifleNpc : MonoBehaviour
     {
         if (!isActiveAndEnabled || health.IsDead || attacker == null || attacker.transform != targetActor) return;
         if (takedownOwner != null) EndTakedown(takedownOwner, false);
-        if (!recognized && chaser == null) Shout();
+        if (!recognized) Shout();
         recognized = true;
         chaser?.RecognizePlayer();
         Vector3 towardShot = Vector3.ProjectOnPlane(-incomingDirection, Vector3.up);
@@ -246,7 +255,13 @@ public sealed class RifleNpc : MonoBehaviour
             if (!visible) sightStartedAt = -1f;
             else if (sightStartedAt < 0f) sightStartedAt = Time.time;
             bool seesPlayer = visible && (recognized || Time.time - sightStartedAt >= recognitionSeconds);
-            if (seesPlayer && !recognized && chaser == null) Shout();
+            if (seesPlayer && !hadVisualContact)
+            {
+                if (spottedPlayerLine != null)
+                    GameAudio.GuardLine(transform.position, spottedPlayerLine, spotted: true);
+                else if (!recognized) Shout();
+            }
+            hadVisualContact = seesPlayer;
             recognized = seesPlayer;
             Vector3 steering = chaser != null ? chaser.GetDirection(recognized) : Vector3.zero;
             if (recognized && distance <= detectionRange && distance > 0.001f &&

@@ -115,7 +115,6 @@ public sealed class NPCChaser : MonoBehaviour
         if (Time.time >= nextShout)
         {
             nextShout = Time.time + 3f;
-            guard.Shout();
             graph.RaiseAlarm(this, graph.SoundAnchor(mover.Feet, body, playerBody) ?? mover.LastReached);
         }
     }
@@ -194,6 +193,7 @@ public sealed class NPCChaser : MonoBehaviour
         if (graph.FootstepLevel(source, graph.SoundAnchor(mover.Feet, body, playerBody)) < 0.25f) return;
         if (!trackingFootsteps || goal != source)
         {
+            if (!trackingFootsteps) guard.ReportFootsteps();
             Travel(State.Search, source, source.transform.position);
             trackingFootsteps = true;
         }
