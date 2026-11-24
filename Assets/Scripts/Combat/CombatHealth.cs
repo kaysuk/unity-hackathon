@@ -90,15 +90,12 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
             GameAudio.Play(IsDead ? SoundCue.BodyFall : SoundCue.BodyHit, point, IsDead ? 0.63f : 0.46f);
         }
         Changed?.Invoke(HP);
-        var movement = GetComponent<IvanMovement>();
         var animator = GetComponent<Animator>();
         var combat = GetComponent<PistolCombat>();
         if (combat != null) combat.CancelReload();
         if (IsDead)
         {
             if (hitReaction != null) hitReaction.StopReaction();
-            var aimRig = GetComponent<PistolAimRig>();
-            if (aimRig != null) aimRig.enabled = false;
             // Death is authored in Base Layer; upper-body layers must not override it.
             if (animator != null)
                 for (int i = 1; i < animator.layerCount; i++) animator.SetLayerWeight(i, 0f);
@@ -107,7 +104,6 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
         else if (hitReaction != null) hitReaction.Kick();
         onHit.Invoke();
         if (!IsDead) return;
-        if (movement != null) movement.StopForDeath();
         onDeath.Invoke();
     }
 }

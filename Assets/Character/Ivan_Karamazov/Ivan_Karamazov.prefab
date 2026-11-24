@@ -862,7 +862,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PistolCombat
   muzzle: {fileID: 8953638237495313106}
-  aimCamera: {fileID: 0}
   damage: 25
   range: 100
   shotInterval: 0.18

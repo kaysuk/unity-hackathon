@@ -165952,19 +165952,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door4
   acousticRoom: 1
   edges:
   - target: {fileID: 1914236493}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1271685057}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166012,19 +166009,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M3_East
   acousticRoom: 5
   edges:
   - target: {fileID: 741118870}
     cost: 2.1999989
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 812736251}
     cost: 1.8607798
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166072,19 +166066,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Landing_2
   acousticRoom: 13
   edges:
   - target: {fileID: 648995318}
     cost: 3.7010813
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1811325227}
     cost: 3.7010808
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166132,19 +166123,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Landing_5
   acousticRoom: 13
   edges:
   - target: {fileID: 1587185486}
     cost: 3.7010808
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 750380289}
     cost: 1.8
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166192,20 +166180,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room4
   acousticRoom: 6
   roomFloor: {fileID: 692508259}
   edges:
   - target: {fileID: 1271685057}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1202754617}
     cost: 5.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166253,19 +166238,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: MiddleJunction
   acousticRoom: 16
   edges:
   - target: {fileID: 531236240}
     cost: 2.0000005
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 1502099055}
     cost: 1.3499994
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166313,19 +166295,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: SouthEast
   acousticRoom: 16
   edges:
   - target: {fileID: 1620072639}
     cost: 1.8999996
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1502099055}
     cost: 7.5
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166373,19 +166352,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door2
   acousticRoom: 4
   edges:
   - target: {fileID: 756741562}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1438674182}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166433,19 +166409,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: NorthEast
   acousticRoom: 14
   edges:
   - target: {fileID: 2011820852}
     cost: 15
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 812736251}
     cost: 5.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166493,19 +166466,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M0_West
   acousticRoom: 1
   edges:
   - target: {fileID: 2016587694}
     cost: 2.6000004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 847441167}
     cost: 2.2999992
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166553,19 +166523,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: MiddleGate
   acousticRoom: 7
   edges:
   - target: {fileID: 1921549237}
     cost: 2.4
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 335330145}
     cost: 2.0000005
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166613,31 +166580,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall3
   acousticRoom: 2
   edges:
   - target: {fileID: 847441167}
     cost: 2.6000004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1867713341}
     cost: 10.700001
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1644039166}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 832055698}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166685,19 +166647,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door
   acousticRoom: 5
   edges:
   - target: {fileID: 812736251}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1644039166}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166745,19 +166704,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door1
   acousticRoom: 3
   edges:
   - target: {fileID: 2012453065}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1884126213}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166805,19 +166761,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door5
   acousticRoom: 1
   edges:
   - target: {fileID: 2016587694}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1196916637}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -166865,14 +166818,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room8
   acousticRoom: 11
   roomFloor: {fileID: 1631839487}
   edges:
   - target: {fileID: 1867713341}
     cost: 5.9
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166920,19 +166871,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Landing_1
   acousticRoom: 13
   edges:
   - target: {fileID: 1141783292}
     cost: 2.8
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 255170752}
     cost: 3.7010813
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -166980,19 +166928,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M3_West
   acousticRoom: 4
   edges:
   - target: {fileID: 756741562}
     cost: 3.455793
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 146359213}
     cost: 2.1999989
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167040,19 +166985,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Entry
   acousticRoom: 1
   edges:
   - target: {fileID: 1914236493}
     cost: 7.05762
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 267019299}
     cost: 1.8
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167100,20 +167042,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room2
   acousticRoom: 4
   roomFloor: {fileID: 1230098279}
   edges:
   - target: {fileID: 388425839}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 741118870}
     cost: 3.455793
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167161,26 +167100,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room3
   acousticRoom: 5
   roomFloor: {fileID: 209489023}
   edges:
   - target: {fileID: 542391422}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 473366751}
     cost: 5.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 146359213}
     cost: 1.8607798
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167228,19 +167163,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door6
   acousticRoom: 2
   edges:
   - target: {fileID: 536313331}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1404030707}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167288,19 +167220,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M0_East
   acousticRoom: 2
   edges:
   - target: {fileID: 490269716}
     cost: 2.2999992
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 536313331}
     cost: 2.6000004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167348,14 +167277,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: UpperFloor
   acousticRoom: 12
   roomFloor: {fileID: 1850670603}
   edges:
   - target: {fileID: 648995318}
     cost: 2.8
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167403,19 +167330,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door5
   acousticRoom: 7
   edges:
   - target: {fileID: 1921549237}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 606408702}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167463,19 +167387,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: SouthWest
   acousticRoom: 15
   edges:
   - target: {fileID: 290353551}
     cost: 5.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1744135473}
     cost: 4.1499996
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167523,20 +167444,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room6
   acousticRoom: 8
   roomFloor: {fileID: 1460046184}
   edges:
   - target: {fileID: 1404030707}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1407216350}
     cost: 1.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167584,19 +167502,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door4
   acousticRoom: 6
   edges:
   - target: {fileID: 290353551}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 131891053}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167644,19 +167559,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M1_Bypass
   acousticRoom: 14
   edges:
   - target: {fileID: 1444759622}
     cost: 2.1499996
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 2011820852}
     cost: 1.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167704,19 +167616,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room_Door6
   acousticRoom: 8
   edges:
   - target: {fileID: 1271074186}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 832055698}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -167764,19 +167673,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: SecretNorth
   acousticRoom: 8
   edges:
   - target: {fileID: 1271074186}
     cost: 1.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1620072639}
     cost: 2.1000004
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167824,19 +167730,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door2
   acousticRoom: 1
   edges:
   - target: {fileID: 2016587694}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 388425839}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167884,19 +167787,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: M1_Room
   acousticRoom: 3
   edges:
   - target: {fileID: 2012453065}
     cost: 1.8500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1294705631}
     cost: 2.1499996
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -167944,25 +167844,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: SouthJunction
   acousticRoom: 16
   edges:
   - target: {fileID: 1865125149}
     cost: 1.3500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 335330145}
     cost: 1.3499994
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 373409454}
     cost: 7.5
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168010,20 +167906,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room7
   acousticRoom: 9
   roomFloor: {fileID: 284072418}
   edges:
   - target: {fileID: 2120434889}
     cost: 2.7499998
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 2140197614}
     cost: 1.7000008
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168071,19 +167964,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Landing_4
   acousticRoom: 13
   edges:
   - target: {fileID: 1811325227}
     cost: 3.701081
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 267019299}
     cost: 3.7010808
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168131,19 +168021,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: SecretSouth
   acousticRoom: 16
   edges:
   - target: {fileID: 1407216350}
     cost: 2.1000004
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 373409454}
     cost: 1.8999996
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168191,19 +168078,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door
   acousticRoom: 2
   edges:
   - target: {fileID: 536313331}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 542391422}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -168251,19 +168135,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: WestGate
   acousticRoom: 15
   edges:
   - target: {fileID: 1202754617}
     cost: 4.1499996
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1865125149}
     cost: 2
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -168311,19 +168192,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Landing_3
   acousticRoom: 13
   edges:
   - target: {fileID: 255170752}
     cost: 3.7010808
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1587185486}
     cost: 3.701081
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168371,19 +168249,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: WestJunction
   acousticRoom: 16
   edges:
   - target: {fileID: 1744135473}
     cost: 2
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 1502099055}
     cost: 1.3500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168431,25 +168306,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: EastHall
   acousticRoom: 2
   edges:
   - target: {fileID: 536313331}
     cost: 10.700001
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 624984547}
     cost: 5.9
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 2120434889}
     cost: 2.8000002
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -168497,19 +168368,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall_Door1
   acousticRoom: 1
   edges:
   - target: {fileID: 1914236493}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 557017450}
     cost: 2.1999998
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -168557,31 +168425,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall1
   acousticRoom: 1
   edges:
   - target: {fileID: 750380289}
     cost: 7.05762
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 2016587694}
     cost: 7.5
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1884126213}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 131891053}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168629,20 +168492,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room5
   acousticRoom: 7
   roomFloor: {fileID: 1773350769}
   edges:
   - target: {fileID: 1196916637}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 531236240}
     cost: 2.4
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168690,19 +168550,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: NorthWest
   acousticRoom: 14
   edges:
   - target: {fileID: 1294705631}
     cost: 1.75
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 473366751}
     cost: 15
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168750,20 +168607,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room1
   acousticRoom: 3
   roomFloor: {fileID: 1868129060}
   edges:
   - target: {fileID: 557017450}
     cost: 1.8999999
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1444759622}
     cost: 1.8500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168811,31 +168665,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Hall2
   acousticRoom: 1
   edges:
   - target: {fileID: 1914236493}
     cost: 7.5
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 490269716}
     cost: 2.6000004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1438674182}
     cost: 0.45000005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 606408702}
     cost: 2.25
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -168883,19 +168732,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: Room7Entry
   acousticRoom: 9
   edges:
   - target: {fileID: 1867713341}
     cost: 2.8000002
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 1529621656}
     cost: 2.7499998
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -169332,19 +169178,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: HiddenEast
   acousticRoom: 9
   edges:
   - target: {fileID: 1529621656}
     cost: 1.7000008
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 141372617}
     cost: 2.3999996
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -169392,20 +169235,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: HiddenWest
   acousticRoom: 10
   roomFloor: {fileID: 2006033377}
   edges:
   - target: {fileID: 2140197614}
     cost: 2.3999996
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   - target: {fileID: 1825336330}
     cost: 3.1292975
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -220230,13 +220070,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveNiche
   acousticRoom: 10
   edges:
   - target: {fileID: 1099557304}
     cost: 2
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -220269,19 +220107,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveEntry_Turn_7
   acousticRoom: 10
   edges:
   - target: {fileID: 1455336852}
     cost: 2.5200005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1319794768}
     cost: 4.239858
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -220329,19 +220164,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveGate
   acousticRoom: 10
   edges:
   - target: {fileID: 1319794768}
     cost: 5.8500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 478757862}
     cost: 2
     canEnter: 1
-    canExit: 1
     isDoor: 1
     isOpen: 0
   neighbour: {fileID: 0}
@@ -220389,20 +220221,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveMiddle
   acousticRoom: 10
   roomFloor: {fileID: 6602470007}
   edges:
   - target: {fileID: 801114644}
     cost: 4.239858
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1099557304}
     cost: 5.8500004
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -220450,19 +220279,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveEntry_Turn_6
   acousticRoom: 10
   edges:
   - target: {fileID: 1825336330}
     cost: 2.8000002
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 801114644}
     cost: 2.5200005
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}
@@ -220510,19 +220336,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa4c6bd8f73d4d5da7936b9328090d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
-  nodeName: ArchiveEntry
   acousticRoom: 10
   edges:
   - target: {fileID: 141372617}
     cost: 3.1292975
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   - target: {fileID: 1455336852}
     cost: 2.8000002
     canEnter: 1
-    canExit: 1
     isDoor: 0
     isOpen: 1
   neighbour: {fileID: 0}

@@ -24,7 +24,7 @@
 
 ## Как применить
 
-1. Создай Material в Assets/LevelDesign/Materials. Shader: Universal Render Pipeline/Lit. Изображение перетащи в Base Map. Для камня Metallic = 0, Smoothness около 0.1. Материал назначь объекту.
+1. Создай Material в Assets/TempleDecor/Materials. Shader: Universal Render Pipeline/Lit. Изображение перетащи в Base Map. Для камня Metallic = 0, Smoothness около 0.1. Материал назначь объекту.
 2. Для крови из Transparent_Overlays создай отдельный URP/Lit материал: Surface Type = Transparent, Blending Mode = Alpha, Base Map = выбранный PNG, Base Color = белый с Alpha = 1, Metallic = 0. Подбери Smoothness по виду.
 3. Назначь материал на Quad. Поверни лицевой стороной к камере и положи чуть выше пола или перед стеной (примерно 0.01–0.03 единицы), чтобы не было мерцания. Удали Collider, если он есть. Масштабируй и вращай каждое пятно отдельно. Тени у Quad отключи. Это простой способ без настройки URP Decal Renderer Feature.
 4. Для чистых стен и пола включён Wrap Repeat; для атласов, символов и накладок — Clamp. По необходимости меняй UV/Tiling. Сундуки, рычаги, подсвечники и часть стола — атласы: для аккуратного вида требуется подбор UV к частям геометрии.

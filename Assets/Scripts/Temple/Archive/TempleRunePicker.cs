@@ -28,7 +28,6 @@ public sealed class TempleRunePicker : PausedGameOverlay
     private int selection;
     private int openedFrame;
 
-    public int ChoiceCount => held.Count;
     public int SelectedGlyph => IsOpen ? held[selection] : -1;
 
     private void Awake()

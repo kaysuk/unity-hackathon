@@ -8,7 +8,6 @@ using UnityEngine.InputSystem;
 public sealed class PistolCombat : MonoBehaviour
 {
     [SerializeField] private Transform muzzle;
-    [SerializeField] private ShoulderCamera aimCamera;
     [SerializeField, Min(0f)] private float damage = 25f;
     [SerializeField, Min(1f)] private float range = 100f;
     [SerializeField, Min(0.01f)] private float shotInterval = 0.18f;
@@ -16,8 +15,6 @@ public sealed class PistolCombat : MonoBehaviour
     [SerializeField, Range(0f, 20f)] private float armKickDegrees = 5f;
     [SerializeField, Min(0.01f)] private float armReturnTime = 0.12f;
     private InputAction reload;
-    private InputAction attack;
-    private PistolWeaponAimConstraint weaponAim;
     private float armRecoil;
     [SerializeField, Min(1)] private int magazineCapacity = 8;
     [SerializeField, Min(0)] private int startingTotalAmmo = 24;
@@ -44,7 +41,6 @@ public sealed class PistolCombat : MonoBehaviour
     }
     [SerializeField] private LayerMask hitLayers = Physics.DefaultRaycastLayers;
     [SerializeField] private Material effectMaterial;
-    private IvanMovement movement;
     private IvanSidearm sidearm;
     private Camera viewCamera;
     private IvanOrbitCamera orbitCamera;
@@ -53,23 +49,15 @@ public sealed class PistolCombat : MonoBehaviour
     private Material runtimeMaterial;
     private float nextShot;
     private float hitMarkerUntil;
-    private bool wasCaptured;
-    private static readonly int Armed = Animator.StringToHash("Base Layer.PistolLocomotion");
 
     private void Start()
     {
         reload = InputSystem.actions?.FindAction("Player/Reload");
-        attack = InputSystem.actions?.FindAction("Player/Attack");
-        movement = GetComponent<IvanMovement>();
         sidearm = GetComponent<IvanSidearm>();
         health = GetComponent<CombatHealth>();
         animator = GetComponent<Animator>();
-        weaponAim = GetComponentInChildren<PistolWeaponAimConstraint>();
         if (GetComponent<PistolShotAfterPose>() == null) gameObject.AddComponent<PistolShotAfterPose>();
-        if (sidearm != null)
-            ResolveViewCamera();
-        else if (aimCamera == null && Camera.main != null)
-            aimCamera = Camera.main.GetComponent<ShoulderCamera>();
+        ResolveViewCamera();
         if (muzzle == null)
             foreach (var child in GetComponentsInChildren<Transform>(true))
                 if (child.name == "Muzzle") { muzzle = child; break; }
@@ -78,20 +66,9 @@ public sealed class PistolCombat : MonoBehaviour
             var shader = Shader.Find("Sprites/Default");
             if (shader != null) effectMaterial = runtimeMaterial = new Material(shader);
         }
-        if (animator == null || muzzle == null)
+        if (sidearm == null || animator == null || muzzle == null)
         {
-            Debug.LogError("PistolCombat requires Animator and Muzzle.", this);
-            enabled = false;
-            return;
-        }
-        if (sidearm != null)
-            return;
-        bool hasReload = false;
-        foreach (var parameter in animator.parameters)
-            hasReload |= parameter.name == "IsReload" && parameter.type == AnimatorControllerParameterType.Bool;
-        if (!hasReload || movement == null || aimCamera == null)
-        {
-            Debug.LogError("Legacy PistolCombat requires IvanMovement, ShoulderCamera and Animator Bool IsReload.", this);
+            Debug.LogError("PistolCombat requires IvanSidearm, Animator and Muzzle.", this);
             enabled = false;
         }
     }
@@ -113,20 +90,8 @@ public sealed class PistolCombat : MonoBehaviour
         orbitCamera = camera != null ? camera.GetComponent<IvanOrbitCamera>() : null;
     }
 
-    private bool Ready
-    {
-        get
-        {
-            if (health != null && health.IsDead)
-                return false;
-            if (sidearm != null)
-                return sidearm.IsReadyToFire && viewCamera != null && viewCamera.isActiveAndEnabled &&
-                    !CombatAnimation.HasActiveTag(animator, "Hit");
-            return movement != null && movement.isActiveAndEnabled && movement.IsAiming &&
-                aimCamera != null && aimCamera.isActiveAndEnabled &&
-                animator.GetCurrentAnimatorStateInfo(0).fullPathHash == Armed && !animator.IsInTransition(0);
-        }
-    }
+    private bool Ready => (health == null || !health.IsDead) && sidearm != null && sidearm.IsReadyToFire &&
+        viewCamera != null && viewCamera.isActiveAndEnabled && !CombatAnimation.HasActiveTag(animator, "Hit");
 
     private void CompleteReload()
     {
@@ -139,7 +104,7 @@ public sealed class PistolCombat : MonoBehaviour
 
     private void Update()
     {
-        if (sidearm != null && (viewCamera == null || !viewCamera.isActiveAndEnabled))
+        if (viewCamera == null || !viewCamera.isActiveAndEnabled)
             ResolveViewCamera();
         if (IsReloading)
         {
@@ -149,15 +114,7 @@ public sealed class PistolCombat : MonoBehaviour
                 CompleteReload();
             }
         }
-        // Sync the kick before RigBuilder evaluates aim, then left-hand IK.
-        if (weaponAim != null)
-        {
-            var data = weaponAim.data;
-            data.recoilAngle = armRecoil;
-            weaponAim.data = data;
-        }
-        if (sidearm != null)
-            sidearm.ShotRecoil = armRecoil;
+        sidearm.ShotRecoil = armRecoil;
         armRecoil = Mathf.MoveTowards(armRecoil, 0f,
             Mathf.Max(1f, armKickDegrees) / Mathf.Max(0.01f, armReturnTime) * Time.deltaTime);
     }
@@ -168,15 +125,12 @@ public sealed class PistolCombat : MonoBehaviour
         bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
         if (captured && reload?.WasPressedThisFrame() == true)
             TryStartReload();
-        bool shooting = sidearm != null ? sidearm.ShotRequested :
-            captured && wasCaptured && attack?.WasPressedThisFrame() == true;
-        if (shooting && Time.timeScale > 0f && Ready && !IsReloading &&
+        if (sidearm != null && sidearm.ShotRequested && Ready && !IsReloading &&
             !CombatAnimation.BlocksAim(animator) && Time.time >= nextShot)
         {
             if (Ammo > 0) Fire();
             else GameAudio.Play(SoundCue.DryFire, muzzle.position, 0.32f);
         }
-        wasCaptured = captured;
     }
 
     internal bool TryStartReload()
@@ -228,8 +182,7 @@ public sealed class PistolCombat : MonoBehaviour
     private void Fire()
     {
         if (IsMuzzleObstructed()) return;
-        if (sidearm != null) sidearm.ShowShot();
-        else GameAudio.PistolShot(muzzle.position);
+        sidearm.ShowShot();
         Ammo--;
         // Count the reserve as well: an empty magazine alone only calls for a reload.
         int roundsLeft = Ammo + ReserveAmmo;
@@ -238,9 +191,7 @@ public sealed class PistolCombat : MonoBehaviour
         else if (roundsLeft == 0)
             StoryGameplayVoice.FromPlayer(this, gameObject, "combat.empty_ammo");
         nextShot = Time.time + Mathf.Max(0.01f, shotInterval);
-        Ray cameraRay = sidearm != null
-            ? viewCamera.ViewportPointToRay(new Vector3(.5f, .5f, 0f))
-            : aimCamera.GetAimRay();
+        Ray cameraRay = viewCamera.ViewportPointToRay(new Vector3(.5f, .5f, 0f));
         Vector3 target = Cast(cameraRay, range, out var cameraHit) ? cameraHit.point : cameraRay.GetPoint(range);
         Vector3 origin = muzzle.position;
         Vector3 delta = target - origin;
@@ -272,9 +223,7 @@ public sealed class PistolCombat : MonoBehaviour
         }
         StartCoroutine(Tracer(origin, end));
         CombatAnimation.Trigger(animator, "Fire");
-        if (sidearm == null)
-            aimCamera.AddRecoil(recoilDegrees);
-        else if (orbitCamera != null)
+        if (orbitCamera != null)
             orbitCamera.AddRecoil(recoilDegrees);
         armRecoil = Mathf.Min(20f, armRecoil + armKickDegrees);
     }
@@ -351,16 +300,9 @@ public sealed class PistolCombat : MonoBehaviour
     private void OnDisable()
     {
         CancelReload();
-        wasCaptured = false;
         armRecoil = 0f;
         if (sidearm != null)
             sidearm.ShotRecoil = 0f;
-        if (weaponAim != null)
-        {
-            var data = weaponAim.data;
-            data.recoilAngle = 0f;
-            weaponAim.data = data;
-        }
     }
     private void OnDestroy() { if (runtimeMaterial != null) Destroy(runtimeMaterial); }
 }

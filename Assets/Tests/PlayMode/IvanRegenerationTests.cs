@@ -134,6 +134,12 @@ namespace Hackathon.Tests
             Assert.That(canvas.enabled, Is.True);
             Assert.That(frame.material.shader.name, Is.EqualTo("UI/Ivan Blood Frame"));
 
+            var damageResponse = (Behaviour)ivan.GetComponent("IvanDamageResponse");
+            damageResponse.enabled = false;
+            Assert.That(canvas.enabled, Is.False);
+            damageResponse.enabled = true;
+            Assert.That(canvas.enabled, Is.True);
+
             yield return WaitForHP(94f, 8d);
             float[] woundedOpacity = layers.Select(layer => layer.color.a).ToArray();
             yield return WaitForHP(99f, 2d);

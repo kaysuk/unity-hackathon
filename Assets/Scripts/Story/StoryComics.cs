@@ -60,7 +60,8 @@ public sealed class StoryComics : MonoBehaviour
             kill.gameObject.SetActive(choice);
             string cue = page <= 6 ? "comics/comics5-6" : page <= 14 ? "comics/comics_7-14" :
                 page <= 19 ? "comics/comics15-19" : page <= 29 ? "comics/comics20-29" :
-                page <= 33 ? "ambience/boss_fight" : "comics/comics34-38_" + ending;
+                page <= 33 ? "ambience/boss_fight" :
+                ending == "bad" ? "comics/comics20-29" : "comics/comics34-38_" + ending;
             GameAudio.HoldScore("sounds/" + cue);
             string speechSuffix = page == 31 && hasAllDocuments ? "_archive_complete" : suffix;
             bool voiced = StorySpeech.Page(page, speechSuffix);

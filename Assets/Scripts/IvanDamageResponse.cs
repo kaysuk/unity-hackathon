@@ -12,7 +12,6 @@ public sealed class IvanDamageResponse : MonoBehaviour
     private CombatHealth health;
     private Canvas damageCanvas;
     private RawImage bloodFrame;
-    private bool didStart;
 
     private void Awake()
     {
@@ -30,7 +29,6 @@ public sealed class IvanDamageResponse : MonoBehaviour
 
     private void Start()
     {
-        didStart = true;
         ShowWounds(health.HP);
     }
 

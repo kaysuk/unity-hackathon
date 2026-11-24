@@ -96,9 +96,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private Interactable FindTargetInReach()
     {
         Vector3 ivanPosition = transform.TransformPoint(controller.center);
-        Ray cameraRay = viewCamera.TryGetComponent<ShoulderCamera>(out var shoulderCamera)
-            ? shoulderCamera.GetAimRay()
-            : viewCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Ray cameraRay = viewCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         float cameraDistance = Vector3.Distance(cameraRay.origin, ivanPosition) + reach;
 
         Interactable target = FindVisibleTarget(cameraRay, cameraDistance, ivanPosition);

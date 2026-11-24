@@ -330,8 +330,9 @@ namespace Hackathon.Tests
                 }
             }
             yield return ReadPage(33, "33", "boss_fight");
+            string endingScore = ending == "bad" ? "comics20-29" : "comics34-38_" + ending;
             for (int n = 34; n <= 38; n++)
-                yield return ReadPage(n, n + "_" + ending, "comics34-38_" + ending);
+                yield return ReadPage(n, n + "_" + ending, endingScore);
             yield return WaitFor(() => SceneManager.GetActiveScene().name == "MainMenu" && Page == 0);
         }
     }

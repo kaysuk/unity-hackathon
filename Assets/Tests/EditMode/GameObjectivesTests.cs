@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace Hackathon.Tests
@@ -8,7 +9,7 @@ namespace Hackathon.Tests
         private static Type Objectives => Type.GetType("GameObjectives, Assembly-CSharp", throwOnError: true);
 
         private static object Call(string method, params object[] arguments) =>
-            Objectives.GetMethod(method).Invoke(null, arguments);
+            Objectives.GetMethod(method, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Invoke(null, arguments);
 
         private static string Text(string name) => (string)Objectives.GetProperty(name).GetValue(null);
 
@@ -61,11 +62,11 @@ namespace Hackathon.Tests
             EnterStage("DestroyAltars");
             Assert.That(Text("Primary"), Is.EqualTo("Уничтожить алтари 0 из 6"));
             Assert.That(Text("Secondary"), Is.EqualTo("Удар рукоятью · F / R3"));
-            Call("SetAltarsDestroyed", 5);
+            Call("SetNimbProgress", 5, false);
             Assert.That(Text("Primary"), Is.EqualTo("Уничтожить алтари 5 из 6"));
             object checkpoint = Call("Capture");
 
-            Call("SetAltarsDestroyed", 6);
+            Call("SetNimbProgress", 6, false);
             Assert.That(Text("Primary"), Is.EqualTo("Нимб повержен"));
             Assert.That(Text("Secondary"), Is.Empty);
             Call("Restore", checkpoint);

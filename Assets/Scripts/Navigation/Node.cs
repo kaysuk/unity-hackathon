@@ -7,7 +7,6 @@ using UnityEditor;
 [DisallowMultipleComponent]
 public class Node : MonoBehaviour
 {
-    public string nodeName;
     [SerializeField] private int acousticRoom;
     public int AcousticRoom => acousticRoom;
     [SerializeField] private BoxCollider roomFloor;

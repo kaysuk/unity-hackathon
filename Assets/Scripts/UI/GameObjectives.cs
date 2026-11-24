@@ -137,8 +137,6 @@ public static class GameObjectives
         Apply(next);
     }
 
-    public static void SetAltarsDestroyed(int destroyed) => SetNimbProgress(destroyed, current.NimbVulnerable);
-
     internal static void SetNimbProgress(int confirmedAltars, bool vulnerable)
     {
         if (current.Stage != Stage.DestroyAltars)
