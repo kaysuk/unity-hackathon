@@ -29,6 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8953638237495313112}
   - {fileID: 8953638237495313106}
   - {fileID: 1443986718528243284}
   m_Father: {fileID: 6728647754188149516}
@@ -59,6 +60,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.000335, y: 0.00128, z: 0.002025}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6762287943050613948}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8953638237495313111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8953638237495313112}
+  m_Layer: 0
+  m_Name: Grip Base
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8953638237495313112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953638237495313111}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0003000, y: 0.000077655, z: 0.0003000}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -646,6 +678,12 @@ PrefabInstance:
       addedObject: {fileID: 998506784926179233}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 4799075146651530142}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3078156428273341274}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 5321422218790373211}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9f0b48da00553339dbd2476bb0c74397, type: 3}
       insertIndex: -1
@@ -752,9 +790,10 @@ MonoBehaviour:
   holster: {fileID: 4839241099374858817}
   pistolMount: {fileID: 6728647754188149516}
   propDirection: {fileID: 6762287943050613948}
+  gripBase: {fileID: 8953638237495313112}
   rightGrip: {fileID: 4527961096407226447}
   leftGrip: {fileID: 4711345902811851758}
-  drawSeconds: 1.15
+  drawSeconds: 0.72
   stowSeconds: 1.4
 --- !u!114 &3801048806922224506
 MonoBehaviour:
@@ -769,7 +808,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IvanStealth
   crouchedHeight: 1.12
-  sneakSpeed: 0.95
+  sneakSpeed: 1.15
   targetRange: 1.05
 --- !u!4 &9061538576819722618 stripped
 Transform:
@@ -992,3 +1031,36 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &4799075146651530142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987807938509596677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06df515e38a134444ad2ae2f93ea739f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+--- !u!114 &3078156428273341274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8987807938509596677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3f3280944bc4cc78e29aa8815e032f2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryMenu
+  stoneMesh: {fileID: 4300000, guid: f79d364524e544699be70cd84574a739, type: 2}
+  stoneEdge: {fileID: 2100000, guid: 783fc8e0bc4a64f77932a595a0c13fef, type: 2}
+  stoneFaces:
+  - {fileID: 2100000, guid: e59c4605217e94616a31e091507c432f, type: 2}
+  - {fileID: 2100000, guid: 6a7d4e4b2dc4742d89bebcf2208bac2a, type: 2}
+  - {fileID: 2100000, guid: e8170c5e50035416c865ab7ed9897e27, type: 2}
+  - {fileID: 2100000, guid: 7bb4456a6069f40dcb2bc6f71c66190a, type: 2}
+  - {fileID: 2100000, guid: 46c48e07a1c8d4e9a998b4c47442f7b5, type: 2}
+  - {fileID: 2100000, guid: cfad4b407871a419fa593b5180f3c5a5, type: 2}

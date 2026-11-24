@@ -169199,9 +169199,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8987807938509596677, guid: c9877487965e2108f83903aed77d0e8b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 524392369}
-    - targetCorrespondingSourceObject: {fileID: 8987807938509596677, guid: c9877487965e2108f83903aed77d0e8b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 524392370}
   m_SourcePrefab: {fileID: 100100000, guid: c9877487965e2108f83903aed77d0e8b, type: 3}
 --- !u!4 &524392360 stripped
 Transform:
@@ -169227,18 +169224,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
   viewCamera: {fileID: 330585545}
   reach: 2
---- !u!114 &524392370
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 524392361}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06df515e38a134444ad2ae2f93ea739f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
 --- !u!114 &330585548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171450,8 +171435,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 1
-  readPrompt: Прочитать складскую ведомость
-  clue: Знаки на полу читают по порядку комнат.
 --- !u!65 &6594620104
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171486,8 +171469,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 2
-  readPrompt: Прочитать запись о подношениях
-  clue: Вторую печать ставят в честь восходящего солнца.
 --- !u!65 &6594620106
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171522,8 +171503,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 3
-  readPrompt: Прочитать копию надписи
-  clue: Третий знак высечен одной замкнутой чертой.
 --- !u!65 &6594620108
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171558,8 +171537,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 4
-  readPrompt: Прочитать отчёт наблюдателя
-  clue: Четвёртый знак переписчик принял за букву чужого письма.
 --- !u!65 &6594620110
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171594,8 +171571,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 5
-  readPrompt: Прочитать архивный лист
-  clue: У пятой луны есть спутник — точка в изгибе серпа.
 --- !u!1 &6594620060
 GameObject:
   m_ObjectHideFlags: 0
@@ -171722,8 +171697,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleSealDocument
   number: 6
-  readPrompt: Прочитать записку хранителя
-  clue: Шестая луна одинока.
 --- !u!1 &6742100000
 GameObject:
   m_ObjectHideFlags: 0
@@ -175166,7 +175139,7 @@ GameObject:
   - component: {fileID: 6602310090}
   - component: {fileID: 6602310091}
   m_Layer: 0
-  m_Name: D06 - Closed register
+  m_Name: D07 - Closed register
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -175288,7 +175261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31dbc968907648d9ae61690c08a8f10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TempleArchiveDocument
-  documentNumber: 6
+  documentNumber: 7
 --- !u!1 &6602310092
 GameObject:
   m_ObjectHideFlags: 0

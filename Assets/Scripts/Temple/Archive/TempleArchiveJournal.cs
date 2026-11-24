@@ -8,7 +8,8 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class TempleArchiveJournal : PausedGameOverlay
 {
-    internal const int DocumentTotal = 6;
+    internal const int DocumentTotal = 7;
+    internal const int CalculationPage = 0;
     private const int CompleteMask = (1 << DocumentTotal) - 1;
 
     private int collectedMask;
@@ -23,6 +24,8 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
     private readonly Text[] seals = new Text[DocumentTotal];
 
     private bool readingSealCalculation;
+    internal string SealCalculation { get; set; }
+    private Action returnToInventory;
     private Action pendingEntrance;
     private Action continueAfterReading;
 
@@ -54,6 +57,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             currentDocument = number;
         }
 
+        ImportRoomNotes();
         FullFamilyTruth = fullTruth && collectedMask == CompleteMask;
     }
 
@@ -63,21 +67,27 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             !OpenScreen())
             return;
 
-        bool firstRead = !HasDocument(number);
-        if (firstRead)
-        {
-            collectedMask |= 1 << (number - 1);
-            DocumentCount++;
-        }
-
+        bool firstRead = CollectDocument(number);
         ShowPage(number, firstRead);
+    }
+
+    internal bool CollectDocument(int number)
+    {
+        if (HasDocument(number)) return false;
+        collectedMask |= 1 << (number - 1);
+        DocumentCount++;
+        currentDocument = number;
+        if (number > 1 && number < DocumentTotal)
+            StoryGameplayVoice.FromPlayer(this, gameObject, $"archive.d{number:00}", "temple_v2");
         if (gameObject.scene == SceneManager.GetActiveScene())
             GameObjectives.SetArchiveProgress(DocumentCount);
+        return true;
     }
 
     internal void ReadSealCalculation(string calculation)
     {
         if (IsOpen || !OpenScreen()) return;
+        SealCalculation = calculation;
         readingSealCalculation = true;
         GameAudio.Interface(SoundCue.Paper);
         heading.text = "АРХИВ  /  КОМНАТА 7.1";
@@ -87,6 +97,26 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         foreach (Text seal in seals) seal.gameObject.SetActive(false);
         controls.text = "↑ / ↓ Прокрутить    Esc / B Закрыть";
         FitPage();
+    }
+
+    internal void RereadFromInventory(int page, Action goBack)
+    {
+        if (IsOpen || goBack == null) return;
+        if (page == CalculationPage && !string.IsNullOrEmpty(SealCalculation))
+            ReadSealCalculation(SealCalculation);
+        else if (OpenScreen())
+        {
+            if (!HasDocument(page))
+            {
+                Close();
+                return;
+            }
+            ShowPage(page, false);
+        }
+
+        if (!IsOpen) return;
+        returnToInventory = goBack;
+        controls.text = "↑ / ↓ Прокрутить    Esc / B К вещам";
     }
 
     public void ConfirmRitualEntrance(Action enter)
@@ -139,11 +169,14 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
     public void Close()
     {
         if (IsOpen) GameAudio.Interface(IsConfirmingEntrance ? SoundCue.MenuClick : SoundCue.Paper);
+        Action goBack = returnToInventory;
         CloseOverlay();
+        goBack?.Invoke();
     }
 
     protected override void OnOverlayClosed()
     {
+        returnToInventory = null;
         readingSealCalculation = false;
         pendingEntrance = null;
         continueAfterReading = null;
@@ -210,13 +243,17 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             delta += 1f;
         if (keyboard?.downArrowKey.wasPressedThisFrame == true || gamepad?.dpad.down.wasPressedThisFrame == true)
             delta -= 1f;
-        if (delta != 0f)
-            scroll.verticalNormalizedPosition = Mathf.Clamp01(scroll.verticalNormalizedPosition + .16f * Mathf.Sign(delta));
+        float overflow = scroll.content.rect.height - scroll.viewport.rect.height;
+        if (delta != 0f && overflow > 0f)
+        {
+            float step = .65f * scroll.viewport.rect.height / overflow;
+            scroll.verticalNormalizedPosition = Mathf.Clamp01(scroll.verticalNormalizedPosition + step * Mathf.Sign(delta));
+        }
     }
 
     private void FlipPage(int direction)
     {
-        if (readingSealCalculation) return;
+        if (readingSealCalculation || returnToInventory != null) return;
         int next = currentDocument;
         do
         {
@@ -233,15 +270,14 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         bool sealedRegister = number == DocumentTotal && collectedMask != CompleteMask;
         bool registerFirstRead = number == DocumentTotal && !sealedRegister && !FullFamilyTruth;
         if (sealedRegister && firstRead)
-            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d06.sealed", "temple_v2");
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d07.sealed", "temple_v2");
         else if (registerFirstRead)
-            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d06.open", "temple_v2");
-        else if (firstRead && number < DocumentTotal)
-            StoryGameplayVoice.FromPlayer(this, gameObject, $"archive.d{number:00}", "temple_v2");
+            StoryGameplayVoice.FromPlayer(this, gameObject, "archive.d07.open", "temple_v2");
 
-        heading.text = $"ЖУРНАЛ  /  {DocumentCount} ИЗ {DocumentTotal}";
+        string room = number == DocumentTotal ? "7.2" : number.ToString();
+        heading.text = $"АРХИВ ПОДЗЕМНОГО ХРАМА  /  КОМНАТА {room}  ·  {DocumentCount} ИЗ {DocumentTotal}";
         title.text = $"D{number:00}  {TempleArchiveText.Titles[number - 1]}";
-        body.text = sealedRegister ? TempleArchiveText.SealedRegister : TempleArchiveText.Pages[number - 1];
+        body.text = sealedRegister ? TempleArchiveText.SealedRegister : TempleArchiveText.ReadPage(number);
         reaction.text = (number < DocumentTotal && firstRead) || registerFirstRead
             ? TempleArchiveText.Reactions[number - 1]
             : string.Empty;
@@ -269,7 +305,13 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         if (!TryOpenOverlay("Archive Journal", 100, new Vector2(1600f, 900f), usePointer: false))
             return false;
 
-        // The first five archive pages are also seal clues. Only the workshop holds the register.
+        ImportRoomNotes();
+        return true;
+    }
+
+    private void ImportRoomNotes()
+    {
+        // Room pickups also carry the clues used by the six-seal puzzle.
         if (TryGetComponent(out PlayerInventory inventory))
         {
             for (int page = 1; page < DocumentTotal; page++)
@@ -278,10 +320,10 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
                 {
                     collectedMask |= 1 << (page - 1);
                     DocumentCount++;
+                    if (currentDocument == 0) currentDocument = page;
                 }
             }
         }
-        return true;
     }
 
     private void FitPage()
@@ -329,8 +371,9 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
         for (int i = 0; i < seals.Length; i++)
         {
-            float x = .05f + i * .15f;
-            seals[i] = Label(paper, $"Document seal {i + 1}", x, .125f, x + .14f, .224f, 25, ink, TextAnchor.MiddleCenter);
+            float step = .90f / seals.Length;
+            float x = .05f + i * step;
+            seals[i] = Label(paper, $"Document seal {i + 1}", x, .125f, x + step - .01f, .224f, 25, ink, TextAnchor.MiddleCenter);
             Fill(seals[i].transform, new Color32(203, 181, 143, 255));
         }
 

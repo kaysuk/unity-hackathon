@@ -13,7 +13,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     private const string EntranceScene = "temple_v2";
     private const string RitualScene = "Temple_Final_Room";
     private const string SaveKey = "Karamazovy.StoryCheckpoint";
-    private const int SaveVersion = 1;
+    private const int SaveVersion = 2;
 
     [Serializable]
     private sealed class Snapshot
@@ -25,6 +25,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         public GameObjectives.State objectives;
         public PlayerInventory.Entry[] inventory;
         public int archiveDocuments;
+        public string sealCalculation;
         public bool fullFamilyTruth;
         public bool returnedToChurch;
         public bool dmitrySpared;
@@ -284,9 +285,26 @@ public sealed class GameCheckpoint : MonoBehaviour
             pistol.RestoreAmmo(save.magazine, save.reserve, save.magazineCapacity);
         if (actor.TryGetComponent(out PlayerInventory inventory))
             inventory.Restore(save.inventory);
-        if (save.archiveDocuments != 0)
-            TempleArchiveJournal.GetOrCreate(actor).RestoreProgress(save.archiveDocuments, save.fullFamilyTruth);
-        GameObjectives.Restore(save.objectives);
+        int documents = save.archiveDocuments;
+        var objectives = save.objectives;
+        if (save.version == 1)
+        {
+            // The workshop register occupied D06 in version 1. Room 6 kept a separate pickup.
+            const int oldRegister = 1 << 5;
+            bool alreadyReadEnding = save.fullFamilyTruth && documents == (oldRegister << 1) - 1;
+            documents = (documents & (oldRegister - 1)) | ((documents & oldRegister) << 1);
+            if (alreadyReadEnding)
+                documents |= oldRegister;
+        }
+        if (documents != 0 || !string.IsNullOrEmpty(save.sealCalculation) ||
+            (inventory != null && TempleSealDocument.CountCollected(inventory) > 0))
+        {
+            var journal = TempleArchiveJournal.GetOrCreate(actor);
+            journal.RestoreProgress(documents, save.fullFamilyTruth);
+            journal.SealCalculation = save.sealCalculation;
+            objectives.DocumentsCollected = journal.DocumentCount == TempleArchiveJournal.DocumentTotal;
+        }
+        GameObjectives.Restore(objectives);
     }
 
     private void SaveEntry(string scene)
@@ -305,6 +323,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         if (player.TryGetComponent(out TempleArchiveJournal journal))
         {
             save.archiveDocuments = journal.CollectedMask;
+            save.sealCalculation = journal.SealCalculation;
             save.fullFamilyTruth = journal.FullFamilyTruth;
         }
         if (health != null)
@@ -332,7 +351,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         try
         {
             var save = JsonUtility.FromJson<Snapshot>(data);
-            return save != null && save.version == SaveVersion && IsStoryScene(save.scene) &&
+            return save != null && save.version >= 1 && save.version <= SaveVersion && IsStoryScene(save.scene) &&
                 Application.CanStreamedLevelBeLoaded(save.scene) ? save : null;
         }
         catch (ArgumentException)

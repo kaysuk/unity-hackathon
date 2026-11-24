@@ -39,7 +39,7 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
         float previousHP = HP;
         TakeDamage(damage, point, direction, shooter);
         if (HP < previousHP && !IsDead && TryGetComponent(out RifleNpc guard))
-            guard.OnPistolHit(shooter, direction);
+            guard.RecognizeAttacker(shooter, direction);
     }
 
     public void TakeDamage(float amount, Vector3 point, Vector3 direction, GameObject source)

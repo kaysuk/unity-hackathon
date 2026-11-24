@@ -8,6 +8,8 @@ public sealed class SwatHitZones : MonoBehaviour
     private SphereCollider head;
     private CapsuleCollider torso;
 
+    internal Vector3 HeadPosition => head.transform.position;
+
     private void Awake()
     {
         health = GetComponent<CombatHealth>();

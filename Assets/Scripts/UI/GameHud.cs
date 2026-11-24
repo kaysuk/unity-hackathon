@@ -16,6 +16,7 @@ public sealed class GameHud : MonoBehaviour
     private GameObject ammoPanel;
     private Text ammoCaption;
     private Text ammoCount;
+    private Text inventoryHint;
 
     private float lostHealth;
     private float hitPulse;
@@ -40,7 +41,18 @@ public sealed class GameHud : MonoBehaviour
         bloodSpatter = CreateBloodLayer("Blood spatter", "KaramazovyHud/BloodSpatter");
         BuildObjectives();
         BuildAmmo();
+        inventoryHint = AddLabel(transform, "Inventory shortcut", 25, GameUiStyle.Ink, TextAnchor.MiddleLeft);
+        inventoryHint.rectTransform.pivot = Vector2.zero;
+        inventoryHint.rectTransform.anchoredPosition = new Vector2(38, 38);
+        inventoryHint.rectTransform.sizeDelta = new Vector2(330, 46);
+        inventoryHint.gameObject.SetActive(false);
         UpdateBlood();
+    }
+
+    internal void SetInventoryHint(bool available)
+    {
+        inventoryHint.gameObject.SetActive(available);
+        inventoryHint.text = "Tab / Start    Инвентарь";
     }
 
     public void SetGameplayVisible(bool visible)

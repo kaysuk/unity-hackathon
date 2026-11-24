@@ -629,7 +629,7 @@
       ]
     },
     {
-      "key": "archive.d01",
+      "key": "archive.d02",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.139.agency_part_of_network"
@@ -637,7 +637,7 @@
       ]
     },
     {
-      "key": "archive.d02",
+      "key": "archive.d03",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.140.identify_black_liquid"
@@ -645,7 +645,7 @@
       ]
     },
     {
-      "key": "archive.d03",
+      "key": "archive.d04",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.141.confirm_summoning"
@@ -653,7 +653,7 @@
       ]
     },
     {
-      "key": "archive.d04",
+      "key": "archive.d05",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.142.mother_sofia_karamazova"
@@ -661,7 +661,7 @@
       ]
     },
     {
-      "key": "archive.d05",
+      "key": "archive.d06",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.143.mother_died_after_childbirth"
@@ -669,7 +669,7 @@
       ]
     },
     {
-      "key": "archive.d06.sealed",
+      "key": "archive.d07.sealed",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.144.hidden_continuation"
@@ -677,7 +677,7 @@
       ]
     },
     {
-      "key": "archive.d06.open",
+      "key": "archive.d07.open",
       "lines": [
         {
           "path": "speech/scenes/08-temple/OI.146.alyosha_is_our_brother"
