@@ -97,6 +97,7 @@ public sealed class TempleRunePuzzle : MonoBehaviour
         }
         if (!correctOrder)
         {
+            GameAudio.Play(SoundCue.SealFail, passage.transform.position, 0.30f);
             StoryGameplayVoice.InScene(this, "temple.rune.wrong", "temple_v2");
             return;
         }

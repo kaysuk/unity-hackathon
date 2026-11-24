@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Animator), typeof(CharacterController), typeof(CombatHealth))]
 [DisallowMultipleComponent]
@@ -37,6 +38,7 @@ public sealed class RifleNpc : MonoBehaviour
 
     private Animator animator;
     private CharacterController body;
+    private PlayerFootsteps footsteps;
     private CombatHealth health;
     private Transform targetActor;
     private IvanStealth targetStealth;
@@ -282,6 +284,8 @@ public sealed class RifleNpc : MonoBehaviour
         Vector3 direction = transform.right * move.x + transform.forward * move.y;
         bool patrolling = chaser != null && chaser.CurrentState == NPCChaser.State.Patrol;
         body.SimpleMove(direction * (patrolling ? patrolSpeed : walkSpeed) + staggerVelocity);
+        if (Time.deltaTime > 0f && gameObject.scene == SceneManager.GetActiveScene())
+            footsteps.Move(body, false, 0.5f);
         staggerVelocity = Vector3.MoveTowards(staggerVelocity, Vector3.zero, 8f * Time.deltaTime);
         animator.SetBool(Patrolling, patrolling);
         animator.SetBool(PatrolWalking, patrolling && move.sqrMagnitude > 0.01f);

@@ -245,7 +245,8 @@ public sealed class PistolCombat : MonoBehaviour
         {
             end = hit.point;
             var zones = hit.collider.GetComponentInParent<SwatHitZones>();
-            if (zones != null && zones.Contains(hit.collider))
+            bool hitActor = zones != null && zones.Contains(hit.collider);
+            if (hitActor)
             {
                 zones.ApplyShot(hit, delta.normalized, gameObject);
                 hitMarkerUntil = Time.unscaledTime + 0.15f;
@@ -257,11 +258,11 @@ public sealed class PistolCombat : MonoBehaviour
                         health.TakePistolShot(damage, hit.point, delta.normalized, gameObject);
                     else
                         receiver.TakeDamage(damage, hit.point, delta.normalized, gameObject);
+                    hitActor = true;
                     hitMarkerUntil = Time.unscaledTime + 0.15f;
                     break;
                 }
-            if (hit.collider.GetComponentInParent<CombatHealth>() == null)
-                GameAudio.Play(SoundCue.WallHit, hit.point, 0.58f);
+            if (!hitActor) GameAudio.Play(PropSounds.Impact(hit.collider), hit.point, 0.58f);
             ShowImpact(hit.point, hit.normal);
         }
         StartCoroutine(Tracer(origin, end));

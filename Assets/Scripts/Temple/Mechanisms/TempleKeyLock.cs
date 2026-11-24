@@ -6,6 +6,8 @@ public sealed class TempleKeyLock : Interactable
     [SerializeField] private string keyId;
     [SerializeField] private TemplePassage shutter;
 
+    internal override bool RattlesWhenBlocked => !shutter.IsOpen;
+
     public override bool CanInteract(PlayerInteractor player) =>
         base.CanInteract(player) && !shutter.IsOpen && player != null &&
         player.Inventory != null && player.Inventory.HasItem(keyId);
@@ -21,7 +23,7 @@ public sealed class TempleKeyLock : Interactable
     {
         if (CanInteract(player) && player.Inventory.TryUse(keyId))
         {
-            GameAudio.Play(SoundCue.Key, transform.position);
+            GameAudio.Play(SoundCue.Unlock, transform.position);
             shutter.SetOpen(true);
         }
     }

@@ -27,13 +27,15 @@ public sealed class InventoryMenu : PausedGameOverlay
 
     private void Awake() => inventory = GetComponent<PlayerInventory>();
 
-    public void Open()
+    public void Open() => ShowInventory(true);
+
+    private void ShowInventory(bool playSound)
     {
         if (IsOpen || inventory == null || Time.timeScale <= 0f ||
             !TryOpenOverlay("Inventory", 100, new Vector2(1600, 900), usePointer: true))
             return;
         openedFrame = Time.frameCount;
-        GameAudio.Interface(SoundCue.Cloth);
+        if (playSound) GameAudio.Interface(SoundCue.InventoryBag);
         RefreshSection();
     }
 
@@ -104,14 +106,20 @@ public sealed class InventoryMenu : PausedGameOverlay
         }
     }
 
-    public void Close() => CloseOverlay();
+    public void Close()
+    {
+        if (!IsOpen) return;
+        GameAudio.Interface(SoundCue.InventoryBag);
+        CloseOverlay();
+    }
 
     public void ChangeSection(int offset)
     {
         if (!IsOpen) return;
-        section = (Section)(((int)section + offset % tabs.Length + tabs.Length) % tabs.Length);
+        Section next = (Section)(((int)section + offset % tabs.Length + tabs.Length) % tabs.Length);
+        if (next != section) GameAudio.Interface(SoundCue.MenuClick);
+        section = next;
         selected = 0;
-        GameAudio.Interface(SoundCue.MenuClick);
         RefreshSection();
     }
 
@@ -159,7 +167,9 @@ public sealed class InventoryMenu : PausedGameOverlay
     public void MoveSelection(int offset)
     {
         if (!IsOpen || entries.Count == 0) return;
-        selected = (selected + offset % entries.Count + entries.Count) % entries.Count;
+        int next = (selected + offset % entries.Count + entries.Count) % entries.Count;
+        if (selected == next) return;
+        selected = next;
         GameAudio.Interface(SoundCue.MenuClick);
         Render();
     }
@@ -167,8 +177,8 @@ public sealed class InventoryMenu : PausedGameOverlay
     public void ReadSelected()
     {
         if (!IsOpen || entries.Count == 0 || entries[selected].Page is not int page) return;
-        Close();
-        TempleArchiveJournal.GetOrCreate(gameObject).RereadFromInventory(page, Open);
+        CloseOverlay();
+        TempleArchiveJournal.GetOrCreate(gameObject).RereadFromInventory(page, () => ShowInventory(false));
     }
 
     private void Render()

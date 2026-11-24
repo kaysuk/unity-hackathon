@@ -161195,6 +161195,7 @@ GameObject:
   - component: {fileID: 1184414490}
   - component: {fileID: 1184414492}
   - component: {fileID: 1184414491}
+  - component: {fileID: 7249184414489}
   m_Layer: 0
   m_Name: Middle basin water
   m_TagString: Untagged
@@ -327330,6 +327331,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoryWaypoint
   passage: 1
   radius: 2.5
+--- !u!114 &7249184414489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184414489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 512540c374865c9499a4a65c2ea1d135, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.5
+  radius: 11
+  listenerRoom:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  interval: {x: 0, y: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

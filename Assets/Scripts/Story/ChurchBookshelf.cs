@@ -53,7 +53,7 @@ public sealed class ChurchBookshelf : Interactable
     private IEnumerator Slide()
     {
         moving = true;
-        GameAudio.Play(SoundCue.Slide, transform.position);
+        GameAudio.Play(SoundCue.CabinetMove, transform.position);
         Vector3 start = transform.position;
         const float duration = 0.85f;
         for (float elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)

@@ -4,6 +4,9 @@ public abstract class Interactable : MonoBehaviour
 {
     public virtual bool RequiresDirectAim => false;
 
+    // Checked only when the player presses Interact on a target that refused the action.
+    internal virtual bool RattlesWhenBlocked => false;
+
     protected virtual string ActionLabel => null;
 
     public virtual bool CanInteract(PlayerInteractor player) => isActiveAndEnabled;

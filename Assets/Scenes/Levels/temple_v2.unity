@@ -161833,6 +161833,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0, z: 1.55}
   speed: 3.6
+  motionSound: 2
 --- !u!4 &1374652697
 Transform:
   m_ObjectHideFlags: 0
@@ -170852,6 +170853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 2.74, z: 0}
   speed: 1.7
+  motionSound: 1
 --- !u!114 &1652033056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171401,6 +171403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: -0.32, z: 0}
   speed: 0.6
+  motionSound: 3
 --- !u!65 &6594610006
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171921,6 +171924,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: -2.5, z: 0}
   speed: 1.5
+  motionSound: 1
 --- !u!114 &6742100036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179899,6 +179903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390106
 GameObject:
   m_ObjectHideFlags: 0
@@ -181225,6 +181230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390268
 GameObject:
   m_ObjectHideFlags: 0
@@ -182551,6 +182557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390430
 GameObject:
   m_ObjectHideFlags: 0
@@ -183877,6 +183884,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390592
 GameObject:
   m_ObjectHideFlags: 0
@@ -185203,6 +185211,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390754
 GameObject:
   m_ObjectHideFlags: 0
@@ -186529,6 +186538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TemplePassage
   openOffset: {x: 0, y: 0.665, z: 0}
   speed: 1.12
+  motionSound: 2
 --- !u!1 &6602390916
 GameObject:
   m_ObjectHideFlags: 0
@@ -213460,6 +213470,7 @@ GameObject:
   - component: {fileID: 6602580327}
   - component: {fileID: 6602580328}
   - component: {fileID: 6602580329}
+  - component: {fileID: 7254602580326}
   m_Layer: 0
   m_Name: Flame among embers
   m_TagString: Untagged
@@ -214247,6 +214258,7 @@ GameObject:
   - component: {fileID: 6602580360}
   - component: {fileID: 6602580361}
   - component: {fileID: 6602580362}
+  - component: {fileID: 7254602580359}
   m_Layer: 0
   m_Name: Flame among embers
   m_TagString: Untagged
@@ -215034,6 +215046,7 @@ GameObject:
   - component: {fileID: 6602580393}
   - component: {fileID: 6602580394}
   - component: {fileID: 6602580395}
+  - component: {fileID: 7254602580392}
   m_Layer: 0
   m_Name: Flame among embers
   m_TagString: Untagged
@@ -215821,6 +215834,7 @@ GameObject:
   - component: {fileID: 6602580426}
   - component: {fileID: 6602580427}
   - component: {fileID: 6602580428}
+  - component: {fileID: 7254602580425}
   m_Layer: 0
   m_Name: Flame among embers
   m_TagString: Untagged
@@ -216236,6 +216250,7 @@ GameObject:
   - component: {fileID: 6602690006}
   - component: {fileID: 6602690007}
   - component: {fileID: 6602690008}
+  - component: {fileID: 7254602690005}
   m_Layer: 0
   m_Name: Flame on the torch head
   m_TagString: Untagged
@@ -216561,6 +216576,7 @@ GameObject:
   - component: {fileID: 6602690018}
   - component: {fileID: 6602690019}
   - component: {fileID: 6602690020}
+  - component: {fileID: 7254602690017}
   m_Layer: 0
   m_Name: Flame on the torch head
   m_TagString: Untagged
@@ -216886,6 +216902,7 @@ GameObject:
   - component: {fileID: 6602690030}
   - component: {fileID: 6602690031}
   - component: {fileID: 6602690032}
+  - component: {fileID: 7254602690029}
   m_Layer: 0
   m_Name: Flame on the torch head
   m_TagString: Untagged
@@ -217211,6 +217228,7 @@ GameObject:
   - component: {fileID: 6602690042}
   - component: {fileID: 6602690043}
   - component: {fileID: 6602690044}
+  - component: {fileID: 7254602690041}
   m_Layer: 0
   m_Name: Flame on the torch head
   m_TagString: Untagged
@@ -217536,6 +217554,7 @@ GameObject:
   - component: {fileID: 6602690054}
   - component: {fileID: 6602690055}
   - component: {fileID: 6602690056}
+  - component: {fileID: 7254602690053}
   m_Layer: 0
   m_Name: Flame on the torch head
   m_TagString: Untagged
@@ -220143,6 +220162,186 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TempleRiddleReminder
   puzzle: {fileID: 6602310740}
+--- !u!114 &7254602580326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602580326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: dc5a0ee8aa675927b54b08bfef8b64be, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.57
+  radius: 3.35
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602580359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602580359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: dc5a0ee8aa675927b54b08bfef8b64be, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.57
+  radius: 3.35
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602580392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602580392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: dc5a0ee8aa675927b54b08bfef8b64be, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.57
+  radius: 3.35
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602580425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602580425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: dc5a0ee8aa675927b54b08bfef8b64be, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.57
+  radius: 3.35
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602690005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602690005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 9286a2c725c25110804c1a31492f3003, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.23
+  radius: 2.6
+  listenerRoom:
+    m_Center: {x: 26.75, y: 2.95, z: 7.1}
+    m_Extent: {x: 1.76, y: 3.05, z: 2.65}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602690017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602690017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 9286a2c725c25110804c1a31492f3003, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.23
+  radius: 2.6
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602690029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602690029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 9286a2c725c25110804c1a31492f3003, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.23
+  radius: 2.6
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602690041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602690041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 9286a2c725c25110804c1a31492f3003, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.23
+  radius: 2.6
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
+--- !u!114 &7254602690053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6602690053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 9286a2c725c25110804c1a31492f3003, type: 3}
+  alternate: {fileID: 0}
+  gain: 0.23
+  radius: 2.6
+  listenerRoom:
+    m_Center: {x: 30, y: 2.95, z: 17.3}
+    m_Extent: {x: 6.03, y: 3.05, z: 7.56}
+  interval: {x: 0, y: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

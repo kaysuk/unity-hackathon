@@ -38,7 +38,7 @@ public sealed class TempleSlidingPuzzle : MonoBehaviour
         int oldSlot = tile.Slot;
         slots[oldSlot] = null;
         slots[emptySlot] = tile;
-        GameAudio.Play(SoundCue.Slide, tile.transform.position);
+        GameAudio.Play(SoundCue.StoneTile, tile.transform.position, 0.45f);
         tile.MoveTo(emptySlot);
         emptySlot = oldSlot;
 

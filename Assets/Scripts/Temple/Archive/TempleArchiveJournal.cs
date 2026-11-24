@@ -63,12 +63,13 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     public void ReadDocument(int number)
     {
+        bool wasOpen = IsOpen;
         if (number < 1 || number > DocumentTotal || IsConfirmingEntrance || continueAfterReading != null ||
             !OpenScreen())
             return;
 
         bool firstRead = CollectDocument(number);
-        ShowPage(number, firstRead);
+        ShowPage(number, firstRead, wasOpen ? SoundCue.Paper : SoundCue.BookOpen);
     }
 
     internal bool CollectDocument(int number)
@@ -108,7 +109,8 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         {
             if (!HasDocument(page))
             {
-                Close();
+                CloseOverlay();
+                goBack();
                 return;
             }
             ShowPage(page, false);
@@ -143,9 +145,9 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             return;
 
         Action enter = pendingEntrance;
-        pendingEntrance = null;
         if (collectedMask == CompleteMask && !FullFamilyTruth)
         {
+            pendingEntrance = null;
             ShowPage(DocumentTotal, false);
             continueAfterReading = enter;
             controls.text = "↑ / ↓ Прокрутить    Enter / A Продолжить";
@@ -168,7 +170,9 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     public void Close()
     {
-        if (IsOpen) GameAudio.Interface(IsConfirmingEntrance ? SoundCue.MenuClick : SoundCue.Paper);
+        if (!IsOpen) return;
+        SoundCue closeSound = readingSealCalculation ? SoundCue.Paper : SoundCue.BookClose;
+        GameAudio.Interface(IsConfirmingEntrance ? SoundCue.MenuClick : closeSound);
         Action goBack = returnToInventory;
         CloseOverlay();
         goBack?.Invoke();
@@ -260,12 +264,12 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             next = (next - 1 + direction + DocumentTotal) % DocumentTotal + 1;
         } while (!HasDocument(next));
 
-        ShowPage(next, false);
+        if (next != currentDocument) ShowPage(next, false, SoundCue.Paper);
     }
 
-    private void ShowPage(int number, bool firstRead)
+    private void ShowPage(int number, bool firstRead, SoundCue sound = SoundCue.BookOpen)
     {
-        GameAudio.Interface(SoundCue.Paper);
+        GameAudio.Interface(sound);
         currentDocument = number;
         bool sealedRegister = number == DocumentTotal && collectedMask != CompleteMask;
         bool registerFirstRead = number == DocumentTotal && !sealedRegister && !FullFamilyTruth;

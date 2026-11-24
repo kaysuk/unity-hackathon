@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public sealed class ChurchCordon : MonoBehaviour
@@ -46,6 +47,7 @@ public sealed class ChurchCordon : MonoBehaviour
         public Quaternion facing;
         public Vector3 approachOffset;
         public readonly List<Vector3> footsteps = new();
+        public PlayerFootsteps stepSounds;
         public bool walking;
         public bool Available => actor != null && actor.gameObject.activeInHierarchy && body.enabled && !health.IsDead;
     }
@@ -265,6 +267,8 @@ public sealed class ChurchCordon : MonoBehaviour
         o.body.Move(motion);
         Vector3 moved = Flat(o.actor.position - before) / (WalkSpeed * Time.deltaTime);
         if (moved.sqrMagnitude < .004f) { StopWalking(o); return; }
+        if (o.actor.gameObject.scene == SceneManager.GetActiveScene())
+            o.stepSounds.Move(o.body, false, 0.5f);
         Vector3 local = o.actor.InverseTransformDirection(moved);
         o.animator.SetFloat(MoveX, Mathf.Clamp(local.x, -1f, 1f));
         o.animator.SetFloat(MoveZ, Mathf.Clamp(local.z, -1f, 1f));

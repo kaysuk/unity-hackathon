@@ -81,20 +81,49 @@ namespace Hackathon.Tests
         [UnityTest]
         public IEnumerator ReachesUpperLandingByStairs()
         {
-            Place(npc, nodes["Entry"].transform.position);
-            Place(player.gameObject, nodes["UpperFloor"].transform.position);
-            Call(graph, "RaiseAlarm", null, nodes["UpperFloor"]);
-            // Поворот с нижнего этажа на лестницу требует смены целевого узла.
-            yield return new WaitForSeconds(0.5f);
-            float deadline = Time.time + 23f;
-            while (npc.transform.position.y < 4.0f && Time.time < deadline) yield return null;
-            Assert.That(npc.transform.position.y, Is.GreaterThan(4.0f),
-                $"NPC stopped at {npc.transform.position}; next={Read<Component>(mover, "Next")?.name}");
+            var original = SceneManager.GetActiveScene();
+            SceneManager.SetActiveScene(scene);
+            var camera = (Behaviour)Components("IvanOrbitCamera").Single();
+            var originalPosition = camera.transform.position;
+            camera.enabled = false;
+            try
+            {
+                Place(npc, nodes["Entry"].transform.position);
+                Place(player.gameObject, nodes["UpperFloor"].transform.position);
+                Call(graph, "RaiseAlarm", null, nodes["UpperFloor"]);
+                var audio = GameObject.Find("Game audio");
+                bool heardSteps = false;
+                camera.transform.position = npc.transform.position + Vector3.up * 1.6f;
+
+                // Поворот с нижнего этажа на лестницу требует смены целевого узла.
+                float deadline = Time.time + 23f;
+                while (npc.transform.position.y < 4.0f && Time.time < deadline)
+                {
+                    camera.transform.position = npc.transform.position + Vector3.up * 1.6f;
+                    heardSteps |= audio.GetComponentsInChildren<AudioSource>().Any(source =>
+                        source.isPlaying && source.clip != null && source.spatialBlend == 1f && source.volume < .29f &&
+                        (source.clip.name.StartsWith("StoneLeft") || source.clip.name.StartsWith("StoneRight") ||
+                         source.clip.name.StartsWith("WoodStep") || source.clip.name.StartsWith("MetalStep")) &&
+                        Vector3.ProjectOnPlane(npc.transform.position - source.transform.position, Vector3.up).sqrMagnitude < .36f);
+                    yield return null;
+                }
+                Assert.That(npc.transform.position.y, Is.GreaterThan(4.0f),
+                    $"NPC stopped at {npc.transform.position}; next={Read<Component>(mover, "Next")?.name}");
+                Assert.That(heardSteps, Is.True, "The moving rifleman must emit a positional step from the stairs.");
+            }
+            finally
+            {
+                camera.transform.position = originalPosition;
+                camera.enabled = true;
+                SceneManager.SetActiveScene(original);
+            }
         }
 
         [UnityTest]
         public IEnumerator KeyboardEOpensPhysicalDoorThenEnablesBothDirections()
         {
+            var original = SceneManager.GetActiveScene();
+            SceneManager.SetActiveScene(scene);
             var door = Components("TempleShortDoor").Single(c => c.transform.parent.parent.name.StartsWith("Room 3 -"));
             var locked = Components("TempleShortDoor").Single(c => c.transform.parent.parent.name.StartsWith("Room 2 -"));
             Place(player.gameObject, nodes["Room_Door2"].transform.position);
@@ -105,11 +134,14 @@ namespace Hackathon.Tests
             Assert.That(Read<bool>(door, "IsOpen"), Is.False, "Shortcut only opens from inside");
             var pausedCamera = (Behaviour)Components("IvanOrbitCamera").Single();
             pausedCamera.enabled = false;
-            Place(player.gameObject, nodes["Room_Door"].transform.position);
             var body = player.GetComponent<CharacterController>();
-            var face = door.GetComponentInChildren<Collider>();
-            pausedCamera.transform.position = body.bounds.center;
-            pausedCamera.transform.LookAt(face.bounds.center);
+            void AimAt(Component leaf, string node)
+            {
+                Place(player.gameObject, nodes[node].transform.position);
+                pausedCamera.transform.position = body.bounds.center;
+                pausedCamera.transform.LookAt(leaf.GetComponentInChildren<Collider>().bounds.center);
+                Physics.SyncTransforms();
+            }
             var settings = InputSystem.settings;
             var background = settings.backgroundBehavior;
             var editorInput = settings.editorInputBehaviorInPlayMode;
@@ -122,13 +154,28 @@ namespace Hackathon.Tests
                 settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
                 action.Enable();
                 InputSystem.EnableDevice(keyboard);
-                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
-                InputSystem.Update();
-                Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
-                // В batchmode нет захваченного курсора. Вызываем тот же этап LateUpdate,
-                // который выбирает цель лучом и обрабатывает Player/Interact в игровой сцене.
-                player.GetType().GetMethod("UpdateTargetInReach", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .Invoke(player, null);
+                var poll = player.GetType().GetMethod("UpdateTargetInReach", BindingFlags.Instance | BindingFlags.NonPublic);
+                void PressE()
+                {
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+                    InputSystem.Update();
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
+                    InputSystem.Update();
+                    Assert.That(action.WasPressedThisDynamicUpdate(), Is.True);
+                    poll.Invoke(player, null);
+                }
+
+                AimAt(locked, "Room_Door2");
+                int Rattles() => GameObject.Find("Game audio").GetComponentsInChildren<AudioSource>()
+                    .Count(source => source.clip?.name == "Locked" && source.isPlaying &&
+                        source.spatialBlend == 1f && source.transform.position == locked.transform.position);
+                PressE();
+                Assert.That(Read<bool>(locked, "IsOpen"), Is.False);
+                Assert.That(Rattles(), Is.EqualTo(1));
+                PressE();
+                Assert.That(Rattles(), Is.EqualTo(1), "Repeated presses must not layer latch rattles.");
+                AimAt(door, "Room_Door");
+                PressE();
                 Assert.That(Read<bool>(door, "IsOpen"), Is.True);
                 Assert.That(Read<bool>(door, "IsPassable"), Is.False);
                 yield return new WaitForSeconds(0.7f);
@@ -137,6 +184,7 @@ namespace Hackathon.Tests
             }
             finally
             {
+                SceneManager.SetActiveScene(original);
                 InputSystem.RemoveDevice(keyboard);
                 if (!wasEnabled) action.Disable();
                 settings.backgroundBehavior = background;

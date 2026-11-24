@@ -229,9 +229,11 @@ public sealed class GameCheckpoint : MonoBehaviour
         {
             case StoryWaypoint.Passage.FrontDoor:
             case StoryWaypoint.Passage.RearDoor:
+                GameAudio.ThroughDoor();
                 yield return MoveTo(Church, returnedToChurch ? new Vector3(5f, 0.1f, 13f) : new Vector3(0f, 0.1f, -13f));
                 break;
             case StoryWaypoint.Passage.Basement when returnedToChurch:
+                GameAudio.Play(SoundCue.Unlock, player.transform.position, 0.46f);
                 StorySpeech.Say("key_fits");
                 StorySpeech.Say("lower_door_opened");
                 while (StorySpeech.Busy) yield return null;

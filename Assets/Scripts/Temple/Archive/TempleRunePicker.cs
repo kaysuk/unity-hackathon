@@ -133,8 +133,10 @@ public sealed class TempleRunePicker : PausedGameOverlay
         if (!IsOpen)
             return;
 
+        int next = (selection + Math.Sign(direction) + held.Count) % held.Count;
+        if (selection == next) return;
+        selection = next;
         GameAudio.Interface(SoundCue.MenuClick);
-        selection = (selection + Math.Sign(direction) + held.Count) % held.Count;
         HighlightSelection();
     }
 
@@ -145,6 +147,7 @@ public sealed class TempleRunePicker : PausedGameOverlay
 
         int glyph = SelectedGlyph;
         Action<int> choose = onChoose;
+        GameAudio.Interface(SoundCue.MenuClick);
         Cancel();
         choose(glyph);
     }

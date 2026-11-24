@@ -14,6 +14,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     private CharacterController controller;
     private InputAction interact;
     private InteractionPrompt prompt;
+    private float nextLatchRattle;
 
     public CharacterController Controller => controller;
     public GameObject CameraObject => viewCamera.gameObject;
@@ -59,8 +60,16 @@ public sealed class PlayerInteractor : MonoBehaviour
     {
         Interactable target = FindTargetInReach();
 
-        if (target != null && target.CanInteract(this) && interact.WasPressedThisDynamicUpdate())
-            target.Interact(this);
+        if (target != null && interact.WasPressedThisDynamicUpdate())
+        {
+            if (target.CanInteract(this))
+                target.Interact(this);
+            else if (target.RattlesWhenBlocked && Time.unscaledTime >= nextLatchRattle)
+            {
+                GameAudio.Play(SoundCue.Locked, target.transform.position, 0.44f);
+                nextLatchRattle = Time.unscaledTime + 0.8f;
+            }
+        }
 
         prompt?.Show(this, target, interact);
     }

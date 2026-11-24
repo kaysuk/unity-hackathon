@@ -35385,6 +35385,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 775869145}
+  - component: {fileID: 7248775869144}
   m_Layer: 0
   m_Name: Metal Drip Bucket
   m_TagString: Untagged
@@ -52324,6 +52325,7 @@ GameObject:
   - component: {fileID: 1139837923}
   - component: {fileID: 1139837925}
   - component: {fileID: 1139837924}
+  - component: {fileID: 850020001}
   m_Layer: 0
   m_Name: Runner Extension
   m_TagString: Untagged
@@ -52331,6 +52333,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &850020001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139837922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 008b0bd066ae4512a5b183040b528d72, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepCarpet
 --- !u!4 &1139837923
 Transform:
   m_ObjectHideFlags: 0
@@ -82543,6 +82557,7 @@ GameObject:
   - component: {fileID: 1856352448}
   - component: {fileID: 1856352450}
   - component: {fileID: 1856352449}
+  - component: {fileID: 850020002}
   m_Layer: 0
   m_Name: Runner
   m_TagString: Untagged
@@ -82550,6 +82565,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &850020002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1856352447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 008b0bd066ae4512a5b183040b528d72, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepCarpet
 --- !u!4 &1856352448
 Transform:
   m_ObjectHideFlags: 0
@@ -84318,6 +84345,7 @@ GameObject:
   - component: {fileID: 1885321447}
   - component: {fileID: 1885321449}
   - component: {fileID: 1885321448}
+  - component: {fileID: 850020003}
   m_Layer: 0
   m_Name: Runner
   m_TagString: Untagged
@@ -84325,6 +84353,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &850020003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885321446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 008b0bd066ae4512a5b183040b528d72, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepCarpet
 --- !u!4 &1885321447
 Transform:
   m_ObjectHideFlags: 0
@@ -97212,6 +97252,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoryWaypoint
   passage: 2
   radius: 1.55
+--- !u!114 &7248775869144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775869144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741b912a74a55b7b87bd5605f02d438, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldPropSound
+  clip: {fileID: 8300000, guid: 26ed8549694050b4af27199fc53a8710, type: 3}
+  alternate: {fileID: 8300000, guid: 3211e0b3bfe050fc9c6152474091c35a, type: 3}
+  gain: 0.27
+  radius: 4.3
+  listenerRoom:
+    m_Center: {x: -3.62, y: -1.625, z: 4.72}
+    m_Extent: {x: 5.375, y: 1.375, z: 4.34}
+  interval: {x: 3.4, y: 8.2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

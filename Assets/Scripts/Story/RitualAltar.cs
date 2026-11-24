@@ -10,20 +10,25 @@ public sealed class RitualAltar : Interactable, IDamageable
 
     public override void Interact(PlayerInteractor player)
     {
-        if (CanInteract(player)) Strike(2, player != null ? player.gameObject : null);
+        if (CanInteract(player)) Strike(2, player != null ? player.gameObject : null, SoundCue.Stone);
     }
 
     public void TakeDamage(float amount, Vector3 point, Vector3 direction, GameObject source)
     {
-        if (amount > 0f && GameObjectives.Capture().Stage == GameObjectives.Stage.DestroyAltars) Strike(3, source);
+        if (amount > 0f && GameObjectives.Capture().Stage == GameObjectives.Stage.DestroyAltars)
+            Strike(3, source, SoundCue.AltarHit);
     }
 
-    private void Strike(int amount, GameObject actor)
+    private void Strike(int amount, GameObject actor, SoundCue impact)
     {
         if (!gameObject.activeInHierarchy) return;
         remaining -= amount;
-        GameAudio.Play(SoundCue.Seal, transform.position);
-        if (remaining > 0) return;
+        if (remaining > 0)
+        {
+            GameAudio.Play(impact, transform.position);
+            return;
+        }
+        GameAudio.Play(SoundCue.AltarBreak, transform.position);
         gameObject.SetActive(false);
         int destroyed = GameObjectives.Capture().AltarsDestroyed + 1;
         GameObjectives.SetAltarsDestroyed(destroyed);

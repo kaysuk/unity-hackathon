@@ -81,7 +81,7 @@ public sealed class TempleRuneStation : Interactable
         CurrentIndex = (CurrentIndex + 1) % GlyphCount;
         turnTime = 0f;
         isTurning = true;
-        GameAudio.Play(SoundCue.Slide, dial.position);
+        GameAudio.Play(SoundCue.RuneDial, dial.position);
     }
 
     private void AdvanceDial()
@@ -134,7 +134,7 @@ public sealed class TempleRuneStation : Interactable
         {
             if (inventory.TryReturn(TempleRunePuzzle.RuneIds[OccupantIndex]))
             {
-                GameAudio.Play(SoundCue.Stone, placedStone.transform.position);
+                GameAudio.Play(SoundCue.StoneTile, placedStone.transform.position, 0.42f);
                 OccupantIndex = -1;
                 placedStone.SetActive(false);
             }

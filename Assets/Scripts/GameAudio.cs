@@ -10,7 +10,13 @@ internal enum SoundCue
     Cloth, Scuff, Draw, Stow, MagazineOut, MagazineIn, DryFire, Pistol,
     BodyHit, BodyFall, Land, Grapple, WallHit, Key, Paper, Stone,
     Lever, Switch, Door, Gate, GateStop, Slide, Seal, SealFail,
-    AngelCharge, AngelStrike, HaloGrip, HaloWave, MenuClick
+    AngelCharge, AngelStrike, HaloGrip, HaloWave, MenuClick,
+    WoodStep1, WoodStep2, WoodStep3, WoodStep4,
+    MetalStep1, MetalStep2, MetalStep3, MetalStep4,
+    CarpetStep1, CarpetStep2, CarpetStep3, CarpetStep4,
+    WoodImpact, MetalImpact, EarthImpact, RuneDial, StoneLift, StoneWall, StoneTile,
+    GateClose, DoorClose, Locked, Unlock, Crank, CabinetMove, AltarHit, AltarBreak,
+    InventoryBag, BookOpen, BookClose, AngelDispelled
 }
 
 internal sealed class GameAudio : MonoBehaviour
@@ -27,6 +33,7 @@ internal sealed class GameAudio : MonoBehaviour
     private string sceneTrack;
     private bool scoreHeld;
     private AudioSource heartbeat;
+    private AudioSource doorway;
     private float nextAlert;
     private uint pitchSeed = 47;
 
@@ -197,6 +204,20 @@ internal sealed class GameAudio : MonoBehaviour
         else Play(SoundCue.Pistol, position, 0.87f, 5f);
     }
 
+    // The listener moves to a different scene while the door is still swinging.
+    internal static void ThroughDoor()
+    {
+        if (instance == null) return;
+        if (instance.doorway == null)
+        {
+            instance.doorway = instance.AddSource("Doorway");
+            instance.doorway.clip = Resources.Load<AudioClip>(Bank + nameof(SoundCue.Door));
+            instance.doorway.volume = 0.45f;
+            instance.doorway.bypassReverbZones = true;
+        }
+        instance.doorway.Play();
+    }
+
     internal static void Interface(SoundCue cue) => Emit(cue, Vector3.zero, 0.36f, 0f, 1f);
 
     internal static void Play(SoundCue cue, Vector3 position, float volume = 0.55f,
@@ -242,48 +263,49 @@ internal sealed class GameAudio : MonoBehaviour
 internal struct PlayerFootsteps
 {
     private float distance;
+    private float lastTravel;
     private int step;
     private bool grounded;
     private float fallingSpeed;
 
-    internal void Move(CharacterController body, bool crouched)
+    internal void Move(CharacterController body, bool crouched, float gain = 1f)
     {
         var velocity = body.velocity;
         if (!body.isGrounded)
         {
             fallingSpeed = Mathf.Max(fallingSpeed, -velocity.y);
             grounded = false;
-            distance = 0f;
             return;
         }
         var feet = NPCMover.FootPosition(body);
         if (!grounded && fallingSpeed > 3.5f)
         {
-            GameAudio.Play(SoundCue.Land, feet, 0.48f);
+            GameAudio.Play(SoundCue.Land, feet, 0.48f * gain);
             if (fallingSpeed > 6f && body.CompareTag("Player") && body.gameObject.scene == SceneManager.GetActiveScene())
                 StorySpeech.Say("ivan.landing_exhale", false);
         }
         grounded = true;
         fallingSpeed = 0f;
         float speed = new Vector2(velocity.x, velocity.z).magnitude;
-        if (speed < 0.12f) { distance = 0f; return; }
+        if (speed < 0.12f) return;
+        // Capsule sweeps can briefly lose ground or report zero speed on step edges.
+        // Retain the partial stride through those gaps, and clear it after a real stop.
+        if (Time.time - lastTravel > 0.3f) distance = 0f;
+        lastTravel = Time.time;
         float running = Mathf.InverseLerp(1.7f, 3.2f, speed);
         float stride = crouched ? 0.5f : Mathf.Lerp(0.83f, 1.38f, running);
         distance += speed * Time.deltaTime;
         if (distance < stride) return;
         distance %= stride;
-        bool earth = false;
+        // Keep distant patrols from taking voices needed by nearby interactions.
+        if (gain < 1f && Camera.main is Camera listener && (listener.transform.position - feet).sqrMagnitude > 18f * 18f)
+            return;
+        var first = SoundCue.StoneLeft1;
         if (Physics.Raycast(feet + Vector3.up * 0.12f, Vector3.down, out var hit, 0.5f,
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
-        {
-            string surface = hit.collider.name;
-            earth = surface.Contains("Grass", StringComparison.OrdinalIgnoreCase)
-                || surface.Contains("Ground", StringComparison.OrdinalIgnoreCase)
-                || surface.Contains("Soil", StringComparison.OrdinalIgnoreCase);
-        }
-        var first = earth ? SoundCue.EarthLeft1 : SoundCue.StoneLeft1;
-        GameAudio.Play((SoundCue)((int)first + step), feet, crouched ? 0.14f : Mathf.Lerp(0.34f, 0.53f, running));
-        GameAudio.Play(SoundCue.Cloth, feet + Vector3.up, crouched ? 0.075f : 0.11f + 0.08f * running);
+            first = PropSounds.FirstStep(hit.collider, hit.point);
+        GameAudio.Play((SoundCue)((int)first + step), feet, gain * (crouched ? 0.14f : Mathf.Lerp(0.34f, 0.53f, running)));
+        GameAudio.Play(SoundCue.Cloth, feet + Vector3.up, gain * (crouched ? 0.075f : 0.11f + 0.08f * running));
         step = (step + 1) % 4;
     }
 }

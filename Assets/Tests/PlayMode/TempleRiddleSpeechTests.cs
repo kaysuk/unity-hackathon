@@ -97,11 +97,26 @@ namespace Hackathon.Tests
             yield return FinishDialogue(Encouragement);
             Call(altar, "Interact", player);
             ExpectPlaying(Reminder);
+            var sound = GameObject.Find("Game audio");
+            AudioSource[] PlayingEffect(string name) => sound.GetComponentsInChildren<AudioSource>()
+                .Where(source => source.clip?.name == name && source.isPlaying &&
+                    source.outputAudioMixerGroup?.name == "Effects").ToArray();
+            var dial = (Transform)last.GetType().GetField("dial",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(last);
+            int DialVoices() => PlayingEffect("RuneDial").Count(source =>
+                source.spatialBlend == 1f && source.transform.position == dial.position);
+            int previous = DialVoices();
             Call(last, "Interact", player);
+            Assert.That(DialVoices(), Is.EqualTo(previous + 1));
+            Call(last, "Interact", player);
+            Assert.That(DialVoices(), Is.EqualTo(previous + 1), "One physical turn has one recording.");
             yield return new WaitForSeconds(.85f);
             Assert.That(Read<bool>(puzzle, "AreDialsAligned"), Is.True);
             Assert.That(Read<bool>(puzzle, "IsSolved"), Is.False);
             ExpectPlaying(Encouragement);
+            var lifts = PlayingEffect("StoneLift");
+            Assert.That(lifts.Select(source => source.transform.position).Distinct().Count(), Is.EqualTo(6));
+            Assert.That(lifts.All(source => source.spatialBlend == 1f && !source.loop), Is.True);
             yield return FinishOnce(Encouragement);
 
             var inventory = player.GetComponent("PlayerInventory");
@@ -119,8 +134,10 @@ namespace Hackathon.Tests
                 var picker = player.GetComponent("TempleRunePicker");
                 Assert.That(Read<int>(picker, "SelectedGlyph"), Is.EqualTo(glyph));
                 Call(picker, "Confirm");
+                Assert.That(PlayingEffect("MenuClick").Any(source => source.spatialBlend == 0f), Is.True);
             }
             yield return new WaitForSeconds(.55f);
+            Assert.That(PlayingEffect("Stone").Any(source => source.spatialBlend == 1f), Is.True);
             Assert.That(Read<bool>(puzzle, "IsSolved"), Is.True);
             ExpectPlaying("OI.150.rune_puzzle_solved");
             yield return FinishDialogue(Encouragement);

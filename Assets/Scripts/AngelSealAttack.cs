@@ -16,6 +16,7 @@ public sealed class AngelSealAttack : MonoBehaviour
     [SerializeField] private AngelHaloSweep haloSweep = new AngelHaloSweep();
     private bool sweepNext;
     private bool sweeping;
+    private bool sealsBroken;
     private SpriteRenderer inscription;
     private MaterialPropertyBlock rimProperties;
     private static readonly int Charge = Shader.PropertyToID("_Charge");
@@ -126,8 +127,13 @@ public sealed class AngelSealAttack : MonoBehaviour
         if (Time.timeScale <= 0f) return;
         if (GameObjectives.Capture().AltarsDestroyed == 6 && gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
         {
-            HideSeal();
-            if (sweeping) { haloSweep.Stop(); sweeping = false; }
+            if (!sealsBroken)
+            {
+                sealsBroken = true;
+                HideSeal();
+                if (sweeping) { haloSweep.Stop(); sweeping = false; }
+                GameAudio.Play(SoundCue.AngelDispelled, transform.position, 0.45f, 5f);
+            }
             if (player != null && health != null && !health.IsDead &&
                 Vector3.Distance(player.position, transform.position) < 3.5f)
                 GameCheckpoint.FinishRitual();

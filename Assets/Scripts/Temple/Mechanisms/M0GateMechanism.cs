@@ -99,13 +99,13 @@ public sealed class M0GateMechanism : Interactable, IGraphPassage
                 break;
 
             case Stage.HandlesInserted:
-                GameAudio.Play(SoundCue.Lever, leftHandle.position);
+                GameAudio.Play(SoundCue.Crank, leftHandle.position);
                 leftHandle.Rotate(0f, 0f, 90f, Space.Self);
                 stage = Stage.LeftHandleTurned;
                 break;
 
             case Stage.LeftHandleTurned:
-                GameAudio.Play(SoundCue.Lever, rightHandle.position);
+                GameAudio.Play(SoundCue.Crank, rightHandle.position);
                 GameAudio.Play(SoundCue.Gate, gate.position);
                 rightHandle.Rotate(0f, 0f, 90f, Space.Self);
                 stage = Stage.Raising;

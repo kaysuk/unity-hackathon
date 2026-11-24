@@ -13,6 +13,7 @@ public sealed class TempleShortDoor : Interactable, IGraphPassage
     private Quaternion TargetRotation => IsOpen ? openRotation : closedRotation;
 
     public bool IsOpen { get; private set; }
+    internal override bool RattlesWhenBlocked => !IsOpen && hinge.localRotation == closedRotation;
 
     public event System.Action PassabilityChanged;
     public bool IsPassable => IsOpen && hinge.localRotation == openRotation;
@@ -47,7 +48,7 @@ public sealed class TempleShortDoor : Interactable, IGraphPassage
     {
         if (!CanInteract(player)) return;
         IsOpen = !IsOpen;
-        GameAudio.Play(SoundCue.Door, hinge.position);
+        GameAudio.Play(IsOpen ? SoundCue.Door : SoundCue.DoorClose, hinge.position);
         if (!IsOpen) PassabilityChanged?.Invoke();
     }
 
