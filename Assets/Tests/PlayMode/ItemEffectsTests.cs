@@ -93,36 +93,60 @@ namespace Hackathon.Tests
         }
 
         [UnityTest]
-        public IEnumerator SealsDistinguishHandBulletBreakAndRitualEnd()
+        public IEnumerator CrystalsSoundOnValidHitsAndNimbFadesAfterTheSixthConfirmation()
         {
             yield return Load("Temple_Final_Room");
             ClearEffects();
-            var player = Components("PlayerInteractor").Single();
-            var angel = Components("AngelSealAttack").Single();
-            player.transform.position = angel.transform.position + Vector3.forward * 12f;
-            var altars = Components("RitualAltar").ToArray();
+            var player = Components("PlayerInteractor").Single().gameObject;
+            var encounter = Components("NimbEncounter").Single();
+            var boss = Components("NimbVulnerability").Single();
+            var altars = Components("NimbAltar").ToArray();
             Assert.That(altars.Length, Is.EqualTo(6));
-            var first = altars[0];
-            Call(first, "Interact", player);
-            Expect("Stone", first.transform.position);
-            Shoot(first);
-            Expect("AltarHit", first.transform.position);
-            Shoot(first);
-            Expect("AltarBreak", first.transform.position);
-            Assert.That(first.gameObject.activeSelf, Is.False);
+            var current = encounter.GetType().GetProperty("ActiveAltar");
+            var nextRune = encounter.GetType().GetField("runeChangesAt", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            foreach (var altar in altars.Skip(1))
+            for (int i = 0; i < altars.Length; i++)
             {
-                Shoot(altar);
-                Shoot(altar);
-            }
-            ClearEffects();
-            Call(angel, "LateUpdate");
-            Expect("AngelDispelled", angel.transform.position);
-            Call(angel, "LateUpdate");
-            Assert.That(Effects(), Is.Empty);
+                var crystal = (Component)current.GetValue(encounter);
+                var idle = altars.First(altar => altar != crystal);
+                player.transform.position = idle.transform.position;
+                Shoot(crystal);
+                Shoot(idle);
+                Assert.That(Effects(), Is.Empty, "Only an active crystal hit from its own chamber may sound.");
 
-            void Shoot(Component altar) => Call(altar, "TakeDamage", 1f, altar.transform.position, Vector3.forward, player.gameObject);
+                player.transform.position = crystal.transform.position;
+                bool bullet = i % 2 == 0;
+                if (bullet) Shoot(crystal);
+                else Call(crystal, "TryPistolStrike", player);
+                var hits = Effects().ToArray();
+                Assert.That(hits.Select(source => source.clip.name), Is.EquivalentTo(new[] {
+                    bullet ? "AltarHit" : "Stone", "AltarBreak"
+                }));
+                Assert.That(hits.All(source => source.spatialBlend == 1f &&
+                    source.transform.position == crystal.transform.position), Is.True);
+                ClearEffects();
+                Shoot(crystal);
+                Assert.That(Effects(), Is.Empty, "A broken crystal must not crack twice.");
+
+                Call(boss, "TryPistolStrike", player);
+                if (i + 1 < altars.Length)
+                {
+                    Assert.That(Effects(), Is.Empty, "Nimb fades only on the final confirmation.");
+                    nextRune.SetValue(encounter, Time.time - .01f);
+                    Call(encounter, "Update");
+                }
+            }
+
+            var fade = audio.GetComponentsInChildren<AudioSource>().Single(source => source.clip?.name == "AngelDispelled");
+            Assert.That(fade.spatialBlend, Is.EqualTo(1f));
+            Assert.That(fade.transform.position, Is.EqualTo(boss.transform.position));
+            Assert.That((bool)encounter.GetType().GetProperty("IsComplete").GetValue(encounter), Is.True);
+            var victory = encounter.GetComponent("NimbVictoryComic");
+            Assert.That(victory, Is.Not.Null, "A standalone active arena has its own victory overlay.");
+            Assert.That((bool)victory.GetType().GetProperty("IsOpen").GetValue(victory), Is.True);
+
+            void Shoot(Component crystal) => Call(crystal, "TakeDamage", 25f,
+                crystal.transform.position, Vector3.forward, player);
         }
 
         [UnityTest]

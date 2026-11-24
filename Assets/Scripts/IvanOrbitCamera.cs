@@ -39,6 +39,7 @@ public sealed class IvanOrbitCamera : MonoBehaviour
     private float baseFieldOfView;
     private float zoom;
     private InputAction look;
+    private InputAction aimInput;
     private bool mouseCaptured;
     private float yaw;
     private float pitch = 6f;
@@ -60,16 +61,17 @@ public sealed class IvanOrbitCamera : MonoBehaviour
             stealth = target.GetComponent<IvanStealth>();
         }
         look = InputSystem.actions?.FindAction("Player/Look");
+        aimInput = InputSystem.actions?.FindAction("Player/Aim");
     }
 
     private void Update()
     {
-        if (target == null || Time.timeScale <= 0f) return;
+        if (target == null || Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay) return;
         var mouse = Mouse.current;
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
             ReleaseMouse();
-        else if (!mouseCaptured && mouse != null &&
-                 (mouse.leftButton.wasPressedThisFrame || mouse.rightButton.wasPressedThisFrame))
+        else if (!mouseCaptured && (mouse?.leftButton.wasPressedThisFrame == true ||
+                 mouse?.rightButton.wasPressedThisFrame == true || aimInput?.WasPressedThisFrame() == true))
         {
             Cursor.lockState = CursorLockMode.Locked;
             mouseCaptured = true;

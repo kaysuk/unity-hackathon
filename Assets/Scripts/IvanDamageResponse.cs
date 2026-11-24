@@ -50,14 +50,10 @@ public sealed class IvanDamageResponse : MonoBehaviour
     private void ShowWounds(float hp)
     {
         float severity = Mathf.Clamp01(1f - hp / health.MaximumHP);
-        if (severity <= 0f || bloodFrameMaterial == null)
-        {
-            if (damageCanvas != null) damageCanvas.enabled = false;
-            return;
-        }
-
         if (damageCanvas == null)
         {
+            if (severity <= 0f || bloodFrameMaterial == null) return;
+
             var root = new GameObject("Ivan Damage Overlay", typeof(Canvas));
             SceneManager.MoveGameObjectToScene(root, gameObject.scene);
             damageCanvas = root.GetComponent<Canvas>();
@@ -75,7 +71,7 @@ public sealed class IvanDamageResponse : MonoBehaviour
             bloodFrame.material = bloodFrameMaterial;
         }
         bloodFrame.color = new Color(1f, 1f, 1f, severity);
-        damageCanvas.enabled = true;
+        damageCanvas.enabled = severity > 0f && bloodFrameMaterial != null;
     }
 
     private void OnHit()

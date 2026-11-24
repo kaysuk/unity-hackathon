@@ -49,7 +49,7 @@ public sealed class IvanLocomotion : MonoBehaviour
     private void Update()
     {
         float dt = Time.deltaTime;
-        if (dt <= 0f) return;
+        if (dt <= 0f || ControlBindingsPanel.BlocksGameplay) return;
 
         var camera = Camera.main;
         float cameraYaw = camera != null ? camera.transform.eulerAngles.y : 0f;

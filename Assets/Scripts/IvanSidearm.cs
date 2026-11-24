@@ -28,6 +28,7 @@ public sealed class IvanSidearm : MonoBehaviour
     [SerializeField] private GameObject muzzleFlash;
     private float flashUntil;
     private InputAction attack;
+    private InputAction aim;
     private InputAction melee;
     private PistolCombat combat;
     private IvanPistolStrike strike;
@@ -62,6 +63,7 @@ public sealed class IvanSidearm : MonoBehaviour
         combat = GetComponent<PistolCombat>();
         layer = animator.GetLayerIndex("Sidearm");
         reloadLayer = animator.GetLayerIndex("Reload");
+        aim = InputSystem.actions?.FindAction("Player/Aim");
         next = InputSystem.actions?.FindAction("Player/Next");
         attack = InputSystem.actions?.FindAction("Player/Attack");
         melee = InputSystem.actions?.FindAction("Player/Melee");
@@ -71,7 +73,9 @@ public sealed class IvanSidearm : MonoBehaviour
     private void Update()
     {
         if (muzzleFlash.activeSelf && Time.time >= flashUntil) muzzleFlash.SetActive(false);
-        if (Time.timeScale > 0f && (stealth == null || !stealth.IsPerforming)) ReadInput();
+        ShotRequested = false;
+        if (Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay) return;
+        if (stealth == null || !stealth.IsPerforming) ReadInput();
         AdvanceGesture(Time.deltaTime);
         UpdateReloadPose(Time.deltaTime);
         strike.Advance(Time.deltaTime);
@@ -87,10 +91,9 @@ public sealed class IvanSidearm : MonoBehaviour
     {
         bool requested = drawing;
         if (next?.WasPressedThisFrame() == true) requested = true;
-        var mouse = Mouse.current;
-        if (mouse?.rightButton.wasPressedThisFrame == true) aimRequested = true;
+        if (aim?.WasPressedThisFrame() == true) aimRequested = true;
         bool stow = previous?.WasPressedThisFrame() == true;
-        if (stow || mouse?.rightButton.isPressed != true) aimRequested = false;
+        if (stow || aim?.IsPressed() != true) aimRequested = false;
 
         bool aiming = aimRequested && (stealth == null || stealth.TryStandForAim());
         if (aiming) requested = true;
@@ -157,7 +160,8 @@ public sealed class IvanSidearm : MonoBehaviour
         Quaternion facing = Facing;
         rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction, strike, facing,
             reloadWeight);
-        strike.CheckContact(facing * Vector3.forward);
+        if (Time.timeScale > 0f && !ControlBindingsPanel.BlocksGameplay)
+            strike.CheckContact(facing * Vector3.forward);
     }
 
     internal void ShowShot()

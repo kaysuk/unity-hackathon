@@ -101,6 +101,17 @@ namespace Hackathon.Tests
                 Assert.That(fullscreen.GetComponentInChildren<Text>().text,
                     Is.EqualTo(Screen.fullScreen ? "Полный экран" : "Оконный"));
                 Assert.That(events.currentSelectedGameObject, Is.SameAs(volume.gameObject));
+                var options = new Selectable[]
+                {
+                    volume, settingsPanel.Find("Music").GetComponent<Slider>(),
+                    settingsPanel.Find("Dialogue").GetComponent<Slider>(), settingsPanel.Find("Effects").GetComponent<Slider>(),
+                    fullscreen, settingsPanel.Find("Controls").GetComponent<Button>(), settingsPanel.Find("Back").GetComponent<Button>()
+                };
+                for (int index = 0; index < options.Length; index++)
+                {
+                    Assert.That(options[index].navigation.selectOnDown, Is.SameAs(options[(index + 1) % options.Length]));
+                    Assert.That(options[index].navigation.selectOnUp, Is.SameAs(options[(index + options.Length - 1) % options.Length]));
+                }
                 Assert.That(volume.value, Is.EqualTo(savedVolume).Within(0.001f));
                 Assert.That(volumeValue.text, Is.EqualTo("42%"));
                 Assert.That(AudioListener.volume, Is.EqualTo(savedVolume).Within(0.001f));
@@ -280,6 +291,16 @@ namespace Hackathon.Tests
                     yield return null;
                     Assert.That(Mathf.Abs(Mathf.DeltaAngle(releasedYaw, camera.eulerAngles.y)), Is.LessThan(0.1f));
 
+                    // Escape also opens the controls menu in a playable scene.
+                    if (Time.timeScale == 0f)
+                    {
+                        input.Press();
+                        yield return null;
+                        input.Press(Key.Escape);
+                        yield return null;
+                        yield return null;
+                        Assert.That(Time.timeScale, Is.GreaterThan(0f));
+                    }
                     InputSystem.QueueStateEvent(gamepad, new GamepadState { rightStick = Vector2.right });
                     float swept = 0f;
                     float bodySweep = 0f;
@@ -390,7 +411,11 @@ namespace Hackathon.Tests
             yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
             loadedScene = SceneManager.GetSceneByPath(FinalRoom);
             yield return null;
-            var player = loadedScene.GetRootGameObjects().Single(root => root.CompareTag("Player"));
+            var roots = loadedScene.GetRootGameObjects();
+            // A boss hit also interrupts a reload. This test exercises interruption by releasing aim.
+            var bossAttack = roots.Select(root => root.GetComponent("AngelSealAttack")).Single(attack => attack != null);
+            ((Behaviour)bossAttack).enabled = false;
+            var player = roots.Single(root => root.CompareTag("Player"));
             var animator = player.GetComponent<Animator>();
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             int layer = animator.GetLayerIndex("Reload");
@@ -455,21 +480,84 @@ namespace Hackathon.Tests
         }
 
         [UnityTest]
-        public IEnumerator DrawnPistolStrikesOnceAtContactAndCanFinishAGuard()
+        public IEnumerator KeyboardAimFreesThePrimaryClickAndFollowsNewBindings()
         {
             yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
             loadedScene = SceneManager.GetSceneByPath(FinalRoom);
             yield return null;
-            var roots = loadedScene.GetRootGameObjects();
-            var player = roots.Single(r => r.CompareTag("Player"));
-            var guard = roots.Single(r => r.name == "Temple Guard");
+            var player = loadedScene.GetRootGameObjects().Single(root => root.CompareTag("Player"));
+            var sidearm = player.GetComponent("IvanSidearm");
+            var pistol = player.GetComponent("PistolCombat");
+            bool Aiming() => (bool)sidearm.GetType().GetProperty("IsAiming").GetValue(sidearm);
+            int Ammo() => (int)pistol.GetType().GetProperty("Ammo").GetValue(pistol);
+
+            var aim = InputSystem.actions.FindAction("Player/Aim", true);
+            var attack = InputSystem.actions.FindAction("Player/Attack", true);
+            int aimIndex = aim.GetBindingIndex(new InputBinding { path = "<Keyboard>/q" });
+            int fireIndex = attack.GetBindingIndex(new InputBinding { path = "<Mouse>/leftButton" });
+            InputBinding originalAim = aim.bindings[aimIndex];
+            InputBinding originalFire = attack.bindings[fireIndex];
+            using var input = new MovementKeyboard();
+            var mouse = InputSystem.AddDevice<Mouse>();
+            try
+            {
+                aim.RemoveBindingOverride(aimIndex);
+                attack.RemoveBindingOverride(fireIndex);
+                input.Press(Key.Q);
+                yield return new WaitForSeconds(1.2f);
+                Assert.That(Aiming(), Is.True);
+                int before = Ammo();
+                Assert.That(before, Is.GreaterThan(1));
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Left));
+                yield return new WaitForSeconds(.25f);
+                Assert.That(Ammo(), Is.EqualTo(before - 1), "A primary click fires while Q is held.");
+
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                input.Press();
+                yield return null;
+                aim.ApplyBindingOverride(aimIndex, "<Keyboard>/p");
+                attack.ApplyBindingOverride(fireIndex, "<Keyboard>/k");
+                input.Press(Key.Q);
+                yield return null;
+                Assert.That(Aiming(), Is.False);
+                input.Press(Key.P);
+                yield return new WaitForSeconds(1.2f);
+                Assert.That(Aiming(), Is.True);
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Left));
+                yield return new WaitForSeconds(.25f);
+                Assert.That(Ammo(), Is.EqualTo(before - 1), "The old fire binding must be released.");
+                input.Press(Key.P, Key.K);
+                yield return new WaitForSeconds(.25f);
+                Assert.That(Ammo(), Is.EqualTo(before - 2));
+            }
+            finally
+            {
+                aim.ApplyBindingOverride(aimIndex, originalAim);
+                attack.ApplyBindingOverride(fireIndex, originalFire);
+                InputSystem.RemoveDevice(mouse);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator DrawnPistolStrikesOnceAtContactAndCanFinishAGuard()
+        {
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
+            yield return null;
+            var scripts = loadedScene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            var player = scripts.Single(s => s.GetType().Name == "IvanSidearm").gameObject;
+            var npc = scripts.Single(s => s.GetType().Name == "RifleNpc" && s.name == "SWAT - Room 6");
+            var guard = npc.gameObject;
             var health = guard.GetComponent("CombatHealth");
             float HP() => (float)health.GetType().GetProperty("HP").GetValue(health);
             var combat = player.GetComponent("PistolCombat");
             var fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             combat.GetType().GetMethod("RestoreAmmo", fields).Invoke(combat, new object[] {0, 0, 12});
             ((Behaviour)player.GetComponent("IvanLocomotion")).enabled = false;
-            var npc = (Behaviour)guard.GetComponent("RifleNpc");
+            // Keep the guard's real hit reaction, but isolate the swing from patrol and return fire.
+            npc.GetType().GetMethod("SetNavigation").Invoke(npc, new object[] { null, null });
+            npc.GetType().GetField("burstPause", fields).SetValue(npc, 60f);
             npc.enabled = false;
             var animator = player.GetComponent<Animator>();
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
@@ -585,12 +673,15 @@ namespace Hackathon.Tests
         [UnityTest]
         public IEnumerator AimedMeleeReleasesTheSupportHandAndRestoresAimAfterAMiss()
         {
-            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
-            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            const string path = "Assets/Scenes/Levels/temple_v2.unity";
+            yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(path);
             yield return null;
             var roots = loadedScene.GetRootGameObjects();
-            roots.Single(r => r.name == "Temple Guard").SetActive(false);
-            var player = roots.Single(r => r.CompareTag("Player"));
+            var scripts = roots.SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
+            foreach (var guard in scripts.Where(s => s.GetType().Name == "RifleNpc"))
+                guard.gameObject.SetActive(false);
+            var player = scripts.Single(s => s.GetType().Name == "IvanSidearm").gameObject;
             var animator = player.GetComponent<Animator>();
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             var left = animator.GetBoneTransform(HumanBodyBones.LeftHand);
@@ -1163,7 +1254,7 @@ namespace Hackathon.Tests
             Assert.Greater(player.transform.position.x, wall.transform.position.x, "The return passage must stay open");
         }
 
-        private sealed class MovementKeyboard : System.IDisposable
+        internal sealed class MovementKeyboard : System.IDisposable
         {
             private readonly InputSettings settings = InputSystem.settings;
             private readonly InputSettings.EditorInputBehaviorInPlayMode previousRouting;
@@ -1303,6 +1394,7 @@ namespace Hackathon.Tests
             var roots = loadedScene.GetRootGameObjects();
             var player = roots.Single(root => root.CompareTag("Player"));
             var boss = roots.Single(root => root.GetComponent("AngelSealAttack") != null);
+            NimbAttackSelectionTests.UseFixedOrder(boss.GetComponent("AngelSealAttack"));
             foreach (var guard in roots.Where(root => root.GetComponent("RifleNpc") != null))
                 guard.SetActive(false);
 
@@ -1311,13 +1403,18 @@ namespace Hackathon.Tests
             var hp = health.GetType().GetProperty("HP");
             var initial = (float)hp.GetValue(health);
             var ring = boss.transform.Find("Seal boundary").GetComponent<LineRenderer>();
+            var eye = ring.transform.Find("Eye of Providence").GetComponent<MeshRenderer>();
+            var pillar = boss.transform.Find("Seal light pillar").GetComponent<MeshRenderer>();
+            Assert.That(pillar.enabled, Is.False);
             float deadline = Time.time + 6f;
             while (!ring.enabled && Time.time < deadline) yield return null;
             Assert.That(ring.enabled, Is.True);
+            Assert.That(eye.enabled, Is.True, "The eye must be visible during the warning");
+            Assert.That(pillar.enabled, Is.False);
             Vector3 marked = ring.transform.position;
             Assert.That(Vector3.Distance(marked, player.transform.position), Is.LessThan(0.15f));
             if (escape) player.GetComponent<CharacterController>().Move(Vector3.right * 2.5f);
-            yield return new WaitForSeconds(0.7f);
+            yield return new WaitForSeconds(0.32f);
             Assert.That((float)hp.GetValue(health), Is.EqualTo(initial));
             Assert.That(ring.transform.position, Is.EqualTo(marked));
 
@@ -1328,56 +1425,230 @@ namespace Hackathon.Tests
             Assert.That(finger, Is.Not.Null);
             Assert.That(Vector3.Angle(finger.position - knuckle.position, marked - knuckle.position), Is.LessThan(15f));
 
-            yield return new WaitForSeconds(1.7f);
-            Assert.That(ring.enabled, Is.False);
-            Assert.That((float)hp.GetValue(health), Is.EqualTo(initial - (escape ? 0f : 20f)));
+            deadline = Time.time + 3f;
+            while (!pillar.enabled && Time.time < deadline)
+            {
+                Assert.That((float)hp.GetValue(health), Is.EqualTo(initial), "Damage preceded the light pillar");
+                yield return null;
+            }
+            Assert.That(pillar.enabled, Is.True, "The marked spot must release a pillar of light");
+            float expectedHp = initial - (escape ? 0f : 35f);
+            Assert.That((float)hp.GetValue(health), Is.EqualTo(expectedHp));
+            Assert.That(Vector3.ProjectOnPlane(pillar.transform.position - marked, Vector3.up).magnitude,
+                Is.LessThan(.05f), "The pillar must rise from the original mark");
+
+            float peakHeight = 0f;
+            // Only observe the first flash; the beam is reused when the second mark strikes.
+            deadline = Time.time + .4f;
+            while (Time.time < deadline)
+            {
+                peakHeight = Mathf.Max(peakHeight, pillar.bounds.max.y - marked.y);
+                Assert.That((float)hp.GetValue(health), Is.EqualTo(expectedHp), "The light after the strike is visual");
+                yield return null;
+            }
+            Assert.That(peakHeight, Is.GreaterThan(2f), "The pillar must rise above Ivan");
+            Assert.That(eye.enabled || ring.enabled, Is.False, "The first marking must fade after its strike");
+            Assert.That((float)hp.GetValue(health), Is.EqualTo(expectedHp));
         }
 
-        private static readonly bool[] HaloStances = { false, true };
+        public enum HaloResponse { StandInOpen, CrouchInOpen, MoveBehindColumn }
+        private static readonly HaloResponse[] HaloResponses =
+            { HaloResponse.StandInOpen, HaloResponse.CrouchInOpen, HaloResponse.MoveBehindColumn };
 
         [UnityTest]
-        public IEnumerator HaloWavePassesOverCrouchingIvan([ValueSource(nameof(HaloStances))] bool crouch)
+        public IEnumerator HaloWaveChecksColumnCoverWhenItReachesIvan([ValueSource(nameof(HaloResponses))] HaloResponse response)
         {
             yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
             loadedScene = SceneManager.GetSceneByPath(FinalRoom);
             var roots = loadedScene.GetRootGameObjects();
             var player = roots.Single(root => root.CompareTag("Player"));
-            var boss = roots.Single(root => root.GetComponent("AngelSealAttack") != null);
-            foreach (var guard in roots.Where(root => root.GetComponent("RifleNpc") != null))
-                guard.SetActive(false);
-            yield return null;
+            var boss = roots.Select(root => root.GetComponent("AngelSealAttack")).Single(component => component != null);
+            NimbAttackSelectionTests.UseFixedOrder(boss);
+            var privateFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var sweeping = boss.GetType().GetField("sweeping", privateFields);
             var health = player.GetComponent("CombatHealth");
             var hp = health.GetType().GetProperty("HP");
-            var wave = boss.transform.Find("Halo wave").GetComponent<LineRenderer>();
-            float deadline = Time.time + 16f;
-            while (!wave.enabled && Time.time < deadline) yield return null;
-            Assert.IsTrue(wave.enabled);
-            Assert.IsFalse(boss.transform.Find("Seal boundary").GetComponent<LineRenderer>().enabled);
-            // Read the rendered LateUpdate pose before the next Update restores the rig.
-            yield return new WaitForFixedUpdate();
-            var bones = boss.GetComponentsInChildren<Transform>();
-            var halo = bones.Single(bone => bone.name == "outter_torus");
-            var mesh = halo.GetComponent<MeshFilter>().sharedMesh.bounds;
-            Vector3 center = halo.TransformPoint(mesh.center);
-            float height = wave.GetPosition(0).y;
-            Assert.That(center.y, Is.EqualTo(height).Within(0.12f));
-            for (int i = 0; i < 3; i++)
+            var controller = player.GetComponent<CharacterController>();
+            var columns = roots.SelectMany(root => root.GetComponentsInChildren<CapsuleCollider>())
+                .Where(c => c.name == "Hall column").ToArray();
+            Assert.AreEqual(6, columns.Length);
+            var column = columns.OrderByDescending(c => c.bounds.center.z).First().bounds;
+            Vector3 outward = Vector3.ProjectOnPlane(column.center - boss.transform.position, Vector3.up).normalized;
+            Vector3 side = Vector3.Cross(Vector3.up, outward);
+            Vector3 shelter = column.center + outward * 1.9f;
+            shelter.y = player.transform.position.y + .03f;
+
+            float deadline = Time.time + 18f;
+            while (!(bool)sweeping.GetValue(boss) && Time.time < deadline) yield return null;
+            Assert.IsTrue((bool)sweeping.GetValue(boss), "The wave must follow the seal in the normal attack cycle");
+            var front = loadedScene.GetRootGameObjects().Single(root => root.name == "Halo wave")
+                .transform.Find("Golden wave front").GetComponent<MeshRenderer>();
+            controller.enabled = false;
+            player.transform.position = shelter + side * 2.2f;
+            controller.enabled = true;
+            Physics.SyncTransforms();
+            float currentHP = (float)hp.GetValue(health);
+            int hits = 0;
+            float damage = 0f;
+            System.Action<float> recordDamage = updatedHP =>
             {
-                float a = 2f * Mathf.PI * i / 3f;
-                var grip = mesh.center + new Vector3(Mathf.Cos(a) * mesh.extents.x, 0f, Mathf.Sin(a) * mesh.extents.z);
-                Vector3 rim = halo.TransformPoint(grip);
-                Assert.That(rim.y, Is.EqualTo(height).Within(0.12f));
-                var palm = bones.Single(bone => bone.name == $"hand{i + 1}:middle_1");
-                Assert.That(Vector3.Distance(palm.position, rim), Is.LessThan(0.12f));
-            }
-            float before = (float)hp.GetValue(health);
-            using (var input = new MovementKeyboard())
+                if (updatedHP < currentHP)
+                {
+                    hits++;
+                    damage += currentHP - updatedHP;
+                }
+                currentHP = updatedHP;
+            };
+
+            using var input = new MovementKeyboard();
+            var healthChanged = health.GetType().GetEvent("Changed");
+            healthChanged.AddEventHandler(health, recordDamage);
+            try
             {
-                if (crouch) input.Press(Key.C);
-                while (wave.enabled && Time.time < deadline + 4f) yield return null;
-                Assert.IsFalse(wave.enabled);
-                Assert.That((float)hp.GetValue(health), Is.EqualTo(before - (crouch ? 0f : 20f)));
+                if (response == HaloResponse.CrouchInOpen) input.Press(Key.C);
+                while (!front.enabled && Time.time < deadline) yield return null;
+                Assert.IsTrue(front.enabled);
+                Assert.AreEqual(0, hits, "Charging must not damage the player");
+                if (response == HaloResponse.CrouchInOpen)
+                    Assert.IsTrue((bool)player.GetComponent("IvanStealth").GetType()
+                        .GetProperty("IsCrouching").GetValue(player.GetComponent("IvanStealth")));
+                if (response == HaloResponse.MoveBehindColumn)
+                {
+                    yield return new WaitForSeconds(.25f);
+                    controller.Move(-side * 2.2f);
+                    Assert.Less(Vector3.ProjectOnPlane(player.transform.position - shelter, Vector3.up).magnitude, .3f);
+                }
+                deadline = Time.time + 15f;
+                while ((bool)sweeping.GetValue(boss) && Time.time < deadline) yield return null;
+                Assert.IsFalse((bool)sweeping.GetValue(boss));
+                bool inCover = response == HaloResponse.MoveBehindColumn;
+                Assert.AreEqual(inCover ? 0 : 1, hits);
+                Assert.That(damage, Is.EqualTo(inCover ? 0f : 35f).Within(.001f));
             }
+            finally
+            {
+                healthChanged.RemoveEventHandler(health, recordDamage);
+            }
+        }
+
+        public enum DashResponse { HoldGround, DodgeAfterLock, BehindColumn }
+        private static readonly DashResponse[] DashResponses =
+            { DashResponse.HoldGround, DashResponse.DodgeAfterLock, DashResponse.BehindColumn };
+
+        [UnityTest]
+        public IEnumerator HeadDashLocksHitsOnceAndRecoilsFromTheColumn(
+            [ValueSource(nameof(DashResponses))] DashResponse response)
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            yield return null;
+            var roots = loadedScene.GetRootGameObjects();
+            var actor = roots.Single(root => root.CompareTag("Player"));
+            var boss = roots.Select(root => root.GetComponent("AngelSealAttack")).Single(component => component != null);
+            var start = boss.transform.position;
+            var column = roots.SelectMany(root => root.GetComponentsInChildren<CapsuleCollider>())
+                .Where(c => c.name == "Hall column").OrderBy(c => c.bounds.center.z).First();
+            var direction = Vector3.ProjectOnPlane(column.bounds.center - start, Vector3.up).normalized;
+            var target = column.bounds.center - direction * 3f;
+            target.y = actor.transform.position.y;
+
+            var body = actor.GetComponent<CharacterController>();
+            void Place(Vector3 position)
+            {
+                body.enabled = false;
+                actor.transform.position = position;
+                body.enabled = true;
+                Physics.SyncTransforms();
+            }
+            Place(target);
+            var health = actor.GetComponent("CombatHealth");
+            var hp = health.GetType().GetProperty("HP");
+            float initial = (float)hp.GetValue(health);
+
+            var fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var dash = boss.GetType().GetFields(fields).Single(field => field.FieldType.Name == "AngelHeadDash").GetValue(boss);
+            var methods = fields | System.Reflection.BindingFlags.Public;
+            var tick = dash.GetType().GetMethod("Tick", methods);
+            var restore = dash.GetType().GetMethod("RestorePose", methods);
+            var bones = boss.GetComponentsInChildren<Transform>(true);
+            var skull = bones.Single(b => b.name == "skeleton:head");
+            var feet = new[] { "skeleton:foot_l", "skeleton:foot_r" }
+                .Select(name => bones.Single(b => b.name == name)).ToArray();
+            var floors = roots.SelectMany(root => root.GetComponentsInChildren<Collider>())
+                .Where(c => c.name == "Hall floor").ToArray();
+            bool Step(float elapsed)
+            {
+                restore.Invoke(dash, null);
+                bool complete = (bool)tick.Invoke(dash, new object[] { elapsed });
+                foreach (var foot in feet)
+                {
+                    Vector3 probe = foot.position;
+                    probe.y = start.y + 8f;
+                    var ray = new Ray(probe, Vector3.down);
+                    float clearance = float.PositiveInfinity;
+                    foreach (var floor in floors)
+                        if (floor.Raycast(ray, out var hit, 20f))
+                            clearance = Mathf.Min(clearance, foot.position.y - hit.point.y);
+                    Assert.IsFalse(float.IsPositiveInfinity(clearance), $"No hall floor under {foot.name}");
+                    Assert.GreaterOrEqual(clearance, -.04f, $"{foot.name} crossed the floor at {elapsed:F2}s");
+                }
+                return complete;
+            }
+            dash.GetType().GetMethod("Begin", methods).Invoke(dash, null);
+            var stripe = boss.transform.Find("Locked dash path").GetComponent<LineRenderer>();
+            Step(.69f);
+            Assert.IsFalse(stripe.enabled);
+            Step(.71f);
+            Assert.IsTrue(stripe.enabled);
+            if (response == DashResponse.DodgeAfterLock)
+                Place(target + Vector3.Cross(Vector3.up, direction) * 2.5f);
+            if (response == DashResponse.BehindColumn)
+                Place(target + direction * 5f);
+            Step(.89f);
+            Assert.IsTrue(stripe.enabled);
+            Assert.AreEqual(initial, hp.GetValue(health), "The locked warning is safe");
+            Vector3 launch = skull.position;
+            for (int frame = 18; frame <= 22; frame++) Step(frame * .05f);
+            Assert.IsFalse(stripe.enabled);
+            Assert.Greater(Vector3.Distance(launch, skull.position), 1.9f, "The skull accelerates as soon as the warning ends");
+
+            for (int frame = 23; frame <= 40; frame++) Step(frame * .05f);
+            Vector3 impact = boss.transform.position;
+            float advance = Vector3.Dot(skull.position - start, direction);
+            float columnDistance = Vector3.Dot(column.bounds.center - start, direction);
+            Assert.That(advance, Is.InRange(columnDistance - 4f, columnDistance - .3f),
+                "The boss must reach the near side of the baited column");
+            Assert.That(Vector3.Distance(skull.position, column.ClosestPoint(skull.position)), Is.InRange(.3f, .7f),
+                "The skull must stop against the column at its contact radius");
+            Step(2.60f);
+            Assert.Less(Vector3.Distance(impact, boss.transform.position), .12f, "The collision leaves the boss staggered");
+            Assert.AreEqual(initial - (response == DashResponse.HoldGround ? 35f : 0f), hp.GetValue(health));
+
+            bool finished = false;
+            for (int frame = 53; frame <= 130 && !finished; frame++)
+            {
+                var left = feet[0].position;
+                var right = feet[1].position;
+                finished = Step(frame * .05f);
+                Assert.Less(Vector3.Distance(left, feet[0].position), .85f, "Left foot snapped during recovery");
+                Assert.Less(Vector3.Distance(right, feet[1].position), .85f, "Right foot snapped during recovery");
+            }
+            Assert.IsTrue(finished);
+            Vector3 settled = boss.transform.position;
+            Assert.Less(Vector3.ProjectOnPlane(settled - impact, Vector3.up).magnitude, 2f,
+                "The boss must resume hovering near its point of impact");
+            Assert.Less(Vector3.Angle(boss.transform.up, Vector3.up), 1f);
+            dash.GetType().GetMethod("Stop", methods).Invoke(dash, null);
+            Assert.Less(Vector3.Distance(settled, boss.transform.position), .01f);
+            Assert.AreEqual(initial - (response == DashResponse.HoldGround ? 35f : 0f), hp.GetValue(health),
+                "Recovering from the collision must not damage Ivan a second time");
+
+            var wave = boss.GetType().GetField("haloSweep", fields).GetValue(boss);
+            wave.GetType().GetMethod("Begin").Invoke(wave, null);
+            var waveFront = roots.Single(root => root.name == "Halo wave");
+            Assert.Less(Vector3.ProjectOnPlane(waveFront.transform.position - settled, Vector3.up).magnitude, .01f,
+                "The next halo wave must originate where the boss stopped");
+            wave.GetType().GetMethod("Stop").Invoke(wave, null);
         }
 
         [UnityTest]

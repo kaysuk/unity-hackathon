@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public interface IDamageable
 {
@@ -10,16 +11,26 @@ public interface IDamageable
 [DisallowMultipleComponent]
 public sealed class CombatHealth : MonoBehaviour, IDamageable
 {
+    private const float RegenerationDelay = 5f;
+    private const float RegenerationRate = 5f;
+    private const float ArenaRegenerationDelay = 12f;
+    private const float ArenaRegenerationRate = 1f;
+
     [SerializeField, Min(1f)] private float maximumHP = 100f;
     [SerializeField] private bool useProceduralHitReaction = true;
+    [SerializeField] private bool regeneratesHealth;
     public UnityEvent onHit = new UnityEvent();
     public UnityEvent onDeath = new UnityEvent();
     public float HP { get; private set; }
     public float MaximumHP => maximumHP;
     public bool IsDead => HP <= 0f;
     public event Action<float> Changed;
+    internal event Action<GameObject> DamageReceived;
 
     private ProceduralHitReaction hitReaction;
+    private double lastWoundedAt;
+    private Scene recoveryScene;
+    private bool inNimbArena;
 
     private void Awake()
     {
@@ -28,9 +39,33 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
             hitReaction = gameObject.AddComponent<ProceduralHitReaction>();
     }
 
+    private void Update()
+    {
+        if (!regeneratesHealth || IsDead || HP >= maximumHP) return;
+
+        // Story entry transfers the existing Ivan while he may already be recovering.
+        Scene currentScene = gameObject.scene;
+        if (recoveryScene != currentScene)
+        {
+            recoveryScene = currentScene;
+            inNimbArena = currentScene.name == NimbEncounter.ArenaScene;
+        }
+        double now = Time.timeAsDouble;
+        double startsAt = lastWoundedAt + (inNimbArena ? ArenaRegenerationDelay : RegenerationDelay);
+        double healingTime = now - Math.Max(startsAt, now - Time.deltaTime);
+        if (healingTime <= 0d) return;
+
+        float rate = inNimbArena ? ArenaRegenerationRate : RegenerationRate;
+        float restoredHP = Mathf.MoveTowards(HP, maximumHP, rate * (float)healingTime);
+        if (restoredHP == HP) return;
+        HP = restoredHP;
+        Changed?.Invoke(HP);
+    }
+
     internal void RestoreHP(float hp)
     {
         HP = Mathf.Clamp(hp, float.Epsilon, Mathf.Max(1f, maximumHP));
+        lastWoundedAt = Time.timeAsDouble;
         Changed?.Invoke(HP);
     }
 
@@ -45,8 +80,15 @@ public sealed class CombatHealth : MonoBehaviour, IDamageable
     public void TakeDamage(float amount, Vector3 point, Vector3 direction, GameObject source)
     {
         if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
+        float previousHP = HP;
         HP = Mathf.Max(0f, HP - amount);
-        GameAudio.Play(IsDead ? SoundCue.BodyFall : SoundCue.BodyHit, point, IsDead ? 0.63f : 0.46f);
+        if (HP < previousHP)
+        {
+            lastWoundedAt = Time.timeAsDouble;
+            // Report attribution before a death or UI listener can end the encounter.
+            DamageReceived?.Invoke(source);
+            GameAudio.Play(IsDead ? SoundCue.BodyFall : SoundCue.BodyHit, point, IsDead ? 0.63f : 0.46f);
+        }
         Changed?.Invoke(HP);
         var movement = GetComponent<IvanMovement>();
         var animator = GetComponent<Animator>();

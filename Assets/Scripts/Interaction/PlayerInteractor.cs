@@ -75,7 +75,7 @@ public sealed class PlayerInteractor : MonoBehaviour
     }
 
     private bool CanTarget => interact != null && interact.enabled && viewCamera != null &&
-        Time.timeScale > 0f && Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
+        Time.timeScale > 0f && !ControlBindingsPanel.BlocksGameplay && Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
 
     private void OnGUI()
     {

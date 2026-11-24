@@ -14,6 +14,11 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     private int collectedMask;
     private int currentDocument;
+    private OverlayControls input;
+    private InputAction journal;
+    private InputAction interact;
+    private InputAction scrollWheel;
+    private int openedFrame;
     private Font font;
     private Text heading;
     private Text title;
@@ -34,6 +39,14 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
     internal int CollectedMask => collectedMask;
     public string VisibleDocumentText => IsOpen ? body.text : string.Empty;
     public bool IsConfirmingEntrance => pendingEntrance != null;
+
+    private void Awake()
+    {
+        input = new OverlayControls(RefreshControls);
+        journal = OverlayControls.Find("Player/Journal");
+        interact = OverlayControls.Find("Player/Interact");
+        scrollWheel = OverlayControls.Find("UI/ScrollWheel");
+    }
 
     public static TempleArchiveJournal GetOrCreate(GameObject player) =>
         player.TryGetComponent(out TempleArchiveJournal journal)
@@ -96,7 +109,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         body.text = calculation;
         reaction.text = string.Empty;
         foreach (Text seal in seals) seal.gameObject.SetActive(false);
-        controls.text = "↑ / ↓ Прокрутить    Esc / B Закрыть";
+        RefreshControls();
         FitPage();
     }
 
@@ -118,7 +131,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
         if (!IsOpen) return;
         returnToInventory = goBack;
-        controls.text = "↑ / ↓ Прокрутить    Esc / B К вещам";
+        RefreshControls();
     }
 
     public void ConfirmRitualEntrance(Action enter)
@@ -135,7 +148,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
         reaction.text = string.Empty;
         foreach (Text seal in seals)
             seal.gameObject.SetActive(false);
-        controls.text = "Enter / A Войти    Esc / B Назад";
+        RefreshControls();
         FitPage();
     }
 
@@ -150,7 +163,7 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             pendingEntrance = null;
             ShowPage(DocumentTotal, false);
             continueAfterReading = enter;
-            controls.text = "↑ / ↓ Прокрутить    Enter / A Продолжить";
+            RefreshControls();
             return;
         }
 
@@ -188,13 +201,10 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
 
     private void Update()
     {
-        if (!Application.isFocused)
+        if (!Application.isFocused || ControlBindingsPanel.BlocksGameplay || (IsOpen && openedFrame == Time.frameCount))
             return;
 
-        Keyboard keyboard = Keyboard.current;
-        Gamepad gamepad = Gamepad.current;
-        bool journalPressed = keyboard?.jKey.wasPressedThisFrame == true ||
-            gamepad?.selectButton.wasPressedThisFrame == true;
+        bool journalPressed = input.Pressed(journal);
 
         if (!IsOpen)
         {
@@ -204,10 +214,13 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             return;
         }
 
-        bool accept = keyboard?.enterKey.wasPressedThisFrame == true ||
-            gamepad?.buttonSouth.wasPressedThisFrame == true;
-        bool cancel = journalPressed || keyboard?.escapeKey.wasPressedThisFrame == true ||
-            gamepad?.buttonEast.wasPressedThisFrame == true;
+        UpdateOpenPage(journalPressed);
+    }
+
+    private void UpdateOpenPage(bool journalPressed)
+    {
+        bool accept = input.Pressed(input.Accept);
+        bool cancel = journalPressed || input.Pressed(input.Back);
 
         if (IsConfirmingEntrance)
         {
@@ -234,18 +247,18 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
                 return;
             }
 
-            if (keyboard?.leftArrowKey.wasPressedThisFrame == true ||
-                gamepad?.dpad.left.wasPressedThisFrame == true)
+            if (input.Pressed(input.Left))
                 FlipPage(-1);
-            if (keyboard?.rightArrowKey.wasPressedThisFrame == true ||
-                gamepad?.dpad.right.wasPressedThisFrame == true)
+            if (input.Pressed(input.Right))
                 FlipPage(1);
         }
 
-        float delta = Mouse.current?.scroll.ReadValue().y ?? 0f;
-        if (keyboard?.upArrowKey.wasPressedThisFrame == true || gamepad?.dpad.up.wasPressedThisFrame == true)
+        float delta = scrollWheel.ReadValue<Vector2>().y;
+        if (delta != 0f)
+            input.UseDevice(scrollWheel.activeControl?.device);
+        if (input.Pressed(input.Up))
             delta += 1f;
-        if (keyboard?.downArrowKey.wasPressedThisFrame == true || gamepad?.dpad.down.wasPressedThisFrame == true)
+        if (input.Pressed(input.Down))
             delta -= 1f;
         float overflow = scroll.content.rect.height - scroll.viewport.rect.height;
         if (delta != 0f && overflow > 0f)
@@ -294,20 +307,41 @@ public sealed class TempleArchiveJournal : PausedGameOverlay
             seals[i].gameObject.SetActive(sealedRegister);
         }
 
-        controls.text = Gamepad.current != null && Keyboard.current == null
-            ? "← / → Листать    ↑ / ↓ Прокрутить    B Закрыть"
-            : "← / → Листать    ↑ / ↓ Прокрутить    Esc Закрыть    J Журнал";
-
+        RefreshControls();
         FitPage();
 
         if (registerFirstRead)
             FullFamilyTruth = true;
     }
 
+    private void RefreshControls()
+    {
+        if (!IsOpen)
+            return;
+
+        string accept = input.Label(input.Accept);
+        string back = input.Label(input.Back);
+        string scrollHint = $"{input.Label(input.Up)} / {input.Label(input.Down)} Прокрутить";
+        if (IsConfirmingEntrance)
+            controls.text = $"{accept} Войти    {back} Назад";
+        else if (continueAfterReading != null)
+            controls.text = $"{scrollHint}    {accept} Продолжить";
+        else if (returnToInventory != null)
+            controls.text = $"{scrollHint}    {back} К вещам";
+        else if (readingSealCalculation)
+            controls.text = $"{scrollHint}    {back} Закрыть";
+        else
+            controls.text = $"{input.Label(input.Left)} / {input.Label(input.Right)} Листать    {scrollHint}    {back} Закрыть    {input.Label(journal)} Журнал";
+    }
+
     private bool OpenScreen()
     {
         if (!TryOpenOverlay("Archive Journal", 100, new Vector2(1600f, 900f), usePointer: false))
             return false;
+
+        openedFrame = Time.frameCount;
+        if (!journal.WasPressedThisFrame())
+            input.UseDevice(interact.activeControl?.device);
 
         ImportRoomNotes();
         return true;

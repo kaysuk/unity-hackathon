@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -51,6 +52,42 @@ namespace Hackathon.Tests
             }
             finally
             {
+                SceneManager.SetActiveScene(original);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator BossDispelCarriesIntoTheEndingWithoutOtherAttackSounds()
+        {
+            var original = SceneManager.GetActiveScene();
+            yield return SceneManager.LoadSceneAsync("Temple_Final_Room", LoadSceneMode.Additive);
+            var arena = SceneManager.GetSceneByName("Temple_Final_Room");
+            SceneManager.SetActiveScene(arena);
+            var audio = GameObject.Find("Game audio");
+            var type = Type.GetType("GameAudio, Assembly-CSharp", true);
+            var cue = Type.GetType("SoundCue, Assembly-CSharp", true);
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
+            AudioSource StartEffect(string name)
+            {
+                type.GetMethod("Play", flags).Invoke(null,
+                    new object[] { Enum.Parse(cue, name), Vector3.zero, 0.5f, 3f, 1f });
+                return audio.GetComponentsInChildren<AudioSource>().Single(source =>
+                    source.clip?.name == name && source.isPlaying);
+            }
+
+            try
+            {
+                var lastAttack = StartEffect("AngelStrike");
+                var dispel = StartEffect("AngelDispelled");
+                type.GetMethod("HoldScore", flags).Invoke(null, new object[] { "sounds/comics/comics34-38_good" });
+                Assert.That(dispel.isPlaying, Is.True, "The final boss cue must be audible over page 34.");
+                Assert.That(lastAttack.isPlaying, Is.False, "Attacks from the arena stop when the comic opens.");
+                Assert.That(audio.GetComponentsInChildren<AudioSource>().Any(source =>
+                    source.clip?.name == "comics34-38_good" && source.isPlaying), Is.True);
+            }
+            finally
+            {
+                type.GetMethod("ReleaseScore", flags).Invoke(null, null);
                 SceneManager.SetActiveScene(original);
             }
         }

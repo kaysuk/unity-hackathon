@@ -829,6 +829,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatHealth
   maximumHP: 100
   useProceduralHitReaction: 0
+  regeneratesHealth: 1
   onHit:
     m_PersistentCalls:
       m_Calls: []

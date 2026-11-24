@@ -60,12 +60,14 @@ namespace Hackathon.Tests
         {
             EnterStage("DestroyAltars");
             Assert.That(Text("Primary"), Is.EqualTo("Уничтожить алтари 0 из 6"));
+            Assert.That(Text("Secondary"), Is.EqualTo("Удар рукоятью · F / R3"));
             Call("SetAltarsDestroyed", 5);
             Assert.That(Text("Primary"), Is.EqualTo("Уничтожить алтари 5 из 6"));
             object checkpoint = Call("Capture");
 
             Call("SetAltarsDestroyed", 6);
-            Assert.That(Text("Primary"), Is.EqualTo("Добить существо"));
+            Assert.That(Text("Primary"), Is.EqualTo("Нимб повержен"));
+            Assert.That(Text("Secondary"), Is.Empty);
             Call("Restore", checkpoint);
             Assert.That(Text("Primary"), Is.EqualTo("Уничтожить алтари 5 из 6"));
         }

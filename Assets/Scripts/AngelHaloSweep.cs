@@ -1,74 +1,41 @@
 using System;
 using UnityEngine;
 
-// Evaluated over the Angel's animated pose by the attack cycle in LateUpdate.
 [Serializable]
 public sealed class AngelHaloSweep
 {
-    [SerializeField, Min(0.5f)] private float windup = 2f;
-    [SerializeField, Min(1f)] private float speed = 5f;
-    [SerializeField, Min(1f)] private float reach = 16f;
-    [SerializeField, Min(0f)] private float damage = 20f;
-    [SerializeField, Min(0.1f)] private float chestHeight = 1.43f;
+    [SerializeField, Min(0.5f)] private float windup = .9f;
+    [SerializeField, Min(1f)] private float speed = 14f;
+    [SerializeField, Min(1f)] private float reach = 40f;
+    [SerializeField, Min(1f)] private float height = 9f;
+    [SerializeField, Min(0f)] private float damage = 35f;
+    [SerializeField] private Material waveMaterial;
+    [SerializeField] private Collider[] columns;
 
-    [SerializeField] private Material gripMaterial;
-    private readonly Renderer[] handMeshes = new Renderer[3];
-    private readonly Material[] handMaterials = new Material[3];
-    private MaterialPropertyBlock gripProperties;
-    private bool handsLit;
-    private Vector3 raisedCenter;
-    private static readonly int Palm = Shader.PropertyToID("_Palm");
-    private static readonly int Signal = Shader.PropertyToID("_Signal");
+    internal Collider[] Columns => columns;
 
-    private const float WaveThickness = 0.14f;
-    private readonly Transform[] arms = new Transform[3];
-    private readonly Transform[] palms = new Transform[3];
-    private readonly Vector3[] savedArmPositions = new Vector3[3];
-    private readonly Quaternion[] savedArmRotations = new Quaternion[3];
-    private Vector3 savedHaloPosition;
-    private Quaternion savedHaloRotation;
-    private bool posed;
-    private Transform halo;
-    private Bounds meshBounds;
+    // The shader uses the same six horizontal column silhouettes as the hit check.
+    private readonly Vector4[] pillars = new Vector4[6];
     private Transform boss;
+    private NimbEncounter encounter;
     private CharacterController capsule;
     private CombatHealth victim;
-    private LineRenderer wave;
+    private AngelHaloPose pose;
+    private AngelHaloWaveView view;
     private Vector3 origin;
-    private float releaseRadius;
-    private float previousGap;
+    private Vector3 previousPosition, previousFeet;
+    private float previousRadius;
+    private bool passedPlayer;
     private bool released;
-    private bool hit;
 
-    public void Initialize(Transform angel, Transform target, Material material)
+    public void Initialize(Transform angel, Transform target, NimbEncounter encounter = null)
     {
         boss = angel;
+        this.encounter = encounter;
         SetTarget(target);
-        gripProperties = new MaterialPropertyBlock();
-        var bones = angel.GetComponentsInChildren<Transform>(true);
-        foreach (var bone in bones)
-        {
-            if (bone.name == "outter_torus") halo = bone;
-            for (int i = 0; i < arms.Length; i++)
-            {
-                if (bone.name == $"hand{i + 1}:arm_mesh")
-                {
-                    handMeshes[i] = bone.GetComponent<Renderer>();
-                    handMaterials[i] = handMeshes[i].sharedMaterial;
-                }
-                if (bone.name == $"hand{i + 1}:arm_root") arms[i] = bone;
-                if (bone.name == $"hand{i + 1}:middle_1") palms[i] = bone;
-            }
-        }
-        meshBounds = halo.GetComponent<MeshFilter>().sharedMesh.bounds;
-        wave = new GameObject("Halo wave").AddComponent<LineRenderer>();
-        wave.transform.SetParent(angel, false);
-        wave.sharedMaterial = material;
-        wave.useWorldSpace = true;
-        wave.loop = true;
-        wave.positionCount = 120;
-        wave.widthMultiplier = WaveThickness;
-        wave.enabled = false;
+        pose = new AngelHaloPose(angel);
+        view = new AngelHaloWaveView(angel, waveMaterial);
+        view.SetChambers(encounter);
     }
 
     public void SetTarget(Transform target)
@@ -79,132 +46,112 @@ public sealed class AngelHaloSweep
 
     public void Begin()
     {
-        var floor = boss.position;
-        if (Physics.Raycast(floor + Vector3.up * 0.2f, Vector3.down, out var ground, 6f,
-            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) floor = ground.point;
-        origin = floor + Vector3.up * chestHeight;
-        // Present the grip beside Ivan's silhouette, then lower to the original release point.
-        Vector3 side = Vector3.Cross(Vector3.up, boss.position - capsule.transform.position).normalized;
-        raisedCenter = origin + side * 1.65f + Vector3.up * 1.25f;
+        origin = boss.position;
+        if (Physics.Raycast(origin + Vector3.up * 0.2f, Vector3.down, out var floor, 8f,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            origin.y = floor.point.y;
+
+        CaptureColumnShadows();
+
+        passedPlayer = false;
         released = false;
-        hit = false;
-        GameAudio.Play(SoundCue.HaloGrip, raisedCenter, 0.72f, 5f);
+        previousRadius = 0f;
+        previousPosition = capsule.bounds.center;
+        previousFeet = capsule.transform.position;
+        Vector3 haloCenter = pose.Begin();
+        GameAudio.Play(SoundCue.HaloGrip, haloCenter, 0.72f, 5f);
+        view.Begin(origin, reach, height, pillars);
     }
 
-    // Undo last frame's procedural offsets before the Animator supplies the next pose.
-    public void RestorePose()
-    {
-        if (!posed) return;
-        halo.SetLocalPositionAndRotation(savedHaloPosition, savedHaloRotation);
-        for (int i = 0; i < arms.Length; i++)
-            arms[i].SetLocalPositionAndRotation(savedArmPositions[i], savedArmRotations[i]);
-        posed = false;
-    }
+    public void RestorePose() => pose?.RestorePose();
 
     public bool Tick(float elapsed)
     {
-        float recover = Mathf.SmoothStep(1f, 0f, (elapsed - windup) / 0.5f);
-        if (recover > 0f) PoseHalo(elapsed, recover);
-        if (elapsed < windup) return false;
+        if (elapsed < windup)
+        {
+            float progress = Mathf.Clamp01(elapsed / windup);
+            pose.Charge(progress);
+            view.Charge(progress);
+            previousPosition = capsule.bounds.center;
+            previousFeet = capsule.transform.position;
+            return false;
+        }
 
         if (!released)
         {
-            SetHandsLit(false);
             released = true;
             GameAudio.Play(SoundCue.HaloWave, origin, 0.85f, 6f);
-            previousGap = DistanceToWaveOrigin() - releaseRadius;
         }
-        float radius = Mathf.Min(reach, releaseRadius + (elapsed - windup) * speed);
-        wave.enabled = true;
-        for (int i = 0; i < wave.positionCount; i++)
+        float travelTime = elapsed - windup;
+        pose.Recoil(travelTime);
+        float radius = Mathf.Min(reach, travelTime * speed);
+        view.Release(radius);
+
+        Vector3 position = capsule.bounds.center;
+        Vector3 feet = capsule.transform.position;
+        float gap = HorizontalDistance(position) - radius;
+        if (!passedPlayer && gap <= 0f)
         {
-            float a = i * (2f * Mathf.PI / wave.positionCount);
-            wave.SetPosition(i, origin + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * radius);
+            passedPlayer = true;
+            // Resolve at the crossing, even when a long frame spans the edge of a shadow.
+            float lastGap = HorizontalDistance(previousPosition) - previousRadius;
+            float t = lastGap > 0f ? lastGap / (lastGap - gap) : 0f;
+            Vector3 contact = Vector3.Lerp(previousPosition, position, t);
+            Vector3 feetAtContact = Vector3.Lerp(previousFeet, feet, t);
+            if (contact.y >= origin.y && contact.y <= origin.y + height && !IsBehindColumn(origin, contact)
+                && (encounter == null || !encounter.ContainsChamberPosition(feetAtContact)))
+                victim.TakeDamage(damage, contact, (contact - origin).normalized, boss.gameObject);
         }
 
-        var body = capsule.bounds;
-        float gap = DistanceToWaveOrigin() - radius;
-        float clearance = body.extents.x + WaveThickness * 0.5f;
-        if (!hit && Mathf.Min(previousGap, gap) <= clearance && Mathf.Max(previousGap, gap) >= -clearance &&
-            body.max.y >= origin.y - WaveThickness * 0.5f && body.min.y <= origin.y + WaveThickness * 0.5f)
-        {
-            hit = true;
-            victim.TakeDamage(damage, body.center, (body.center - origin).normalized, boss.gameObject);
-        }
-        previousGap = gap;
+        previousPosition = position;
+        previousFeet = feet;
+        previousRadius = radius;
         if (radius < reach) return false;
         Stop();
         return true;
     }
 
-    private float DistanceToWaveOrigin()
+    private float HorizontalDistance(Vector3 position) =>
+        new Vector2(position.x - origin.x, position.z - origin.z).magnitude;
+
+    internal void CaptureColumnShadows()
     {
-        Vector3 offset = capsule.bounds.center - origin;
-        return new Vector2(offset.x, offset.z).magnitude;
+        for (int i = 0; i < pillars.Length; i++)
+        {
+            var column = columns != null && i < columns.Length ? columns[i] : null;
+            pillars[i] = Vector4.zero;
+            if (column == null || !column.enabled || !column.gameObject.activeInHierarchy) continue;
+            var bounds = column.bounds;
+            pillars[i] = new Vector4(bounds.center.x, bounds.center.z,
+                Mathf.Min(bounds.extents.x, bounds.extents.z), 0f);
+        }
     }
 
-    private void PoseHalo(float elapsed, float recover)
+    internal bool IsBehindColumn(Vector3 attackOrigin, Vector3 position)
     {
-        savedHaloPosition = halo.localPosition;
-        savedHaloRotation = halo.localRotation;
-        for (int i = 0; i < arms.Length; i++)
+        var start = new Vector2(attackOrigin.x, attackOrigin.z);
+        var ray = new Vector2(position.x, position.z) - start;
+        float lengthSquared = ray.sqrMagnitude;
+        if (lengthSquared < 0.0001f) return false;
+        foreach (var pillar in pillars)
         {
-            savedArmPositions[i] = arms[i].localPosition;
-            savedArmRotations[i] = arms[i].localRotation;
+            if (pillar.z <= 0f) continue;
+            var offset = new Vector2(pillar.x, pillar.y) - start;
+            float t = Mathf.Clamp01(Vector2.Dot(offset, ray) / lengthSquared);
+            if ((offset - ray * t).sqrMagnitude <= pillar.z * pillar.z) return true;
         }
-        posed = true;
-
-        Vector3 center = halo.TransformPoint(meshBounds.center);
-        // The torus may inherit a mirrored/non-uniform transform from the FBX.
-        Vector3 axisX = halo.TransformVector(Vector3.right * meshBounds.extents.x);
-        Vector3 axisZ = halo.TransformVector(Vector3.forward * meshBounds.extents.z);
-        Vector3 normal = Vector3.Cross(axisZ, axisX).normalized;
-        if (normal.y < 0f) normal = -normal;
-        float turn = Mathf.SmoothStep(0f, 1f, (elapsed / windup - 0.24f) / 0.43f) * recover;
-        Quaternion horizontal = Quaternion.FromToRotation(normal, Vector3.up);
-        Quaternion tilt = Quaternion.Slerp(Quaternion.identity, horizontal, turn);
-        float lower = Mathf.SmoothStep(0f, 1f, (elapsed / windup - 0.58f) / 0.36f) * recover;
-        float grip = Mathf.SmoothStep(0f, 1f, elapsed / (windup * 0.24f)) * recover;
-        // Face one grip toward Ivan so the other two flank it in the shoulder view.
-        Vector3 towardIvan = Vector3.ProjectOnPlane(capsule.transform.position - raisedCenter, Vector3.up);
-        float yaw = Vector3.SignedAngle(horizontal * axisX, towardIvan, Vector3.up);
-        Quaternion gripRotation = tilt * Quaternion.AngleAxis(yaw * grip, normal);
-        halo.rotation = gripRotation * halo.rotation;
-        Vector3 presentation = Vector3.Lerp(center, raisedCenter, grip);
-        halo.position += Vector3.Lerp(presentation, origin, lower) - halo.TransformPoint(meshBounds.center);
-        SetHandsLit(grip > 0.36f && elapsed < windup);
-        gripProperties.SetFloat(Signal, Mathf.SmoothStep(0f, 1f, (turn - 0.90f) / 0.10f));
-        for (int i = 0; i < arms.Length; i++)
-        {
-            float a = i * (2f * Mathf.PI / arms.Length);
-            Vector3 localGrip = meshBounds.center + new Vector3(Mathf.Cos(a) * meshBounds.extents.x,
-                0f, Mathf.Sin(a) * meshBounds.extents.z);
-            arms[i].rotation = gripRotation * arms[i].rotation;
-            arms[i].position += (halo.TransformPoint(localGrip) - palms[i].position) * grip;
-            if (handsLit)
-            {
-                gripProperties.SetVector(Palm, palms[i].position);
-                handMeshes[i].SetPropertyBlock(gripProperties);
-            }
-        }
-        if (!released) releaseRadius = (axisX.magnitude + axisZ.magnitude) * 0.5f;
-    }
-
-    private void SetHandsLit(bool lit)
-    {
-        if (handsLit == lit) return;
-        handsLit = lit;
-        for (int i = 0; i < handMeshes.Length; i++)
-        {
-            handMeshes[i].sharedMaterial = lit ? gripMaterial : handMaterials[i];
-            if (!lit) handMeshes[i].SetPropertyBlock(null);
-        }
+        return false;
     }
 
     public void Stop()
     {
-        RestorePose();
-        SetHandsLit(false);
-        if (wave != null) wave.enabled = false;
+        pose?.Stop();
+        view?.Hide();
+    }
+
+    public void Dispose()
+    {
+        Stop();
+        view?.Dispose();
     }
 }

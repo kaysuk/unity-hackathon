@@ -16,7 +16,7 @@ internal enum SoundCue
     CarpetStep1, CarpetStep2, CarpetStep3, CarpetStep4,
     WoodImpact, MetalImpact, EarthImpact, RuneDial, StoneLift, StoneWall, StoneTile,
     GateClose, DoorClose, Locked, Unlock, Crank, CabinetMove, AltarHit, AltarBreak,
-    InventoryBag, BookOpen, BookClose, AngelDispelled
+    InventoryBag, BookOpen, BookClose, AngelDispelled, HeadDash, LightSpear
 }
 
 internal sealed class GameAudio : MonoBehaviour
@@ -126,7 +126,10 @@ internal sealed class GameAudio : MonoBehaviour
         if (instance == null) Create();
         if (!instance.scoreHeld)
         {
-            foreach (var voice in instance.voices) voice.Stop();
+            // The last altar can finish the fight and open the ending comic in the same frame.
+            instance.clips.TryGetValue(SoundCue.AngelDispelled, out var dispel);
+            foreach (var voice in instance.voices)
+                if (voice.clip != dispel) voice.Stop();
             if (instance.heartbeat != null) instance.heartbeat.Stop();
         }
         instance.scoreHeld = true;

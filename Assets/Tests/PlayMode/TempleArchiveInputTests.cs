@@ -118,6 +118,51 @@ namespace Hackathon.Tests
         }
 
         [UnityTest]
+        public IEnumerator ReboundPageKeyTurnsThePausedJournalAndAppearsInItsHint()
+        {
+            var actor = SceneComponents().Single(c => c.GetType().Name == "PlayerInteractor");
+            var journalType = System.Type.GetType("TempleArchiveJournal, Assembly-CSharp", true);
+            var journal = (Component)journalType.GetMethod("GetOrCreate").Invoke(null, new object[] { actor.gameObject });
+            var right = InputSystem.actions.FindAction("Overlay/Right", true);
+            int index = right.bindings.IndexOf(b => b.path == "<Keyboard>/rightArrow");
+            Assert.That(index, Is.GreaterThanOrEqualTo(0));
+            var oldBinding = right.bindings[index];
+            using var keyboard = new BootstrapSceneTests.MovementKeyboard();
+            var read = journalType.GetMethod("ReadDocument");
+            var updatePage = journalType.GetMethod("UpdateOpenPage", BindingFlags.Instance | BindingFlags.NonPublic);
+            try
+            {
+                right.ApplyBindingOverride(index, "<Keyboard>/p");
+                read.Invoke(journal, new object[] { 1 });
+                string firstPage = Read<string>(journal, "VisibleDocumentText");
+                read.Invoke(journal, new object[] { 2 });
+                string secondPage = Read<string>(journal, "VisibleDocumentText");
+                Assert.That(firstPage, Is.Not.EqualTo(secondPage));
+                var hint = SceneComponents().Single(item => item.name == "Page controls" && item.GetType().Name == "Text");
+                Assert.That(Read<string>(hint, "text").ToUpperInvariant(), Does.Contain("P "));
+                Assert.That(Time.timeScale, Is.Zero);
+
+                // Batchmode may lack window focus. Exercise the same page polling as the open overlay.
+                keyboard.Press(Key.RightArrow);
+                InputSystem.Update();
+                updatePage.Invoke(journal, new object[] { false });
+                Assert.That(Read<string>(journal, "VisibleDocumentText"), Is.EqualTo(secondPage));
+                keyboard.Press(Key.P);
+                InputSystem.Update();
+                updatePage.Invoke(journal, new object[] { false });
+                Assert.That(Read<string>(journal, "VisibleDocumentText"), Is.EqualTo(firstPage));
+            }
+            finally
+            {
+                journalType.GetMethod("Close").Invoke(journal, null);
+                right.RemoveBindingOverride(index);
+                if (oldBinding.hasOverrides)
+                    right.ApplyBindingOverride(index, oldBinding);
+            }
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator WorkshopWheelsKeepTheSameSixRunesThroughAFullTurn()
         {
             var objects = SceneComponents();

@@ -15,6 +15,8 @@ public sealed class PistolCombat : MonoBehaviour
     [SerializeField, Min(0f)] private float recoilDegrees = 1.5f;
     [SerializeField, Range(0f, 20f)] private float armKickDegrees = 5f;
     [SerializeField, Min(0.01f)] private float armReturnTime = 0.12f;
+    private InputAction reload;
+    private InputAction attack;
     private PistolWeaponAimConstraint weaponAim;
     private float armRecoil;
     [SerializeField, Min(1)] private int magazineCapacity = 8;
@@ -56,6 +58,8 @@ public sealed class PistolCombat : MonoBehaviour
 
     private void Start()
     {
+        reload = InputSystem.actions?.FindAction("Player/Reload");
+        attack = InputSystem.actions?.FindAction("Player/Attack");
         movement = GetComponent<IvanMovement>();
         sidearm = GetComponent<IvanSidearm>();
         health = GetComponent<CombatHealth>();
@@ -160,11 +164,12 @@ public sealed class PistolCombat : MonoBehaviour
 
     public void EvaluateShotAfterPose()
     {
+        if (Time.timeScale <= 0f || ControlBindingsPanel.BlocksGameplay) return;
         bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
-        if (captured && Keyboard.current?.rKey.wasPressedThisFrame == true)
+        if (captured && reload?.WasPressedThisFrame() == true)
             TryStartReload();
         bool shooting = sidearm != null ? sidearm.ShotRequested :
-            captured && wasCaptured && Mouse.current?.leftButton.wasPressedThisFrame == true;
+            captured && wasCaptured && attack?.WasPressedThisFrame() == true;
         if (shooting && Time.timeScale > 0f && Ready && !IsReloading &&
             !CombatAnimation.BlocksAim(animator) && Time.time >= nextShot)
         {
