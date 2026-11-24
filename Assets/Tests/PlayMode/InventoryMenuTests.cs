@@ -109,6 +109,7 @@ namespace Hackathon.Tests
 
             foreach (var sheet in sheets.Skip(1).Take(4))
                 Call(sheet, "Interact", player);
+            StringAssert.StartsWith("Документы 7/7", (string)Call(sheets[0], "GetPrompt", player, "E"));
 
             Call(menu, "Open");
             Call(menu, "ChangeSection", 0);

@@ -60,7 +60,12 @@ public sealed class SceneTransitionDoor : Interactable
         Scene oldScene = gameObject.scene;
         StoryComics comics = GameCheckpoint.Comics;
         bool ritual = nextScene == "Temple_Final_Room" && comics != null;
-        if (ritual) yield return comics.Play(30, 33);
+        if (ritual)
+        {
+            bool hasAllDocuments = ivan.TryGetComponent(out TempleArchiveJournal journal) &&
+                journal.DocumentCount == TempleArchiveJournal.DocumentTotal;
+            yield return comics.Play(30, 33, hasAllDocuments: hasAllDocuments);
+        }
         yield return SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Additive);
 
         Scene newScene = SceneManager.GetSceneByName(nextScene);

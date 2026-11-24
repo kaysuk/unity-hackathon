@@ -139,8 +139,10 @@ namespace Hackathon.Tests
         {
             bool spared = ending == "bad";
             bool truth = ending != "good";
-            PlayerPrefs.SetString(Key, "{\"version\":1,\"scene\":\"Temple_Final_Room\",\"position\":{\"z\":-12}," +
-                "\"rotation\":{\"w\":1},\"archiveDocuments\":" + (truth ? 63 : 0) +
+            const int roomDocumentMask = (1 << 6) - 1;
+            const int allDocumentMask = (1 << 7) - 1;
+            PlayerPrefs.SetString(Key, "{\"version\":2,\"scene\":\"Temple_Final_Room\",\"position\":{\"z\":-12}," +
+                "\"rotation\":{\"w\":1},\"archiveDocuments\":" + (truth ? allDocumentMask : roomDocumentMask) +
                 ",\"fullFamilyTruth\":" + (truth ? "true" : "false") + ",\"dmitrySpared\":" + (spared ? "true" : "false") + "}");
             Assert.That(Checkpoint.GetMethod("ContinueGame").Invoke(null, null), Is.EqualTo(true));
             yield return At("Temple_Final_Room", "boss_fight");

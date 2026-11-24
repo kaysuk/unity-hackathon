@@ -1021,7 +1021,7 @@ namespace Hackathon.Tests
                 Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain("Прочитать"));
                 read.Invoke(sheet, new object[] { player });
                 read.Invoke(sheet, new object[] { player });
-                Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain($"{++count}/6"));
+                Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain($"{++count}/7"));
             }
             ReadOnce(document);
             // Rooms can be searched in any order, including while the library is closed.
@@ -1039,7 +1039,7 @@ namespace Hackathon.Tests
                 ReadOnce(sheet);
             }
             Assert.That((string)prompt.Invoke(document, new object[] { player, "E" }),
-                Does.Contain("6/6").And.Contain("по порядку комнат"));
+                Does.Contain("6/7").And.Contain("по порядку комнат"));
         }
 
         [UnityTest]

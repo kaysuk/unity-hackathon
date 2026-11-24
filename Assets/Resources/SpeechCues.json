@@ -358,6 +358,18 @@
       "key": "page.31",
       "lines": [
         {
+          "path": "speech/cut-scenes/09-transformation/OI.52.priests_fall_alyosha",
+          "end": 6.726521
+        },
+        {
+          "path": "speech/cut-scenes/09-transformation/OI.53.stay_away_from_the_child"
+        }
+      ]
+    },
+    {
+      "key": "page.31_archive_complete",
+      "lines": [
+        {
           "path": "speech/cut-scenes/09-transformation/OI.52.priests_fall_alyosha"
         },
         {

@@ -27,7 +27,7 @@ namespace Hackathon.Tests
                 if (Object.FindAnyObjectByType<AudioListener>() == null)
                     listener = new GameObject("Office speech test listener", typeof(AudioListener));
 
-                playback = comics.StartCoroutine((IEnumerator)play.Invoke(comics, new object[] { 21, 22, null }));
+                playback = comics.StartCoroutine((IEnumerator)play.Invoke(comics, new object[] { 21, 22, null, false }));
                 yield return ExpectLine(voice, 21, "OI.27.ask_about_raid");
                 SeekToLastMoment(voice);
                 yield return ExpectLine(voice, 21, "ON.01.phone_identify_colleague");

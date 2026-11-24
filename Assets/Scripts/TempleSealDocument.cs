@@ -36,7 +36,10 @@ public sealed class TempleSealDocument : Interactable
         var inventory = player.Inventory;
         if (inventory == null) return null;
         if (inventory.HasCollected(DocumentId))
-            return $"Документы {CountCollected(inventory)}/{Notes.Length} · {Notes[number - 1].Clue}";
+        {
+            int found = player.TryGetComponent(out TempleArchiveJournal journal) ? journal.DocumentCount : CountCollected(inventory);
+            return $"Документы {found}/{TempleArchiveJournal.DocumentTotal} · {Notes[number - 1].Clue}";
+        }
         return string.IsNullOrEmpty(buttonPrompt) ? null : $"{buttonPrompt} · Прочитать «{TempleArchiveText.Titles[number - 1]}»";
     }
 

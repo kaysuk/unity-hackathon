@@ -10,7 +10,7 @@ public sealed class StoryComics : MonoBehaviour
     private GameObject canvas;
     private RawImage picture;
     private Text controls;
-    private Text spare, kill;
+    private Text kill, spare;
     private float previousScale;
     private CursorLockMode previousLock;
     private bool previousCursor;
@@ -24,7 +24,7 @@ public sealed class StoryComics : MonoBehaviour
 
     public static string Ending(bool spared, bool fullTruth) => spared ? "bad" : fullTruth ? "best" : "good";
 
-    internal IEnumerator Play(int first, int last, string ending = null)
+    internal IEnumerator Play(int first, int last, string ending = null, bool hasAllDocuments = false)
     {
         if (canvas == null) Build();
         if (!Visible)
@@ -58,7 +58,8 @@ public sealed class StoryComics : MonoBehaviour
                 page <= 19 ? "comics/comics15-19" : page <= 29 ? "comics/comics20-29" :
                 page <= 33 ? "ambience/boss_fight" : "comics/comics34-38_" + ending;
             GameAudio.HoldScore("sounds/" + cue);
-            bool voiced = StorySpeech.Page(page, suffix);
+            string speechSuffix = page == 31 && hasAllDocuments ? "_archive_complete" : suffix;
+            bool voiced = StorySpeech.Page(page, speechSuffix);
             float elapsed = 0f;
             do
             {
@@ -86,16 +87,33 @@ public sealed class StoryComics : MonoBehaviour
         bool click = mouse?.leftButton.wasPressedThisFrame == true;
         if (Page == 28)
         {
-            Vector2 pointer = click ? mouse.position.ReadValue() : default;
-            if (keys?.digit1Key.wasPressedThisFrame == true || pad?.buttonWest.wasPressedThisFrame == true ||
-                click && RectTransformUtility.RectangleContainsScreenPoint(spare.rectTransform, pointer))
-                ChooseDmitry(true);
-            if (keys?.digit2Key.wasPressedThisFrame == true || pad?.buttonEast.wasPressedThisFrame == true ||
-                click && RectTransformUtility.RectangleContainsScreenPoint(kill.rectTransform, pointer))
-                ChooseDmitry(false);
+            if (keys?.digit1Key.wasPressedThisFrame == true || pad?.buttonWest.wasPressedThisFrame == true)
+                ChooseDmitry(spareHim: false);
+            else if (keys?.digit2Key.wasPressedThisFrame == true || pad?.buttonEast.wasPressedThisFrame == true)
+                ChooseDmitry(spareHim: true);
+            else if (click)
+                ChooseAt(mouse.position.ReadValue());
         }
         else if (click || keys?.spaceKey.wasPressedThisFrame == true || keys?.enterKey.wasPressedThisFrame == true ||
             pad?.buttonSouth.wasPressedThisFrame == true) NextPage();
+    }
+
+    private void ChooseAt(Vector2 point)
+    {
+        if (RectTransformUtility.RectangleContainsScreenPoint(kill.rectTransform, point))
+            ChooseDmitry(spareHim: false);
+        else if (RectTransformUtility.RectangleContainsScreenPoint(spare.rectTransform, point))
+            ChooseDmitry(spareHim: true);
+        else
+        {
+            var art = picture.rectTransform;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(art, point, null, out var local) ||
+                !art.rect.Contains(local)) return;
+
+            // The two printed captions occupy the bottom strip of the fitted page 28 illustration.
+            Vector2 uv = Rect.PointToNormalized(art.rect, local);
+            if (uv.y <= 0.12f) ChooseDmitry(spareHim: uv.x >= 0.5f);
+        }
     }
 
     internal void Close()
@@ -140,8 +158,8 @@ public sealed class StoryComics : MonoBehaviour
         picture.raycastTarget = false;
         picture.GetComponent<AspectRatioFitter>().aspectMode = AspectRatioFitter.AspectMode.FitInParent;
         controls = Label("Управление", 0.37f, 0.63f);
-        spare = Label("1 / X   Оставить в живых", 0f, 0.37f);
-        kill = Label("2 / B   Убить", 0.63f, 1f);
+        kill = Label("1 / X   Убить Дмитрия", 0f, 0.37f);
+        spare = Label("2 / B   Оставить в живых", 0.63f, 1f);
     }
 
     private Text Label(string value, float left, float right)
