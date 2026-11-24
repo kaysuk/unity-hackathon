@@ -6,6 +6,7 @@ using UnityEngine.UI;
 // One overlay survives the handoff between scenes so the last page stays on screen during loading.
 public sealed class StoryComics : MonoBehaviour
 {
+    internal const int FinisherPage = 33;
     [SerializeField, Min(0.1f)] private float secondsPerPage = 7f;
     private GameObject canvas;
     private RawImage picture;
@@ -23,6 +24,9 @@ public sealed class StoryComics : MonoBehaviour
     public bool DmitrySpared { get; set; }
 
     public static string Ending(bool spared, bool fullTruth) => spared ? "bad" : fullTruth ? "best" : "good";
+
+    internal IEnumerator PlayRitualEntrance(bool hasAllDocuments) =>
+        Play(30, FinisherPage - 1, hasAllDocuments: hasAllDocuments);
 
     internal IEnumerator Play(int first, int last, string ending = null, bool hasAllDocuments = false)
     {

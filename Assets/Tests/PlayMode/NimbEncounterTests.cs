@@ -820,6 +820,8 @@ namespace Hackathon.Tests
             Component comic = encounter.GetComponent("NimbVictoryComic");
             Assert.That(comic, Is.Not.Null);
             Assert.That(Get<bool>(comic, "IsOpen"), Is.True);
+            var victoryPage = GameObject.Find("Nimb victory comic").GetComponentInChildren<UnityEngine.UI.RawImage>();
+            Assert.That(victoryPage.texture.name, Is.EqualTo("33"));
             Assert.That(Time.timeScale, Is.Zero);
             Assert.That(VisibleThreads(), Is.Empty);
             ExpireRuneTimer();

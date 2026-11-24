@@ -51,9 +51,10 @@ namespace Hackathon.Tests
             Call(menu, "Open");
             Assert.AreEqual("Рунный камень 2", Label("Name"));
             Assert.AreEqual("1 из 3", Label("Position"));
+            Assert.AreEqual("Плоский камень с резным знаком на лицевой стороне.", Label("Description"));
             Call(menu, "MoveSelection", 1);
             Assert.AreEqual("Левый ключ М0", Label("Name"));
-            StringAssert.Contains("левое гнездо", Label("Description"));
+            Assert.AreEqual("Железная рукоять со штампованным клеймом.", Label("Description"));
             Call(menu, "MoveSelection", 1);
             Assert.AreEqual("Правый ключ М0", Label("Name"));
             Call(menu, "Close");
@@ -76,10 +77,14 @@ namespace Hackathon.Tests
             var register = Components("TempleArchiveDocument").Single();
             Assert.AreEqual(7, Property(register, "DocumentNumber"));
             Call(sheets[0], "Interact", player);
-            Call(sheets[5], "Interact", player);
-            Call(register, "Interact", player);
             var journal = player.GetComponent("TempleArchiveJournal");
             string PageText() => (string)Property(journal, "VisibleDocumentText");
+            Assert.AreEqual(Resources.Load<TextAsset>("TempleArchive/D01").text, PageText());
+            Call(journal, "Close");
+            Call(sheets[5], "Interact", player);
+            Assert.AreEqual(Resources.Load<TextAsset>("TempleArchive/D06").text, PageText());
+            Call(journal, "Close");
+            Call(register, "Interact", player);
             StringAssert.Contains("Архивный код", PageText());
             StringAssert.DoesNotContain("Алексей Карамазов", PageText());
             Call(journal, "Close");
@@ -87,7 +92,7 @@ namespace Hackathon.Tests
             Call(menu, "Open");
             Call(menu, "ChangeSection", -1);
             Assert.AreEqual("Иерархия Шести", Label("Name"));
-            StringAssert.Contains("по порядку комнат", Label("Description"));
+            Assert.AreEqual("Лист с уставом братства.", Label("Description"));
             Call(menu, "ReadSelected");
             StringAssert.Contains("Внутренний устав культа", PageText());
             Assert.AreEqual(3, Property(journal, "DocumentCount"));
@@ -96,7 +101,7 @@ namespace Hackathon.Tests
             Assert.AreEqual(0f, Time.timeScale);
             Call(menu, "MoveSelection", 1);
             Assert.AreEqual("Подготовка вместилища", Label("Name"));
-            StringAssert.Contains("Шестая луна одинока.", Label("Description"));
+            Assert.AreEqual("Страница из медицинского журнала.", Label("Description"));
             Call(menu, "ReadSelected");
             StringAssert.Contains("Медицинский журнал программы", PageText());
             Call(journal, "Close");
@@ -108,8 +113,12 @@ namespace Hackathon.Tests
             Call(menu, "Close");
 
             foreach (var sheet in sheets.Skip(1).Take(4))
+            {
                 Call(sheet, "Interact", player);
-            StringAssert.StartsWith("Документы 7/7", (string)Call(sheets[0], "GetPrompt", player, "E"));
+                Assert.That(PageText(), Is.Not.Empty);
+                Call(journal, "Close");
+            }
+            Assert.AreEqual(7, Property(journal, "DocumentCount"));
 
             Call(menu, "Open");
             Call(menu, "ChangeSection", 0);
@@ -133,6 +142,28 @@ namespace Hackathon.Tests
             }
             Assert.AreEqual(7, Property(journal, "DocumentCount"));
             Assert.IsTrue((bool)Property(journal, "FullFamilyTruth"));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator FoldedPapersOpenAtPickupAndCanBeReadDuringInventoryReview()
+        {
+            var bundle = Components("ItemPickup").Single(p => (string)Property(p, "ItemId") == "archive_documents");
+            Call(bundle, "Interact", player);
+            var journal = player.GetComponent("TempleArchiveJournal");
+            var text = Resources.Load<TextAsset>("TempleArchive/ServiceOrder").text;
+            Assert.AreEqual(text, Property(journal, "VisibleDocumentText"));
+            Assert.AreEqual(0, Property(journal, "DocumentCount"));
+            Assert.IsTrue((bool)Call(inventory, "HasItem", "archive_documents"));
+            Call(journal, "Close");
+
+            Call(menu, "Open");
+            Call(menu, "ChangeSection", -1);
+            Call(menu, "ReadSelected");
+            Assert.AreEqual(text, Property(journal, "VisibleDocumentText"));
+            Call(journal, "Close");
+            Assert.IsTrue((bool)Property(menu, "IsOpen"));
+            Call(menu, "Close");
             yield return null;
         }
 

@@ -55,6 +55,29 @@ namespace Hackathon.Tests
                 yield return SceneManager.UnloadSceneAsync(scene);
         }
 
+        [Test]
+        public void GrasslandDrawsAndSupportsTheGroundAroundTheChurch()
+        {
+            var terrain = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<Terrain>())
+                .Single();
+            Assert.That(terrain.isActiveAndEnabled && terrain.drawHeightmap, Is.True);
+            Assert.That(terrain.terrainData, Is.Not.Null);
+
+            var ground = terrain.GetComponent<TerrainCollider>();
+            Assert.That(ground, Is.Not.Null);
+            Assert.That(ground.enabled, Is.True);
+            Assert.That(ground.terrainData, Is.EqualTo(terrain.terrainData));
+            foreach (var point in new[] { new Vector3(-50f, 0f, 0f), new Vector3(50f, 0f, 0f),
+                                          new Vector3(0f, 0f, -60f), new Vector3(0f, 0f, 60f) })
+            {
+                float surface = terrain.transform.position.y + terrain.SampleHeight(point);
+                var ray = new Ray(new Vector3(point.x, surface + 2f, point.z), Vector3.down);
+                Assert.That(ground.Raycast(ray, out var hit, 4f), Is.True, $"Missing ground at {point}");
+                Assert.That(hit.point.y, Is.EqualTo(surface).Within(0.1f));
+            }
+        }
+
         [UnityTest]
         public IEnumerator StreetAndReturningThroughGateDoNotAlertTheDetail()
         {

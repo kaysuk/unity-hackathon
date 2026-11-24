@@ -42,7 +42,16 @@ public sealed class IvanOrbitCamera : MonoBehaviour
     private InputAction aimInput;
     private bool mouseCaptured;
     private float yaw;
-    private float pitch = 6f;
+    private const float EntryPitch = 6f;
+    private float pitch = EntryPitch;
+
+    internal void AlignWithTarget()
+    {
+        if (target == null) return;
+        yaw = target.eulerAngles.y;
+        pitch = EntryPitch;
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+    }
 
     internal void AddRecoil(float degrees)
     {
@@ -56,7 +65,7 @@ public sealed class IvanOrbitCamera : MonoBehaviour
         baseFieldOfView = view.fieldOfView;
         if (target != null)
         {
-            yaw = target.eulerAngles.y;
+            AlignWithTarget();
             sidearm = target.GetComponent<IvanSidearm>();
             stealth = target.GetComponent<IvanStealth>();
         }

@@ -13,12 +13,14 @@ public sealed class GameCheckpoint : MonoBehaviour
     private const string EntranceScene = "temple_v2";
     private const string RitualScene = NimbEncounter.ArenaScene;
     private const string SaveKey = "Karamazovy.StoryCheckpoint";
-    private const int SaveVersion = 2;
+    private const int SaveVersion = 3;
 
     [Serializable]
     private sealed class Snapshot
     {
         public int version = SaveVersion;
+        public int comicPage;
+        public bool standaloneArena;
         public string scene;
         public Vector3 position;
         public Quaternion rotation;
@@ -43,6 +45,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     private CombatHealth health;
     private Snapshot currentCheckpoint;
     private Scene boundScene;
+    private Scene checkpointScene;
     private bool storyRun;
     private bool loading;
     private bool retrying;
@@ -106,8 +109,23 @@ public sealed class GameCheckpoint : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (mode == LoadSceneMode.Single)
-            BindScene(scene);
+        if (mode != LoadSceneMode.Single) return;
+        BindScene(scene);
+        if (loading || !IsStoryScene(scene.name)) return;
+
+        // A level opened directly in the Editor is also a playable entry point.
+        // Interiors borrow their player and camera from the street scene.
+        if (player == null && (scene.name == Church || scene.name == FirstTemple))
+        {
+            StartCoroutine(LoadStory(null, scene.name));
+            return;
+        }
+
+        if (player == null) return;
+        storyRun = scene.name != RitualScene;
+        returnedToChurch = scene.name == Street;
+        comics.DmitrySpared = false;
+        FinishEntry(null);
     }
 
     private void OnActiveSceneChanged(Scene previous, Scene next) => BindScene(next);
@@ -126,7 +144,7 @@ public sealed class GameCheckpoint : MonoBehaviour
             hud.SetLoading(false);
         }
         boundScene = scene;
-        if (scene.name == "MainMenu" && !loading) storyRun = false;
+        if (!loading && !IsStoryScene(scene.name)) storyRun = false;
         GameObjectives.ConfigureScene(scene.name);
         BindPlayer(FindPlayer(scene));
         if (scene.name == RitualScene && player != null)
@@ -189,6 +207,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         loading = true;
         hud.SetLoading(true);
         string path = arena.path;
+        bool hasStandaloneCheckpoint = checkpointScene == arena && currentCheckpoint?.standaloneArena == true;
         if (SceneManager.sceneCount == 1)
             yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Single);
         else
@@ -197,6 +216,11 @@ public sealed class GameCheckpoint : MonoBehaviour
             yield return SceneManager.UnloadSceneAsync(arena);
             yield return SceneManager.LoadSceneAsync(path, LoadSceneMode.Additive);
             SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+        }
+        if (hasStandaloneCheckpoint && player != null)
+        {
+            ApplySave(currentCheckpoint, player);
+            checkpointScene = boundScene;
         }
         loading = false;
         hud.SetLoading(false);
@@ -212,25 +236,41 @@ public sealed class GameCheckpoint : MonoBehaviour
         return true;
     }
 
-    private IEnumerator LoadStory(Snapshot save)
+    private IEnumerator LoadStory(Snapshot save, string directScene = null)
     {
         loading = true;
         hud.SetLoading(true);
-        storyRun = true;
+        storyRun = save?.standaloneArena != true;
         returnedToChurch = save?.returnedToChurch ?? false;
         comics.DmitrySpared = save?.dmitrySpared ?? false;
-        if (save == null) yield return comics.Play(5, 14);
-        string destination = save?.scene ?? Church;
+        string destination = save?.scene ?? directScene ?? Church;
+        bool enteringFromOffice = destination == Street && save != null && save.comicPage != 0;
+        if ((save == null && directScene == null) || save?.comicPage == 5)
+        {
+            StoreCheckpoint(new Snapshot { scene = Church, comicPage = 5 });
+            yield return comics.Play(5, 14);
+            save = null;
+        }
+        else if (enteringFromOffice)
+            yield return PlayOfficeSequence(save);
+        else if (save?.comicPage == 30)
+        {
+            int allDocuments = (1 << TempleArchiveJournal.DocumentTotal) - 1;
+            yield return comics.PlayRitualEntrance(save.archiveDocuments == allDocuments);
+        }
         // The church interior and first temple use the street actor and camera.
         // A ritual checkpoint uses the archive actor with the complete interaction rig.
-        string carrier = destination == RitualScene ? EntranceScene :
+        string carrier = destination == RitualScene && storyRun ? EntranceScene :
             destination == Church || destination == FirstTemple ? Street : destination;
         // Restoring the ritual actor briefly loads the archive. Keep the boss score through that handoff.
         if (destination == RitualScene) GameAudio.HoldScore(GameAudio.BossTrack);
         yield return SceneManager.LoadSceneAsync(carrier, LoadSceneMode.Single);
         if (carrier != destination)
-            yield return MoveTo(destination, save?.position ?? new Vector3(0f, 0.1f, -13f));
-        FinishEntry(save);
+        {
+            Vector3 entry = destination == FirstTemple ? new Vector3(0f, 4.4f, 0f) : new Vector3(0f, 0.1f, -13f);
+            yield return MoveTo(destination, save?.position ?? entry);
+        }
+        FinishEntry(save, enteringFromOffice);
         if (destination == RitualScene) GameAudio.ReleaseScore();
     }
 
@@ -248,7 +288,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         yield return SceneManager.UnloadSceneAsync(previous);
     }
 
-    private void FinishEntry(Snapshot save)
+    private void FinishEntry(Snapshot save, bool useLevelSpawn = false)
     {
         string scene = SceneManager.GetActiveScene().name;
         if (scene == Street)
@@ -276,11 +316,23 @@ public sealed class GameCheckpoint : MonoBehaviour
 
         if (player != null)
         {
-            if (save != null) ApplySave(save, player);
+            if (save != null)
+            {
+                if (useLevelSpawn)
+                {
+                    // A scene with its own Ivan supplies the new pose and objective.
+                    // Carry equipment and health across the handoff.
+                    save.position = player.transform.position;
+                    save.rotation = player.transform.rotation;
+                    save.objectives = GameObjectives.Capture();
+                }
+                ApplySave(save, player);
+            }
             else if (scene == EntranceScene && player.TryGetComponent(out PistolCombat pistol))
                 pistol.RestoreAmmo(12, 24, 12);
-            if (save == null) SaveEntry(scene);
+            if (save == null || useLevelSpawn || save.comicPage != 0) SaveEntry(scene);
             else currentCheckpoint = save;
+            checkpointScene = boundScene;
         }
         comics.Close();
         loading = false;
@@ -304,6 +356,7 @@ public sealed class GameCheckpoint : MonoBehaviour
     {
         loading = true;
         hud.SetLoading(true);
+        Snapshot arrival = null;
         switch (passage)
         {
             case StoryWaypoint.Passage.FrontDoor:
@@ -316,18 +369,43 @@ public sealed class GameCheckpoint : MonoBehaviour
                 StorySpeech.Say("key_fits");
                 StorySpeech.Say("lower_door_opened");
                 while (StorySpeech.Busy) yield return null;
+                arrival = CaptureEntry(EntranceScene);
                 yield return SceneManager.LoadSceneAsync(EntranceScene);
                 break;
             case StoryWaypoint.Passage.Basement:
             case StoryWaypoint.Passage.FirstAltar: // Also supports checkpoints from the earlier first-temple route.
                 StorySpeech.Say("first_descent");
                 while (StorySpeech.Busy) yield return null;
-                yield return comics.Play(15, 29);
-                returnedToChurch = true;
+                arrival = CaptureEntry(Street);
+                arrival.comicPage = 15;
+                yield return PlayOfficeSequence(arrival);
                 yield return SceneManager.LoadSceneAsync(Street);
                 break;
         }
-        FinishEntry(null);
+        FinishEntry(arrival, useLevelSpawn: arrival != null);
+    }
+
+    private IEnumerator PlayOfficeSequence(Snapshot arrival)
+    {
+        // A saved choice resumes on page 28; once made it resumes on the matching page 29.
+        int firstPage = arrival.comicPage;
+        arrival.returnedToChurch = true;
+        foreach (int page in new[] { 15, 20, 28, 29 })
+        {
+            if (page < firstPage) continue;
+            arrival.comicPage = page;
+            arrival.dmitrySpared = comics.DmitrySpared;
+            if (page == 29)
+            {
+                arrival.hasPistol = true;
+                arrival.magazineCapacity = arrival.magazine = 12;
+                arrival.reserve = 24;
+            }
+            StoreCheckpoint(arrival);
+            int last = page switch { 15 => 19, 20 => 27, _ => page };
+            yield return comics.Play(page, last);
+        }
+        returnedToChurch = true;
     }
 
     internal static bool TryFinishRitual(Scene arena)
@@ -346,7 +424,7 @@ public sealed class GameCheckpoint : MonoBehaviour
         hud.SetLoading(true);
         while (StorySpeech.Busy) yield return null;
         bool truth = player.TryGetComponent(out TempleArchiveJournal journal) && journal.FullFamilyTruth;
-        yield return comics.Play(34, 38, StoryComics.Ending(comics.DmitrySpared, truth));
+        yield return comics.Play(StoryComics.FinisherPage, 38, StoryComics.Ending(comics.DmitrySpared, truth));
         storyRun = false;
         currentCheckpoint = null;
         pendingEnding = null;
@@ -360,11 +438,15 @@ public sealed class GameCheckpoint : MonoBehaviour
 
     private static void ApplySave(Snapshot save, GameObject actor)
     {
-        var controller = actor.GetComponent<CharacterController>();
-        bool controllerWasEnabled = controller != null && controller.enabled;
-        if (controllerWasEnabled) controller.enabled = false;
-        actor.transform.SetPositionAndRotation(save.position, save.rotation);
-        if (controllerWasEnabled) controller.enabled = true;
+        // Arena checkpoints restart the fight at its authored entrance, including older saves.
+        if (save.scene != RitualScene)
+        {
+            var controller = actor.GetComponent<CharacterController>();
+            bool controllerWasEnabled = controller != null && controller.enabled;
+            if (controllerWasEnabled) controller.enabled = false;
+            actor.transform.SetPositionAndRotation(save.position, save.rotation);
+            if (controllerWasEnabled) controller.enabled = true;
+        }
 
         if (save.hasHealth && actor.TryGetComponent(out CombatHealth hitPoints))
             hitPoints.RestoreHP(save.hp);
@@ -397,11 +479,25 @@ public sealed class GameCheckpoint : MonoBehaviour
             GameObjectives.Restore(objectives);
     }
 
-    private void SaveEntry(string scene)
+    internal static void SaveRitualEntrance(GameObject actor, Vector3 arrival)
+    {
+        if (instance == null || !instance.storyRun || instance.player != actor ||
+            instance.boundScene.name != EntranceScene || instance.loading) return;
+
+        var save = instance.CaptureEntry(RitualScene);
+        save.position = arrival;
+        save.comicPage = 30;
+        instance.StoreCheckpoint(save);
+    }
+
+    private void SaveEntry(string scene) => StoreCheckpoint(CaptureEntry(scene));
+
+    private Snapshot CaptureEntry(string scene)
     {
         var save = new Snapshot
         {
             scene = scene,
+            standaloneArena = scene == RitualScene && !storyRun,
             returnedToChurch = returnedToChurch,
             dmitrySpared = comics.DmitrySpared,
             position = player.transform.position,
@@ -428,7 +524,13 @@ public sealed class GameCheckpoint : MonoBehaviour
             save.magazine = pistol.Ammo;
             save.reserve = pistol.ReserveAmmo;
         }
+        return save;
+    }
+
+    private void StoreCheckpoint(Snapshot save)
+    {
         currentCheckpoint = save;
+        checkpointScene = boundScene;
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(save));
         PlayerPrefs.Save();
     }
@@ -454,16 +556,16 @@ public sealed class GameCheckpoint : MonoBehaviour
 
     private void OnPlayerDeath()
     {
-        if (storyRun && currentCheckpoint != null && !loading && !retrying)
-            StartCoroutine(Retry());
+        if (checkpointScene == boundScene && currentCheckpoint != null && !loading && !retrying)
+            StartCoroutine(Retry(health));
     }
 
-    private IEnumerator Retry()
+    private IEnumerator Retry(CombatHealth deadPlayer)
     {
         retrying = true;
         yield return new WaitForSecondsRealtime(2f);
-        if (health != null && health.IsDead)
-            TryLoad(currentCheckpoint);
+        if (deadPlayer != null && health == deadPlayer && deadPlayer.IsDead)
+            ContinueGame();
         retrying = false;
     }
 

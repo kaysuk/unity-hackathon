@@ -140,7 +140,7 @@ namespace Hackathon.Menu
             continueGame = Instantiate(newGame, newGame.transform.parent, false);
             continueGame.gameObject.name = "Continue";
             continueGame.transform.SetSiblingIndex(newGame.transform.GetSiblingIndex());
-            continueGame.GetComponentInChildren<Text>().text = "Продолжить";
+            continueGame.GetComponentInChildren<Text>().text = "Продолжить игру";
         }
 
         private void CreateControlsButton()

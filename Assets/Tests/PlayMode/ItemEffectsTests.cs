@@ -67,8 +67,10 @@ namespace Hackathon.Tests
             var player = Components("PlayerInteractor").Single();
             var note = Components("TempleSealDocument").OrderBy(item => item.name).First();
             Call(note, "Interact", player);
-            Expect("Paper");
+            Expect("BookOpen");
             var journal = player.GetComponent("TempleArchiveJournal");
+            Call(journal, "Close");
+            Expect("BookClose");
             var menu = player.GetComponent("InventoryMenu");
 
             Call(menu, "Open");

@@ -381,6 +381,9 @@ namespace Hackathon.Tests
                     b.effectivePath == "<Keyboard>/e"), Is.True);
                 document.GetType().GetMethod("Interact").Invoke(document, new object[] { player });
                 Assert.IsFalse(document.gameObject.activeSelf);
+                var journal = player.GetComponent("TempleArchiveJournal");
+                Assert.That(journal.GetType().GetProperty("IsOpen").GetValue(journal), Is.EqualTo(true));
+                journal.GetType().GetMethod("Close").Invoke(journal, null);
                 var inventory = player.GetComponent("PlayerInventory");
                 var collect = inventory.GetType().GetMethod("TryCollect");
                 collect.Invoke(inventory, new object[] { "m0_key_room3" });

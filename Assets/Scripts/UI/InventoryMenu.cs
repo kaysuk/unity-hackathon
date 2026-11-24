@@ -9,6 +9,17 @@ public sealed class InventoryMenu : PausedGameOverlay
     private enum Section { Items, Notes }
     private const int VisibleRows = 6;
     private static readonly string[] SectionNames = { "Вещи", "Записки" };
+    private static readonly string[] NoteDescriptions =
+    {
+        "Лист с уставом братства.",
+        "Отчёт о поставках.",
+        "Лабораторный протокол.",
+        "Перевод надписи с алтарного камня.",
+        "Лист из личного дела Софьи.",
+        "Страница из медицинского журнала.",
+        "Закрытый экземпляр архивного реестра."
+    };
+
     [SerializeField] private Mesh stoneMesh;
     [SerializeField] private Material stoneEdge;
     [SerializeField] private Material[] stoneFaces;
@@ -131,10 +142,10 @@ public sealed class InventoryMenu : PausedGameOverlay
             case Section.Items:
                 for (int i = 0; i < TempleRunePuzzle.RuneIds.Length; i++)
                     if (inventory.HasItem(TempleRunePuzzle.RuneIds[i]))
-                        entries.Add(($"Рунный камень {i + 1}", $"Камень из комнаты {i + 1}. На лицевой стороне вырезан знак. Камень подходит к гнёздам на плитах в мастерской.", null, i));
-                AddHeld("m0_key_room3", "Левый ключ М0", "Ключ из третьей комнаты. Вставляется в левое гнездо главной решётки. Механизму нужны обе рукояти.");
-                AddHeld("m0_key_room4", "Правый ключ М0", "Ключ из четвёртой комнаты. Вставляется в правое гнездо главной решётки и работает в паре с левым.");
-                AddHeld("temple_m3_key", "Латунный ключ М3", "Небольшой латунный ключ. Открывает замок на ставне М3.");
+                        entries.Add(($"Рунный камень {i + 1}", "Плоский камень с резным знаком на лицевой стороне.", null, i));
+                AddHeld("m0_key_room3", "Левый ключ М0", "Железная рукоять со штампованным клеймом.");
+                AddHeld("m0_key_room4", "Правый ключ М0", "На железной рукояти выбито клеймо.");
+                AddHeld("temple_m3_key", "Латунный ключ М3", "Латунный ключ с гранёным ушком и зубчатой бородкой.");
                 break;
             case Section.Notes:
                 AddNotes();
@@ -154,14 +165,14 @@ public sealed class InventoryMenu : PausedGameOverlay
         TryGetComponent(out TempleArchiveJournal journal);
         for (int page = 1; page <= TempleArchiveJournal.DocumentTotal; page++)
         {
-            bool hasClue = page <= TempleSealDocument.Notes.Length && TempleSealDocument.HasCollectedPage(inventory, page);
-            if (!hasClue && (journal == null || !journal.HasDocument(page))) continue;
-            string preview = hasClue ? TempleSealDocument.Notes[page - 1].Clue : "Документ из храмового архива.";
-            entries.Add((TempleArchiveText.Titles[page - 1], preview, page, -1));
+            bool found = page <= TempleSealDocument.RoomNoteCount && TempleSealDocument.HasCollectedPage(inventory, page);
+            if (!found && (journal == null || !journal.HasDocument(page))) continue;
+            entries.Add((TempleArchiveText.Titles[page - 1], NoteDescriptions[page - 1], page, -1));
         }
-        AddHeld("archive_documents", "Свёрток документов", "Сложенные архивные листы, перевязанные льняной лентой.");
+        if (inventory.HasItem("archive_documents"))
+            entries.Add(("Свёрток документов", "Сложенные листы, перевязанные льняной лентой.", TempleArchiveJournal.BundlePage, -1));
         if (journal != null && !string.IsNullOrEmpty(journal.SealCalculation))
-            entries.Add(("Расчёт шести печатей", "Запись о том, как рычаги в архиве связаны с печатями.", TempleArchiveJournal.CalculationPage, -1));
+            entries.Add(("Расчёт шести печатей", "Лист с шестью строками расчётов.", TempleArchiveJournal.CalculationPage, -1));
     }
 
     public void MoveSelection(int offset)

@@ -32,6 +32,8 @@ namespace Hackathon.Tests
             var sheets = objects.Where(c => c.GetType().Name == "TempleSealDocument").OrderBy(c => c.name).ToArray();
             Assert.AreEqual(6, sheets.Length);
             door = objects.Single(c => c.GetType().Name == "SceneTransitionDoor");
+            var barrier = (Component)door.GetType().GetField("entranceBarrier", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(door);
+            Call(barrier, "SetOpen", true, true);
 
             // Read D07 first. Possessing the hidden register alone must not reveal the name.
             Call(register, "Interact", player);
@@ -39,7 +41,10 @@ namespace Hackathon.Tests
             Assert.That((bool)Call(journal, "HasDocument", 7), Is.True);
             Call(journal, "Close");
             foreach (var sheet in sheets.Take(documentCount - 1))
+            {
                 Call(sheet, "Interact", player);
+                Call(journal, "Close");
+            }
             Assert.That(journal.GetType().GetProperty("DocumentCount").GetValue(journal), Is.EqualTo(documentCount));
 
             Call(door, "Interact", player);
@@ -72,10 +77,14 @@ namespace Hackathon.Tests
             Call(StoryPlaybackTests.Comics, "NextPage");
             yield return StoryPlaybackTests.WaitFor(() => StoryPlaybackTests.Page == 32);
             Assert.That(voice.clip?.name, Is.EqualTo("OI.54.priest_turns_into_boss"));
+            voice.timeSamples = voice.clip.samples - voice.clip.frequency / 10;
+            yield return StoryPlaybackTests.WaitFor(() => voice.clip?.name == "OI.55.columns_hold_the_boss_take_1");
             yield return StoryPlaybackTests.ReadPage(32, "32", "boss_fight");
-            yield return StoryPlaybackTests.ReadPage(33, "33", "boss_fight");
             yield return StoryPlaybackTests.WaitFor(() =>
-                SceneManager.GetActiveScene().name == "Temple_Final_Room" && StoryPlaybackTests.Page == 0 && !temple.isLoaded);
+            {
+                Assert.That(StoryPlaybackTests.Page, Is.Not.EqualTo(33), "The finishing blow requires a victory in the arena.");
+                return SceneManager.GetActiveScene().name == "Temple_Final_Room" && StoryPlaybackTests.Page == 0 && !temple.isLoaded;
+            });
             Assert.That(voice.clip, Is.Null);
         }
 

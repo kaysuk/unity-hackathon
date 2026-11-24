@@ -77,7 +77,7 @@ namespace Hackathon.Tests
                 var first = hasSave ? continueGame : newGame;
                 Assert.That(home.Find("Game title").GetComponent<Text>().text, Is.EqualTo("Братья\nКарамазовы"));
                 Assert.That(home.Find("Chapter"), Is.Null);
-                Assert.That(continueGame.GetComponentInChildren<Text>(true).text, Is.EqualTo("Продолжить"));
+                Assert.That(continueGame.GetComponentInChildren<Text>(true).text, Is.EqualTo("Продолжить игру"));
                 Assert.That(continueGame.gameObject.activeInHierarchy, Is.EqualTo(hasSave));
                 Assert.That(newGame.isActiveAndEnabled, Is.True);
                 Assert.That(events.currentSelectedGameObject, Is.SameAs(first.gameObject));
@@ -1125,8 +1125,13 @@ namespace Hackathon.Tests
                 Assert.AreSame(sheet, findTarget.Invoke(player, null), sheet.name);
                 Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain("Прочитать"));
                 read.Invoke(sheet, new object[] { player });
+                var journal = player.GetComponent("TempleArchiveJournal");
+                Assert.That((bool)journal.GetType().GetProperty("IsOpen").GetValue(journal), Is.True);
+                Assert.That((string)journal.GetType().GetProperty("VisibleDocumentText").GetValue(journal), Is.Not.Empty);
+                journal.GetType().GetMethod("Close").Invoke(journal, null);
                 read.Invoke(sheet, new object[] { player });
-                Assert.That((string)prompt.Invoke(sheet, new object[] { player, "E" }), Does.Contain($"{++count}/7"));
+                Assert.That((bool)journal.GetType().GetProperty("IsOpen").GetValue(journal), Is.False);
+                Assert.That((int)journal.GetType().GetProperty("DocumentCount").GetValue(journal), Is.EqualTo(++count));
             }
             ReadOnce(document);
             // Rooms can be searched in any order, including while the library is closed.
@@ -1144,7 +1149,7 @@ namespace Hackathon.Tests
                 ReadOnce(sheet);
             }
             Assert.That((string)prompt.Invoke(document, new object[] { player, "E" }),
-                Does.Contain("6/7").And.Contain("по порядку комнат"));
+                Is.EqualTo("Иерархия Шести"));
         }
 
         [UnityTest]
@@ -1392,6 +1397,21 @@ namespace Hackathon.Tests
             var roots = loadedScene.GetRootGameObjects();
             var player = roots.Single(root => root.CompareTag("Player"));
             Assert.That(player.GetComponent("IvanStanding"), Is.Not.Null);
+            var chamber = AssertSpawnAtArenaEntrance(roots, player);
+            var sealedDoor = chamber.Find("Sealed entrance door");
+            Assert.That(sealedDoor, Is.Not.Null);
+            Assert.That(sealedDoor.GetComponentInChildren(System.Type.GetType("Interactable, Assembly-CSharp", true), true), Is.Null);
+            var doorFaces = sealedDoor.GetComponentsInChildren<MeshRenderer>();
+            foreach (float offset in new[] { -1.35f, 0f, 1.35f })
+            {
+                Vector3 origin = sealedDoor.position - chamber.forward * 1.5f + chamber.right * offset;
+                origin.y = player.transform.position.y + 1.2f;
+                Assert.That(Physics.Raycast(origin, chamber.forward, out var hit, 2.5f,
+                    Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore), Is.True, $"Open end of corridor at offset {offset}.");
+                Assert.That(hit.collider.transform.IsChildOf(sealedDoor), Is.True);
+                Assert.That(doorFaces.Any(face => face.enabled && face.bounds.IntersectRay(new Ray(origin, chamber.forward))),
+                    Is.True, "The door blocking the corridor must be visible.");
+            }
             var cameras = roots.SelectMany(root => root.GetComponentsInChildren<Camera>(true));
             Assert.That(cameras.Any(camera => camera.isActiveAndEnabled), Is.True,
                 "The final room must provide an active camera.");
@@ -1402,6 +1422,24 @@ namespace Hackathon.Tests
                     Assert.That(component == null, Is.False, $"Missing script under {root.name}");
             }
             LogAssert.NoUnexpectedReceived();
+        }
+
+        internal static Transform AssertSpawnAtArenaEntrance(GameObject[] roots, GameObject player)
+        {
+            var chamber = roots.Single(root => root.name == "Temple Final").transform.Find("Chamber 04");
+            var lintel = chamber.Find("Hall entrance lintel");
+            Vector3 fromThreshold = player.transform.position - lintel.position;
+            Assert.That(Vector3.ProjectOnPlane(fromThreshold, Vector3.up).magnitude, Is.LessThan(1f),
+                "Ivan should start at the corridor mouth on the arena side.");
+            Assert.That(player.transform.position.y, Is.InRange(-.1f, .3f));
+            Assert.That(Vector3.Dot(player.transform.forward, -chamber.forward), Is.GreaterThan(.98f),
+                "Ivan should face the center of the arena.");
+            var camera = roots.SelectMany(root => root.GetComponentsInChildren<Camera>())
+                .Single(view => view.isActiveAndEnabled && view.CompareTag("MainCamera")).transform;
+            var viewDirection = Vector3.ProjectOnPlane(camera.forward, Vector3.up).normalized;
+            Assert.That(Vector3.Dot(viewDirection, -chamber.forward), Is.GreaterThan(.98f),
+                "The camera should face into the arena from behind Ivan.");
+            return chamber;
         }
 
         [UnityTest]
@@ -1706,13 +1744,47 @@ namespace Hackathon.Tests
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .Invoke(pistol, new object[] { 7, 24, 12 });
 
-            door.GetType().GetMethod("Enter").Invoke(door, new object[] { player.GetComponent<CharacterController>(), camera });
+            var interactor = player.GetComponent("PlayerInteractor");
+            var doorType = door.GetType();
+            string Prompt() => (string)doorType.GetMethod("GetPrompt").Invoke(door, new object[] { interactor, "E" });
+            Assert.That(doorType.GetMethod("CanInteract").Invoke(door, new object[] { interactor }), Is.False);
+            Assert.That(Prompt(), Does.Contain("Заперто"));
+
+            var mechanism = roots.SelectMany(root => root.GetComponentsInChildren<MonoBehaviour>())
+                .Single(component => component.GetType().Name == "M0GateMechanism");
+            var inventory = player.GetComponent("PlayerInventory");
+            var collect = inventory.GetType().GetMethod("TryCollect");
+            foreach (string key in new[] { "m0_key_room3", "m0_key_room4" })
+                Assert.That(collect.Invoke(inventory, new object[] { key }), Is.True);
+            for (int stage = 0; stage < 3; stage++)
+                mechanism.GetType().GetMethod("Interact").Invoke(mechanism, new object[] { interactor });
+            yield return StoryPlaybackTests.WaitFor(() => (bool)doorType.GetProperty("CanEnter").GetValue(door));
+
+            var body = player.GetComponent<CharacterController>();
+            body.enabled = false;
+            player.transform.SetPositionAndRotation(new Vector3(34.9f, .04f, 0f), Quaternion.LookRotation(Vector3.right));
+            body.enabled = true;
+            // From the centerline of the main corridor Ivan faces the door along +X.
+            var approach = new Ray(new Vector3(34.65f, 1.3f, 0f), Vector3.right);
+            camera.transform.SetPositionAndRotation(approach.origin, Quaternion.LookRotation(approach.direction));
+            Physics.SyncTransforms();
+            Assert.That(door.GetComponentsInChildren<MeshRenderer>().Any(renderer => renderer.enabled &&
+                renderer.bounds.IntersectRay(approach, out float distance) && distance < 2f), Is.True,
+                "The visible door must remain at eye level after M0 has lifted its locking frame.");
+            var findTarget = interactor.GetType().GetMethod("FindTargetInReach",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(findTarget.Invoke(interactor, null), Is.SameAs(door));
+            Assert.That(Prompt(), Does.Contain("Войти в главный зал"));
+            doorType.GetMethod("Interact").Invoke(door, new object[] { interactor });
+            var journal = player.GetComponent("TempleArchiveJournal");
+            Assert.That(journal.GetType().GetProperty("IsConfirmingEntrance").GetValue(journal), Is.True);
+            journal.GetType().GetMethod("ConfirmEntrance").Invoke(journal, null);
 
             yield return StoryPlaybackTests.WaitFor(() => StoryPlaybackTests.Page == 30);
             var score = StoryPlaybackTests.Score("boss_fight");
             // Place the playback cursor well past zero so a restart is observable even in batch mode.
             score.time = 16f;
-            for (int n = 30; n <= 33; n++)
+            for (int n = 30; n <= 32; n++)
             {
                 yield return StoryPlaybackTests.ReadPage(n, n.ToString(), "boss_fight");
                 Assert.That(StoryPlaybackTests.Score("boss_fight"), Is.SameAs(score));
@@ -1720,7 +1792,10 @@ namespace Hackathon.Tests
 
             var deadline = Time.realtimeSinceStartup + 20f;
             while (source.isLoaded && Time.realtimeSinceStartup < deadline)
+            {
+                Assert.That(StoryPlaybackTests.Page, Is.Not.EqualTo(33), "The finishing blow belongs after the fight.");
                 yield return null;
+            }
 
             var destination = SceneManager.GetSceneByPath(FinalRoom);
             if (destination.isLoaded) loadedScene = destination;
@@ -1734,9 +1809,14 @@ namespace Hackathon.Tests
             yield return StoryPlaybackTests.WaitFor(() => score.time < 2f);
             Assert.That(score.isPlaying, Is.True, "The boss music must loop during gameplay.");
             var destinationRoots = destination.GetRootGameObjects();
+            AssertSpawnAtArenaEntrance(destinationRoots, player);
+            var encounter = destinationRoots.Select(root => root.GetComponent("NimbEncounter")).Single(c => c != null);
+            Assert.That(encounter.GetType().GetProperty("ActiveAltar").GetValue(encounter), Is.Not.Null);
             Assert.That(destinationRoots.Single(root => root.CompareTag("Player")), Is.EqualTo(player));
             Assert.That(destinationRoots.Single(root => root.CompareTag("MainCamera")), Is.EqualTo(camera));
             var boss = destinationRoots.Select(root => root.GetComponent("AngelSealAttack")).Single(c => c != null);
+            Assert.That(boss.GetType().GetField("engaged", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).GetValue(boss), Is.True, "Nimb should engage Ivan at the corridor exit.");
             var bossTarget = boss.GetType().GetField("player", System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic).GetValue(boss);
             Assert.That(bossTarget, Is.EqualTo(player.transform));

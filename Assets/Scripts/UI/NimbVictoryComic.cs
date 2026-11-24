@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class NimbVictoryComic : PausedGameOverlay
 {
-    // Place numbered page textures under Assets/Resources/NimbVictoryComic in reading order.
+    // Optional standalone pages follow the common finishing blow.
     private const string PagesResource = "NimbVictoryComic";
     private const string MainMenu = "MainMenu";
     private const float FadeSeconds = .55f;
@@ -26,8 +27,11 @@ public sealed class NimbVictoryComic : PausedGameOverlay
 
     internal void Begin()
     {
-        pages = Resources.LoadAll<Texture2D>(PagesResource);
-        Array.Sort(pages, (left, right) => StringComparer.Ordinal.Compare(left.name, right.name));
+        pages = Resources.LoadAll<Texture2D>(PagesResource)
+            .OrderBy(page => page.name, StringComparer.Ordinal)
+            .Prepend(Resources.Load<Texture2D>($"comics/{StoryComics.FinisherPage}"))
+            .Where(page => page != null)
+            .ToArray();
         if (!TryOpenOverlay("Nimb victory comic", 200, new Vector2(1600f, 900f), usePointer: false))
             return;
 

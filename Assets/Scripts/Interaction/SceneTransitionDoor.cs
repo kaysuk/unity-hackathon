@@ -8,10 +8,17 @@ public sealed class SceneTransitionDoor : Interactable
     [SerializeField] private Vector3 arrivalPosition = new Vector3(0f, 0.1f, 0f);
 
     [SerializeField] private bool confirmRitualEntrance;
+    [SerializeField] private TemplePassage entranceBarrier;
 
     private bool isLoading;
 
-    public bool CanEnter => isActiveAndEnabled && !isLoading;
+    private bool IsBarred => entranceBarrier != null && !entranceBarrier.IsPassable;
+    public bool CanEnter => isActiveAndEnabled && !isLoading && !IsBarred;
+    protected override string ActionLabel => confirmRitualEntrance ? "Войти в главный зал" : base.ActionLabel;
+    internal override bool RattlesWhenBlocked => IsBarred && !entranceBarrier.IsMoving;
+
+    public override string GetPrompt(PlayerInteractor player, string buttonPrompt) =>
+        IsBarred ? "Заперто" : base.GetPrompt(player, buttonPrompt);
 
     public override bool CanInteract(PlayerInteractor player) => CanEnter;
 
@@ -62,9 +69,10 @@ public sealed class SceneTransitionDoor : Interactable
         bool ritual = nextScene == "Temple_Final_Room" && comics != null;
         if (ritual)
         {
+            GameCheckpoint.SaveRitualEntrance(ivan.gameObject, arrivalPosition);
             bool hasAllDocuments = ivan.TryGetComponent(out TempleArchiveJournal journal) &&
                 journal.DocumentCount == TempleArchiveJournal.DocumentTotal;
-            yield return comics.Play(30, 33, hasAllDocuments: hasAllDocuments);
+            yield return comics.PlayRitualEntrance(hasAllDocuments);
         }
         yield return SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Additive);
 
@@ -77,7 +85,7 @@ public sealed class SceneTransitionDoor : Interactable
 
     internal static void MovePlayer(Scene scene, CharacterController player, GameObject playerCamera, Vector3 arrival)
     {
-        DiscardStandaloneRig(scene, player.gameObject, playerCamera);
+        Pose? arenaEntry = DiscardStandaloneRig(scene, player.gameObject, playerCamera);
         SceneManager.MoveGameObjectToScene(player.gameObject, scene);
         if (playerCamera.scene != scene)
             SceneManager.MoveGameObjectToScene(playerCamera, scene);
@@ -87,13 +95,20 @@ public sealed class SceneTransitionDoor : Interactable
 
         bool wasEnabled = player.enabled;
         player.enabled = false;
-        player.transform.position = arrival;
+        if (arenaEntry.HasValue)
+        {
+            Pose pose = arenaEntry.Value;
+            player.transform.SetPositionAndRotation(pose.position, pose.rotation);
+            if (playerCamera.TryGetComponent(out IvanOrbitCamera orbit))
+                orbit.AlignWithTarget();
+        }
+        else player.transform.position = arrival;
         player.enabled = wasEnabled;
     }
 
-    private static void DiscardStandaloneRig(Scene scene, GameObject player, GameObject playerCamera)
+    private static Pose? DiscardStandaloneRig(Scene scene, GameObject player, GameObject playerCamera)
     {
-        // The ritual room also supports being opened directly with its own player and camera.
+        Pose? arenaEntry = null;
         foreach (GameObject root in scene.GetRootGameObjects())
         {
             if (root == player || root == playerCamera)
@@ -103,6 +118,9 @@ public sealed class SceneTransitionDoor : Interactable
             bool standaloneCamera = root.CompareTag("MainCamera") && root.TryGetComponent(out Camera _);
             if (standalonePlayer || standaloneCamera)
             {
+                // Use the same authored entrance for the standalone fight and the story player.
+                if (standalonePlayer && scene.name == NimbEncounter.ArenaScene)
+                    arenaEntry = new Pose(root.transform.position, root.transform.rotation);
                 root.SetActive(false);
                 Destroy(root);
                 continue;
@@ -117,5 +135,6 @@ public sealed class SceneTransitionDoor : Interactable
                     listener.enabled = false;
             }
         }
+        return arenaEntry;
     }
 }
