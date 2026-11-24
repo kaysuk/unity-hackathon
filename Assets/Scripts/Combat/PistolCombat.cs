@@ -25,6 +25,7 @@ public sealed class PistolCombat : MonoBehaviour
     public int ReserveAmmo { get; private set; }
     public bool IsReloading { get; private set; }
     private float reloadEnds;
+    internal float ReloadProgress => Mathf.Clamp01(1f - (reloadEnds - Time.time) / Mathf.Max(0.1f, reloadDuration));
 
     private void Awake()
     {
@@ -160,15 +161,8 @@ public sealed class PistolCombat : MonoBehaviour
     public void EvaluateShotAfterPose()
     {
         bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
-        if (captured && Time.timeScale > 0f && Ready && !IsReloading &&
-            !CombatAnimation.BlocksAim(animator) && Ammo < magazineCapacity && ReserveAmmo > 0 &&
-            Keyboard.current?.rKey.wasPressedThisFrame == true)
-        {
-            IsReloading = true;
-            GameAudio.Play(SoundCue.MagazineOut, transform.position, 0.41f);
-            reloadEnds = Time.time + Mathf.Max(0.1f, reloadDuration);
-            CombatAnimation.SetBool(animator, "IsReload", true);
-        }
+        if (captured && Keyboard.current?.rKey.wasPressedThisFrame == true)
+            TryStartReload();
         bool shooting = sidearm != null ? sidearm.ShotRequested :
             captured && wasCaptured && Mouse.current?.leftButton.wasPressedThisFrame == true;
         if (shooting && Time.timeScale > 0f && Ready && !IsReloading &&
@@ -178,6 +172,19 @@ public sealed class PistolCombat : MonoBehaviour
             else GameAudio.Play(SoundCue.DryFire, muzzle.position, 0.32f);
         }
         wasCaptured = captured;
+    }
+
+    internal bool TryStartReload()
+    {
+        if (!isActiveAndEnabled || IsReloading || Time.timeScale <= 0f || !Ready ||
+            Ammo >= magazineCapacity || ReserveAmmo <= 0 || CombatAnimation.BlocksAim(animator))
+            return false;
+
+        IsReloading = true;
+        reloadEnds = Time.time + Mathf.Max(0.1f, reloadDuration);
+        GameAudio.Play(SoundCue.MagazineOut, transform.position, 0.41f);
+        CombatAnimation.SetBool(animator, "IsReload", true);
+        return true;
     }
 
     private bool Cast(Ray ray, float distance, out RaycastHit nearest)

@@ -64,7 +64,7 @@ public sealed class IvanOrbitCamera : MonoBehaviour
 
     private void Update()
     {
-        if (target == null) return;
+        if (target == null || Time.timeScale <= 0f) return;
         var mouse = Mouse.current;
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
             ReleaseMouse();

@@ -45,10 +45,10 @@ namespace Hackathon.Tests
             Call("ReachRitualEntrance");
             Assert.That(Text("Primary"), Is.EqualTo("Войти в зал"));
 
-            Call("SetArchiveProgress", 5);
+            Call("SetArchiveProgress", 6);
             Assert.That(Text("Secondary"), Is.EqualTo("Собрать тайные документы"));
             object checkpoint = Call("Capture");
-            Call("SetArchiveProgress", 6);
+            Call("SetArchiveProgress", 7);
             Assert.That(Text("Secondary"), Is.Empty);
             Call("Restore", checkpoint);
             Assert.That(Text("Primary"), Is.EqualTo("Войти в зал"));

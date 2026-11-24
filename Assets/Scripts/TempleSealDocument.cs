@@ -3,26 +3,28 @@ using UnityEngine;
 [DisallowMultipleComponent, RequireComponent(typeof(BoxCollider))]
 public sealed class TempleSealDocument : Interactable
 {
-    private static readonly string[] DocumentIds =
+    [SerializeField, Range(1, 6)] private int number = 1;
+
+    internal static readonly (string Id, string Clue)[] Notes =
     {
-        "seal_document_01", "seal_document_02", "seal_document_03",
-        "seal_document_04", "seal_document_05", "seal_document_06"
+        ("seal_document_01", "Знаки на полу читают по порядку комнат."),
+        ("seal_document_02", "Вторую печать ставят в честь восходящего солнца."),
+        ("seal_document_03", "Третий знак высечен одной замкнутой чертой."),
+        ("seal_document_04", "Четвёртый знак переписчик принял за букву чужого письма."),
+        ("seal_document_05", "У пятой луны есть спутник — точка в изгибе серпа."),
+        ("seal_document_06", "Шестая луна одинока."),
     };
 
-    [SerializeField, Range(1, 6)] private int number = 1;
-    [SerializeField] private string readPrompt;
-    [SerializeField, TextArea] private string clue;
-
-    private string DocumentId => DocumentIds[number - 1];
+    private string DocumentId => Notes[number - 1].Id;
 
     internal static bool HasCollectedPage(PlayerInventory inventory, int page) =>
-        inventory.HasCollected(DocumentIds[page - 1]);
+        inventory.HasCollected(Notes[page - 1].Id);
 
     public static int CountCollected(PlayerInventory inventory)
     {
         int count = 0;
-        foreach (string id in DocumentIds)
-            if (inventory.HasCollected(id)) count++;
+        foreach (var note in Notes)
+            if (inventory.HasCollected(note.Id)) count++;
         return count;
     }
 
@@ -34,17 +36,17 @@ public sealed class TempleSealDocument : Interactable
         var inventory = player.Inventory;
         if (inventory == null) return null;
         if (inventory.HasCollected(DocumentId))
-            return $"Документы {CountCollected(inventory)}/{DocumentIds.Length} · {clue}";
-        return string.IsNullOrEmpty(buttonPrompt) ? null : $"{buttonPrompt} · {readPrompt}";
+            return $"Документы {CountCollected(inventory)}/{Notes.Length} · {Notes[number - 1].Clue}";
+        return string.IsNullOrEmpty(buttonPrompt) ? null : $"{buttonPrompt} · Прочитать «{TempleArchiveText.Titles[number - 1]}»";
     }
 
     public override void Interact(PlayerInteractor player)
     {
-        if (CanInteract(player) && player.Inventory.TryCollect(DocumentId) &&
-            gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+        if (CanInteract(player) && player.Inventory.TryCollect(DocumentId))
         {
-            GameAudio.Interface(SoundCue.Paper);
-            GameObjectives.SetArchiveProgress(CountCollected(player.Inventory));
+            TempleArchiveJournal.GetOrCreate(player.gameObject).CollectDocument(number);
+            if (gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+                GameAudio.Interface(SoundCue.Paper);
         }
     }
 }

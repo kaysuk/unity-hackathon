@@ -11,6 +11,7 @@ public sealed class IvanSidearm : MonoBehaviour
     private static readonly int GestureTime = Animator.StringToHash("SidearmTime");
     private static readonly int ContactWeight = Animator.StringToHash("HolsterContact");
     private static readonly int AimLean = Animator.StringToHash("AimLean");
+    private static readonly int ReloadTime = Animator.StringToHash("ReloadTime");
     private static readonly int Clearance = Animator.StringToHash("HolsterClearance");
     private const float AimStanceYaw = 24f;
 
@@ -38,6 +39,8 @@ public sealed class IvanSidearm : MonoBehaviour
     private InputAction next;
     private InputAction previous;
     private int layer;
+    private int reloadLayer;
+    private float reloadWeight;
     private bool drawing;
     private bool aimRequested;
     private float phase;
@@ -58,6 +61,7 @@ public sealed class IvanSidearm : MonoBehaviour
         strike = new IvanPistolStrike(animator, gripBase);
         combat = GetComponent<PistolCombat>();
         layer = animator.GetLayerIndex("Sidearm");
+        reloadLayer = animator.GetLayerIndex("Reload");
         next = InputSystem.actions?.FindAction("Player/Next");
         attack = InputSystem.actions?.FindAction("Player/Attack");
         melee = InputSystem.actions?.FindAction("Player/Melee");
@@ -67,8 +71,9 @@ public sealed class IvanSidearm : MonoBehaviour
     private void Update()
     {
         if (muzzleFlash.activeSelf && Time.time >= flashUntil) muzzleFlash.SetActive(false);
-        if (stealth == null || !stealth.IsPerforming) ReadInput();
+        if (Time.timeScale > 0f && (stealth == null || !stealth.IsPerforming)) ReadInput();
         AdvanceGesture(Time.deltaTime);
+        UpdateReloadPose(Time.deltaTime);
         strike.Advance(Time.deltaTime);
         if (Time.timeScale > 0f && drawing && phase >= 1f && !strike.Active &&
             melee?.WasPressedThisFrame() == true && combat != null && combat.isActiveAndEnabled &&
@@ -114,6 +119,27 @@ public sealed class IvanSidearm : MonoBehaviour
 
     private Quaternion Facing => Quaternion.Euler(0f, transform.eulerAngles.y - StanceYaw, 0f);
 
+    private void UpdateReloadPose(float deltaTime)
+    {
+        if (reloadLayer < 0) return;
+        if (combat != null && combat.IsReloading)
+        {
+            // The masked layer samples the clip on the same clock that transfers the ammo.
+            float progress = combat.ReloadProgress;
+            animator.SetFloat(ReloadTime, progress);
+            float blendIn = Mathf.Clamp01(progress / .10f);
+            float blendOut = Mathf.Clamp01((1f - progress) / .10f);
+            reloadWeight = Mathf.SmoothStep(0f, 1f, Mathf.Min(blendIn, blendOut));
+        }
+        else if (reloadWeight > 0f)
+        {
+            // An interrupted reload releases the last sampled pose back into aim or stow.
+            reloadWeight = Mathf.MoveTowards(reloadWeight, 0f, deltaTime * 8f);
+        }
+        else return;
+        animator.SetLayerWeight(reloadLayer, reloadWeight);
+    }
+
     private void LateUpdate()
     {
         Quaternion direction = Quaternion.identity;
@@ -129,7 +155,8 @@ public sealed class IvanSidearm : MonoBehaviour
             }
         }
         Quaternion facing = Facing;
-        rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction, strike, facing);
+        rig.Apply(phase, animator.GetFloat(ContactWeight), animator.GetFloat(Clearance), aim, direction, strike, facing,
+            reloadWeight);
         strike.CheckContact(facing * Vector3.forward);
     }
 
@@ -152,11 +179,13 @@ public sealed class IvanSidearm : MonoBehaviour
         aimWeight = 0f;
         ShotRecoil = 0f;
         raise = 0f;
+        reloadWeight = 0f;
         drawing = false;
         phase = 0f;
         if (animator == null) return;
         animator.SetFloat(AimLean, 0f);
         animator.SetLayerWeight(layer, 0f);
+        if (reloadLayer >= 0) animator.SetLayerWeight(reloadLayer, 0f);
 
         // A fatal hit leaves the prop on the animated hand or holster that currently carries it.
         if (!TryGetComponent<CombatHealth>(out var health) || !health.IsDead) rig.Holster();

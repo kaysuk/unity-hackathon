@@ -25,6 +25,7 @@ internal sealed class GameHudBinding : MonoBehaviour
             health.Changed -= RefreshHealth;
 
         player = actor;
+        view.SetInventoryHint(actor != null && actor.TryGetComponent<InventoryMenu>(out _));
         health = actor != null ? actor.GetComponent<CombatHealth>() : null;
         pistol = actor != null ? actor.GetComponent<PistolCombat>() : null;
         previousHP = health != null ? health.HP : 1f;

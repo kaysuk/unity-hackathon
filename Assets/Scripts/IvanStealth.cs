@@ -13,7 +13,7 @@ public sealed class IvanStealth : MonoBehaviour
     private static readonly int Travel = Animator.StringToHash("Base Layer.Locomotion");
 
     [SerializeField, Min(0.1f)] private float crouchedHeight = 1.12f;
-    [SerializeField, Min(0.1f)] private float sneakSpeed = 0.95f;
+    [SerializeField, Min(0.1f)] private float sneakSpeed = 1.15f;
     [SerializeField, Min(0.1f)] private float targetRange = 1.05f;
 
     private readonly Collider[] headroomHits = new Collider[16];
@@ -51,6 +51,7 @@ public sealed class IvanStealth : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0f) return;
         if (!IsPerforming && !sidearm.IsAiming && crouch?.WasPressedThisFrame() == true &&
             (!IsCrouching || CanStand()))
         {

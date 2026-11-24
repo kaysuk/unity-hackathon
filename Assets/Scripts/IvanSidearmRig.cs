@@ -35,7 +35,7 @@ internal sealed class IvanSidearmRig
     }
 
     public void Apply(float phase, float contact, float clearance, float raise, Quaternion aimDirection,
-        IvanPistolStrike strike, Quaternion facing)
+        IvanPistolStrike strike, Quaternion facing, float reloadWeight)
     {
         RestoreClavicle();
         if (phase <= 0f && mount.parent == holster) return;
@@ -70,7 +70,7 @@ internal sealed class IvanSidearmRig
         {
             Vector3 target = right.Shoulder + aimDirection * RaisedArmDirection * (right.Length * ArmExtension);
             Quaternion rotation = aimDirection * gripRotation;
-            right.Reach(target, rotation, root.right * 0.45f - root.up, raise);
+            right.Reach(target, rotation, root.right * 0.45f - root.up, raise * (1f - reloadWeight));
         }
 
         bool held = phase >= TransferPhase;
@@ -80,7 +80,8 @@ internal sealed class IvanSidearmRig
         // The support target belongs to the prop, so this solve must follow the transfer.
         float released = strike.PoseArms(right, left, facing, gripRotation);
         float support = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.57f, 0.94f, phase));
-        left.Reach(leftGrip.position, leftGrip.rotation, -root.right * 0.55f - root.up, support * (1f - released));
+        left.Reach(leftGrip.position, leftGrip.rotation, -root.right * 0.55f - root.up,
+            support * (1f - released) * (1f - reloadWeight));
     }
 
     public void RestoreClavicle()

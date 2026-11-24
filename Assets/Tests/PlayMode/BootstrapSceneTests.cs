@@ -385,6 +385,76 @@ namespace Hackathon.Tests
         }
 
         [UnityTest]
+        public IEnumerator ReloadMovesIvansSupportHandAndTransfersAmmoOnlyOnCompletion()
+        {
+            yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
+            loadedScene = SceneManager.GetSceneByPath(FinalRoom);
+            yield return null;
+            var player = loadedScene.GetRootGameObjects().Single(root => root.CompareTag("Player"));
+            var animator = player.GetComponent<Animator>();
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            int layer = animator.GetLayerIndex("Reload");
+            Assert.GreaterOrEqual(layer, 0);
+            var hand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+            var grip = player.GetComponentsInChildren<Transform>().Single(t => t.name == "Left Support Grip");
+            var combat = player.GetComponent("PistolCombat");
+            var type = combat.GetType();
+            var methods = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            void SetAmmo() => type.GetMethod("RestoreAmmo", methods).Invoke(combat, new object[] { 3, 7, 8 });
+            bool StartReload() => (bool)type.GetMethod("TryStartReload", methods).Invoke(combat, null);
+            bool Reloading() => (bool)type.GetProperty("IsReloading").GetValue(combat);
+            int Rounds(string property) => (int)type.GetProperty(property).GetValue(combat);
+
+            using var input = new MovementKeyboard();
+            var mouse = InputSystem.AddDevice<Mouse>();
+            try
+            {
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
+                yield return new WaitForSeconds(1.2f);
+                SetAmmo();
+                Assert.IsTrue(StartReload());
+                float deadline = Time.time + 5f;
+                float maxSeparation = 0f;
+                float maxProgress = 0f;
+                bool sampledReloadClip = false;
+                while (Reloading() && Time.time < deadline)
+                {
+                    Assert.AreEqual(3, Rounds("Ammo"));
+                    Assert.AreEqual(7, Rounds("ReserveAmmo"));
+                    maxSeparation = Mathf.Max(maxSeparation, Vector3.Distance(hand.position, grip.position));
+                    maxProgress = Mathf.Max(maxProgress, animator.GetFloat("ReloadTime"));
+                    if (!sampledReloadClip && animator.GetLayerWeight(layer) > .9f)
+                        sampledReloadClip = animator.GetCurrentAnimatorClipInfo(layer).Any(info => info.clip.name == "reloading");
+                    yield return null;
+                }
+                Assert.IsFalse(Reloading());
+                Assert.IsTrue(sampledReloadClip, "The upper-body layer must sample Ivan's reload clip.");
+                Assert.Greater(maxProgress, .6f);
+                Assert.Greater(maxSeparation, .06f, "The support hand must leave the aiming grip during the clip.");
+                Assert.AreEqual(8, Rounds("Ammo"));
+                Assert.AreEqual(2, Rounds("ReserveAmmo"));
+                Assert.IsFalse(StartReload(), "A full magazine cannot start another gesture.");
+                yield return new WaitForSeconds(.3f);
+                Assert.Less(Vector3.Distance(hand.position, grip.position), .03f);
+
+                SetAmmo();
+                Assert.IsTrue(StartReload());
+                yield return new WaitForSeconds(.5f);
+                Assert.IsTrue(Reloading());
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                yield return new WaitForSeconds(.4f);
+                Assert.IsFalse(Reloading());
+                Assert.Less(animator.GetLayerWeight(layer), .01f);
+                Assert.AreEqual(3, Rounds("Ammo"));
+                Assert.AreEqual(7, Rounds("ReserveAmmo"));
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(mouse);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator DrawnPistolStrikesOnceAtContactAndCanFinishAGuard()
         {
             yield return SceneManager.LoadSceneAsync(FinalRoom, LoadSceneMode.Additive);
