@@ -14,11 +14,13 @@ namespace Hackathon.Tests
         [UnityTest]
         public IEnumerator RunningFromSpawnDownEveryFlightIsSilentUntilTheCorridor()
         {
+            var originalScene = SceneManager.GetActiveScene();
             yield return SceneManager.LoadSceneAsync("temple_v2", LoadSceneMode.Additive);
             var scene = SceneManager.GetSceneByName("temple_v2");
             float originalScale = Time.timeScale;
             try
             {
+                SceneManager.SetActiveScene(scene);
                 yield return null;
                 Time.timeScale = 2f;
                 var scripts = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>()).ToArray();
@@ -27,6 +29,7 @@ namespace Hackathon.Tests
                 var capsule = player.GetComponent<CharacterController>();
                 var guard = scripts.Single(s => s.GetType().Name == "NPCChaser" && s.name == "SWAT - Entrance corridor");
                 var nodes = scripts.Where(s => s.GetType().Name == "Node").ToDictionary(n => n.name);
+                var audio = GameObject.Find("Game audio");
                 // Isolate hearing: drive the guard's normal sensing tick with no visual contact or squad alerts.
                 foreach (var rifle in scripts.Where(s => s.GetType().Name == "RifleNpc")) rifle.enabled = false;
                 var sense = guard.GetType().GetMethod("GetDirection");
@@ -54,12 +57,28 @@ namespace Hackathon.Tests
                     yield return RunTo(nodes[$"Landing_{floor}"].transform.position, true);
                 // The listener is standing at Entry. Pass beside his capsule.
                 yield return RunTo(nodes["Entry"].transform.position + Vector3.forward * .85f, true);
+                Assert.IsFalse(audio.GetComponentsInChildren<AudioSource>().Any(s => s.clip?.name == "SWAT heard footsteps"));
                 yield return RunTo(nodes["Hall1"].transform.position, false);
                 Assert.AreEqual("Search", State(), "Running in the corridor must alert the same listener.");
+                var voice = audio.GetComponentsInChildren<AudioSource>().Single(s => s.clip?.name == "SWAT heard footsteps");
+                Assert.AreEqual("Dialogue", voice.outputAudioMixerGroup.name);
+                Assert.AreEqual(1f, voice.spatialBlend);
+                Assert.AreEqual(guard.transform.position, voice.transform.position);
+
+                // Face the moving player and let the guard confirm sight through its normal Update.
+                guard.transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(
+                    player.transform.position - guard.transform.position, Vector3.up));
+                ((Behaviour)guard.GetComponent("RifleNpc")).enabled = true;
+                float deadline = Time.time + 2f;
+                while (State() != "Chase" && Time.time < deadline) yield return null;
+                Assert.AreEqual("Chase", State());
+                Assert.AreEqual("SWAT spotted Ivan", voice.clip.name);
+                Assert.IsTrue(voice.isPlaying);
             }
             finally
             {
                 Time.timeScale = originalScale;
+                SceneManager.SetActiveScene(originalScene);
                 SceneManager.UnloadSceneAsync(scene);
             }
         }

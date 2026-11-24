@@ -252,6 +252,8 @@ MonoBehaviour:
   muzzleFlash: {fileID: 2573564568833936661}
   shotAudio: {fileID: 6070274060035039456}
   alertClip: {fileID: 8300000, guid: 35a2bbb1b7754ca4b50345bcfe05ae81, type: 3}
+  heardFootstepsLine: {fileID: 8300000, guid: 2107bef4344643b09a2c1d39c2a67dda, type: 3}
+  spottedPlayerLine: {fileID: 8300000, guid: d8f5160ad5224b36bfb245e9452e1f87, type: 3}
   walkSpeed: 1.55
   detectionRange: 16
   recognitionSeconds: 1
