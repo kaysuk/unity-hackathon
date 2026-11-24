@@ -22,8 +22,8 @@ public sealed class TempleArchiveLever : Interactable
 
     internal void ShowState(bool lit)
     {
-        IsDown = lit;
-        handle.localRotation = Quaternion.Euler(lit ? 95f : 0f, 0f, 0f);
+        IsDown = !lit;
+        handle.localRotation = Quaternion.Euler(IsDown ? 95f : 0f, 0f, 0f);
         seal.SetColor("_EmissionColor", lit ? new Color(2.8f, 1.2f, 0.28f) : Color.black);
     }
 
@@ -35,7 +35,8 @@ public sealed class TempleArchiveLever : Interactable
     public override string GetPrompt(PlayerInteractor player, string buttonPrompt)
     {
         if (bank.IsSolved) return FormatBoundAction(buttonPrompt, "Прочитать расчёт печатей");
-        return FormatBoundAction(buttonPrompt, $"Рычаг {index + 1} · Меняет свой знак и соседние. Погаси все шесть.");
+        string action = IsDown ? "Поднять" : "Опустить";
+        return FormatBoundAction(buttonPrompt, $"Рычаг {index + 1} · {action}. Погасите все шесть огней.");
     }
 
     public override void Interact(PlayerInteractor player)

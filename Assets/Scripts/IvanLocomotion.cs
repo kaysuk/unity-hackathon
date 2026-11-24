@@ -62,7 +62,8 @@ public sealed class IvanLocomotion : MonoBehaviour
             ? Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f)
             : Vector2.zero;
         bool hasDirection = input.sqrMagnitude >= 0.12f;
-        bool running = sprint != null && sprint.IsPressed();
+        bool sensing = TryGetComponent(out PlayerInvestigationSense sense) && sense.IsHeld;
+        bool running = !sensing && sprint != null && sprint.IsPressed();
         float requestedSpeed = hasDirection ? (running ? runSpeed : walkSpeed) * input.magnitude : 0f;
         float targetSpeed = 0f;
         float runTurn = 0f;
@@ -110,6 +111,11 @@ public sealed class IvanLocomotion : MonoBehaviour
         }
 
         wasAiming = aiming;
+        if (sensing)
+        {
+            forwardSpeed = Mathf.Min(forwardSpeed, walkSpeed);
+            targetSpeed = Mathf.Min(targetSpeed, walkSpeed);
+        }
         float actualSpeed = MoveCapsule(targetSpeed, dt);
         if (stealth == null || !stealth.IsPerforming) footsteps.Move(capsule, crouched);
         if (crouched)

@@ -15,8 +15,9 @@ public sealed class TempleSlidingTile : Interactable
     private Vector3 destination;
     private bool sliding;
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         board = GetComponentInParent<TempleSlidingPuzzle>();
         // Every tile uses one cell of the shared picture atlas, including in Scene view.
         float cell = 1f / Width;
@@ -35,8 +36,8 @@ public sealed class TempleSlidingTile : Interactable
         if (board == null || board.IsSolved)
             return null;
         return CanInteract(player) && !string.IsNullOrEmpty(buttonPrompt)
-            ? FormatBoundAction(buttonPrompt, "Сдвинуть плитку")
-            : "Соберите знак по образцу";
+            ? FormatBoundAction(buttonPrompt, "Сдвинуть плитку · Образец на двери слева")
+            : "Соберите знак по образцу на двери слева";
     }
 
     public override void Interact(PlayerInteractor player)

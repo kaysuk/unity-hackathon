@@ -366,6 +366,8 @@ public sealed class IvanMovement : MonoBehaviour
 
     private void UpdateMovement(Vector2 input, Vector3 desiredDirection, bool moving, bool aimHeld, float deltaTime)
     {
+        bool sensing = TryGetComponent(out PlayerInvestigationSense sense) && sense.IsHeld;
+        if (sensing) horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, forwardSpeed);
         if (aimHeld || IsCrouching)
         {
             // Aim and crouch movement follow the camera independently of the body's facing direction.
@@ -376,7 +378,7 @@ public sealed class IvanMovement : MonoBehaviour
         }
         else
         {
-            bool running = sprintAction?.IsPressed() == true;
+            bool running = !sensing && sprintAction?.IsPressed() == true;
             float alignment = Mathf.Max(0f, Vector3.Dot(transform.forward, desiredDirection.normalized));
             float targetSpeed = moving && !turning
                 ? forwardSpeed * (running ? runMultiplier : 1f) * input.magnitude * alignment : 0f;

@@ -14,7 +14,8 @@ public sealed class TempleKeyLock : Interactable
     {
         if (shutter.IsOpen)
             return null;
-        return CanInteract(player) ? FormatBoundAction(buttonPrompt, "Открыть М3 ключом") : "Для М3 нужен ключ";
+        return CanInteract(player) ? FormatBoundAction(buttonPrompt, "Открыть М3 ключом")
+            : "Для М3 нужен ключ. Стоит заглянуть под полку в кладовой первой комнаты.";
     }
 
     public override void Interact(PlayerInteractor player)

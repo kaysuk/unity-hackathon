@@ -17,6 +17,7 @@ public sealed class GameHud : MonoBehaviour
     private Text ammoCaption;
     private Text ammoCount;
     private Text inventoryHint;
+    private Text senseHint;
 
     private float lostHealth;
     private float hitPulse;
@@ -41,18 +42,27 @@ public sealed class GameHud : MonoBehaviour
         bloodSpatter = CreateBloodLayer("Blood spatter", "KaramazovyHud/BloodSpatter");
         BuildObjectives();
         BuildAmmo();
-        inventoryHint = AddLabel(transform, "Inventory shortcut", 25, GameUiStyle.Ink, TextAnchor.MiddleLeft);
-        inventoryHint.rectTransform.pivot = Vector2.zero;
-        inventoryHint.rectTransform.anchoredPosition = new Vector2(38, 38);
-        inventoryHint.rectTransform.sizeDelta = new Vector2(330, 46);
-        inventoryHint.gameObject.SetActive(false);
+        inventoryHint = CreateShortcut("Inventory shortcut", "Tab / Start    Инвентарь");
+        senseHint = CreateShortcut("Sense shortcut", "Q / LB    Чутьё детектива (удерживать)");
         UpdateBlood();
     }
 
-    internal void SetInventoryHint(bool available)
+    private Text CreateShortcut(string name, string text)
     {
-        inventoryHint.gameObject.SetActive(available);
-        inventoryHint.text = "Tab / Start    Инвентарь";
+        Text label = AddLabel(transform, name, 25, GameUiStyle.Ink, TextAnchor.MiddleLeft);
+        label.text = text;
+        label.rectTransform.pivot = Vector2.zero;
+        label.rectTransform.anchoredPosition = new Vector2(38, 38);
+        label.rectTransform.sizeDelta = new Vector2(400, 46);
+        label.gameObject.SetActive(false);
+        return label;
+    }
+
+    internal void SetShortcutHints(bool inventory, bool sense)
+    {
+        inventoryHint.gameObject.SetActive(inventory);
+        senseHint.rectTransform.anchoredPosition = new Vector2(38, inventory ? 77 : 38);
+        senseHint.gameObject.SetActive(sense);
     }
 
     public void SetGameplayVisible(bool visible)
