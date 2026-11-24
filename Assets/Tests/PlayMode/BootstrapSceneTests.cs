@@ -184,7 +184,7 @@ namespace Hackathon.Tests
                 yield return new WaitForSeconds(0.85f);
                 Assert.That(animator.GetFloat("MoveSpeed"), Is.GreaterThan(walk * 1.5f));
                 Assert.That(animator.GetCurrentAnimatorClipInfo(0).Any(c => c.clip.name == "Run" && c.weight > 0.8f), Is.True);
-                input.Press(Key.W, Key.LeftShift, Key.Q);
+                input.Press(Key.W, Key.LeftShift, Key.V);
                 yield return new WaitForSeconds(.12f);
                 Assert.That(animator.GetFloat("MoveSpeed"), Is.InRange(.3f, walk + .1f),
                     "Detective sense must immediately reduce an existing sprint to walking.");

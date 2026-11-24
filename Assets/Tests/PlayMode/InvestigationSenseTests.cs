@@ -34,6 +34,8 @@ namespace Hackathon.Tests
                     Assert.That(action.IsPressed(), Is.EqualTo(expected));
                 }
                 InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Q));
+                Poll(false);
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.V));
                 Poll(true);
                 Poll(true);
                 InputSystem.QueueStateEvent(keyboard, new KeyboardState());

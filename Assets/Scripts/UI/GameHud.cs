@@ -43,7 +43,7 @@ public sealed class GameHud : MonoBehaviour
         BuildObjectives();
         BuildAmmo();
         inventoryHint = CreateShortcut("Inventory shortcut", "Tab / Start    Инвентарь");
-        senseHint = CreateShortcut("Sense shortcut", "Q / LB    Чутьё детектива (удерживать)");
+        senseHint = CreateShortcut("Sense shortcut", "V / LB    Чутьё детектива (удерживать)");
         UpdateBlood();
     }
 
